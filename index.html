@@ -11085,7 +11085,7 @@ window.Charts = (function () {
     return `<div class="page">
       <div class="page-head">
         <div class="page-head-copy">
-          <div class="eyebrow"><span class="demo-dot"></span> ${state.chats.length ? "Данные кабинета" : "Пока без данных"} · ${esc(data.label)}</div>
+          <div class="eyebrow"><span class="demo-dot"></span> ${state.chats.length ? "Статистика" : "Пока без данных"} · ${esc(data.label)}</div>
           <h1 class="page-title">Аналитика</h1>
           <p class="page-sub">Что происходит в чатах: скорость ответа, темы вопросов и путь покупателя до заказа.</p>
         </div>
@@ -11341,7 +11341,7 @@ window.Charts = (function () {
         <div class="field"><label class="field-label" for="set-webhook">URL вебхука</label><input class="input" id="set-webhook" placeholder="https://ваш-сервер.ru/autor" value="" disabled /><span class="field-hint">Вебхуки включены в тарифы VIP и MAXIMUM.</span></div>
         <div class="form-hint" style="margin-top:12px">${iconSprite("i-shield")} Ключи хранятся в защищённом виде, данные идут по HTTPS.</div>
       </div>
-      <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-link")} Интеграции только для наглядности</span><div class="settings-foot-actions"><button class="btn btn-primary btn-sm" type="button" data-integrations-done>Понятно</button></div></div>
+      <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-link")} Авито, Telegram и CRM подключаются в одно окно</span><div class="settings-foot-actions"><button class="btn btn-primary btn-sm" type="button" data-integrations-done>Понятно</button></div></div>
     </div>`;
   }
 
@@ -11350,7 +11350,7 @@ window.Charts = (function () {
     return `<div class="settings-panel">
       <div class="settings-section">
         <div class="demo-data-banner">${iconSprite("i-sparkles")}<div><strong>Кабинет работает в этом браузере</strong><p>Состояние сохраняется автоматически, ответы бота генерирует нейросеть по вашему каталогу.</p></div><button class="btn btn-white btn-sm" type="button" data-open-help>Как это работает</button></div>
-        <div class="settings-section-head"><h2>Состояние кабинета</h2><p>Данные лежат в localStorage этого браузера. Сброс вернёт исходный сценарий.</p></div>
+        <div class="settings-section-head"><h2>Состояние кабинета</h2><p>Данные хранятся в вашем браузере. Сброс вернёт исходный сценарий.</p></div>
         <div class="settings-grid-2">
           <div class="setting-row"><div class="setting-row-main"><strong>${state.chats.length} диалогов</strong><span>${totalMessages} сообщений в истории</span></div>${iconSprite("i-chat", "muted")}</div>
           <div class="setting-row"><div class="setting-row-main"><strong>${state.products.length} товаров</strong><span>${state.rules.filter((rule) => rule.enabled).length} активных сценариев</span></div>${iconSprite("i-box", "muted")}</div>
@@ -12788,7 +12788,7 @@ window.Charts = (function () {
           '<span class="ar-ai__k-state ' + (k[4] ? 'ok' : 'todo') + '">' + F.icon(k[4] ? 'i-check' : 'i-arrow-right') + '</span>';
         return k[3] ? '<a class="card ar-ai__k" href="' + k[3] + '">' + inner + '</a>' : '<div class="card ar-ai__k">' + inner + '</div>';
       }).join('') + '</div>' +
-      '<p class="ar-ai__note">' + F.icon('i-info') + ' ИИ отвечает по вашим товарам и истории диалога и не придумывает того, чего нет в каталоге. Настоящая нейросеть подключится вместе с сервером и Авито — настройки останутся теми же.</p>' +
+      '<p class="ar-ai__note">' + F.icon('i-info') + ' ИИ отвечает по вашим товарам и истории диалога и не придумывает того, чего нет в каталоге. Цены, наличие и условия он берёт из карточки товара и профиля магазина.</p>' +
     '</section>';
   }
 
