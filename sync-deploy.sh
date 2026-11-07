@@ -38,6 +38,14 @@ fail() {
 mkdir -p "$STATE_DIR"
 
 # --- 1. Забрать репозиторий -------------------------------------------------
+# Плоский клон копит объекты при каждом fetch — если разросся, переклонируем.
+GIT_MB=$(du -sm "$WORK/.git" 2>/dev/null | cut -f1 || true)
+GIT_MB=${GIT_MB:-0}
+if [ -d "$WORK/.git" ] && [ "$GIT_MB" -gt 100 ]; then
+  log "рабочая копия разрослась (${GIT_MB} МБ) — переклонирую"
+  rm -rf "$WORK"
+fi
+
 if [ ! -d "$WORK/.git" ]; then
   rm -rf "$WORK"
   git clone --depth 1 --branch "$BRANCH" -q "$REPO_URL" "$WORK" \
@@ -78,7 +86,9 @@ fi
 
 # --- 4. Выложить -----------------------------------------------------------
 mkdir -p "$WEBROOT"
+OLD_SUM="нет"
 if [ -f "$WEBROOT/index.html" ]; then
+  OLD_SUM=$(sha256sum "$WEBROOT/index.html" | cut -c1-12)
   cp -p "$WEBROOT/index.html" "$WEBROOT/index.prev.html"
 fi
 
@@ -94,7 +104,7 @@ mv -f "$TMP" "$WEBROOT/index.html"
 
 echo "$NEW_SHA" > "$STATE"
 rm -f "$ERRSTAMP"
-log "выложен $(git -C "$WORK" rev-parse --short HEAD) ($SIZE байт)${OLD_SHA:+, прошлый $OLD_SHA}"
+log "выложен $(git -C "$WORK" rev-parse --short HEAD) ($SIZE байт), прошлая версия $OLD_SUM"
 
 # --- 5. Предупредить, если менялся установщик -------------------------------
 if [ -f "$WORK/server-setup.sh" ]; then
