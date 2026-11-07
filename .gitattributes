@@ -1,0 +1,4 @@
+# скрипты для сервера — только LF, для Windows — как есть (BOM + CRLF)
+*.sh text eol=lf
+*.ps1 -text
+*.txt -text
