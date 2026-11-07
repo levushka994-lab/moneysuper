@@ -13,6 +13,27 @@ AutoR — сайт на сервере и бэкапы на компьютере
   install-backup-task.ps1  — бэкап каждый день по расписанию
   README.txt               — эта инструкция
 
+Структура сайта (папка assets):
+
+  index.html               — каркас страницы: разметка, иконки, подключение файлов
+  assets\css\foundation.css — шрифты, цвета, сброс стилей, каркас
+  assets\css\components.css — кнопки, карточки, таблицы, модальные окна
+  assets\css\pages\        — стили страниц: dashboard, chats, catalog, rules,
+                              analytics, settings
+  assets\css\responsive.css — адаптив для планшета и телефона
+  assets\css\theme.css      — тема «Пульт автопилота»
+  assets\css\access.css     — экран входа, тарифы, замки на функциях
+  assets\css\cabinet.css    — чистый кабинет и пример магазина
+  assets\css\features.css   — доработки страниц
+  assets\js\seed.js         — данные магазина, товаров, чатов и сценариев
+  assets\js\charts.js       — графики
+  assets\js\app.js          — кабинет: состояние, роутер, страницы
+  assets\js\billing.js      — доступ, промокоды, тарифы
+  assets\js\cabinet.js      — чистый кабинет и «Показать пример магазина»
+  assets\js\features.js     — доработки страниц
+
+  Правило: разметка — в index.html, внешний вид — в assets\css, поведение — в assets\js.
+
 Сервер по умолчанию: root@site-port.ru (домен site-port.ru).
 Сервер принадлежит другу — предупредите его перед установкой.
 
