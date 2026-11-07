@@ -17,6 +17,7 @@
     chatFilter: "all",
     chatSearch: "",
     composerMode: "buyer",
+    composerModeChat: null,
     catalogCategory: "Все",
     catalogSearch: "",
     dashboardPeriod: "week",
@@ -563,9 +564,9 @@
       `${modalHeader("Как всё устроено", "Три шага — и вы увидите весь цикл автоответа.")}
       <div class="modal-body">
         <div class="help-steps">
-          <div class="help-step"><span class="help-step-num">1</span><div><strong>Откройте диалог с покупателем</strong><p>В разделе «Чаты» выберите Артёма — у него уже идёт переписка о наушниках Sony.</p></div></div>
-          <div class="help-step"><span class="help-step-num">2</span><div><strong>Напишите сообщение от лица покупателя</strong><p>Нажмите подсказку над полем ввода или напишите свой вопрос о доставке, скидке или гарантии.</p></div></div>
-          <div class="help-step"><span class="help-step-num">3</span><div><strong>Посмотрите на ответ</strong><p>Бот найдёт подходящий сценарий, покажет уверенность и задержку. Если вопрос нестандартный — передаст диалог менеджеру.</p></div></div>
+          <div class="help-step"><span class="help-step-num">1</span><div><strong>Диалог с покупателем</strong><p>У Артёма уже идёт переписка о наушниках Sony — в ней видно, как бот отвечает и что он берёт из каталога.</p></div></div>
+          <div class="help-step"><span class="help-step-num">2</span><div><strong>Спросите так, как спросил бы покупатель</strong><p>Про доставку, скидку или гарантию — можно взять готовую фразу над полем ввода или написать своими словами.</p></div></div>
+          <div class="help-step"><span class="help-step-num">3</span><div><strong>Оцените ответ</strong><p>Бот подставит цену, наличие и сроки из каталога, покажет уверенность и время ответа. Спорный вопрос он передаст вам.</p></div></div>
         </div>
         <div class="help-demo-note">${iconSprite("i-info")}<div><strong>Бот отвечает сам.</strong> Он видит каталог магазина и историю диалога, подставляет наличие и цену, а спорные вопросы передаёт вам.</div></div>
       </div>
@@ -1220,10 +1221,10 @@
     const layoutClass = isMobileChats() && ui.mobileConversation ? "show-conversation" : "";
     const attention = attentionCount();
     return `<div class="page chats-page">
-      <div class="page-head">
+      <div class="page-head chats-head">
         <div class="page-head-copy">
           <div class="eyebrow"><span class="demo-dot"></span> ${isBotActive(chat) ? "Бот на связи" : "Есть диалоги без бота"}</div>
-          <h1 class="page-title">Чаты</h1>
+          <h1 class="page-title">Диалоги</h1>
           <p class="page-sub">${state.chats.length} ${plural(state.chats.length, "диалог", "диалога", "диалогов")} · ${attention} ${plural(attention, "ждёт", "ждут", "ждут")} вашего ответа</p>
         </div>
         <div class="page-actions">
@@ -1231,16 +1232,12 @@
         </div>
       </div>
 
-      <div class="chats-layout ${layoutClass}" id="chats-layout">
+      <div class="chats-layout ${layoutClass} ar-pane-closed" id="chats-layout">
         <aside class="chat-list-pane">
           <div class="chat-list-head">
-            <div class="chat-list-title-row">
-              <h2>Диалоги</h2>
-              <span class="badge badge-gray" id="chat-total-badge">${state.chats.length}</span>
-            </div>
             <div class="chat-search">
               ${iconSprite("i-search")}
-              <input id="chat-search-input" type="search" placeholder="Поиск по имени или товару" value="${esc(ui.chatSearch)}" autocomplete="off" />
+              <input id="chat-search-input" type="search" placeholder="Имя, товар или слово из переписки" value="${esc(ui.chatSearch)}" autocomplete="off" />
             </div>
             <div class="chat-filters">
               <button class="chat-filter ${ui.chatFilter === "all" ? "active" : ""}" type="button" data-chat-filter="all">Все <span class="filter-count">${state.chats.length}</span></button>
@@ -1253,13 +1250,14 @@
 
         <section class="conversation-pane">
           ${conversationHeadMarkup(chat)}
-          ${coachTipMarkup(chat)}
+          ${convoAlertMarkup(chat) || coachTipMarkup(chat)}
           <div class="messages-wrap" id="messages-wrap">
             <div class="messages-stream" id="messages-stream">${messagesMarkup(chat)}</div>
           </div>
           <div class="composer">${composerMarkup(chat)}</div>
         </section>
 
+        <div class="chat-info-backdrop" data-info-drawer-close aria-hidden="true"></div>
         <aside class="chat-info-pane" id="chat-info-pane">${chatInfoContent(chat)}</aside>
       </div>
     </div>`;
@@ -1267,6 +1265,7 @@
 
   function conversationHeadMarkup(chat) {
     const product = chatProduct(chat);
+    const active = isBotActive(chat);
     return `<div class="convo-head">
       <button class="convo-back" type="button" data-chat-back aria-label="К списку диалогов">${iconSprite("i-arrow-left")}</button>
       ${avatar(chat.buyer.avatar, chat.buyer.name, chat.buyer.online ? "avatar-online" : "")}
@@ -1275,15 +1274,47 @@
         <div class="convo-status"><span class="online-dot" style="background:${chat.buyer.online ? "var(--green)" : "#d1cec7"}"></span>${esc(chat.buyer.city)} · ${chat.buyer.online ? "онлайн" : "был(а) недавно"}</div>
       </div>
       <div class="convo-actions">
-        <button class="convo-product-chip" type="button" data-open-product-id="${esc(product.id)}" title="Открыть карточку товара">
+        <button class="convo-product-chip" type="button" data-open-product-id="${esc(product.id)}" title="Открыть карточку: ${esc(product.name)}">
           <img src="${esc(product.image)}" alt="" />
           <span>${esc(product.name)}</span>
         </button>
-        <button class="btn btn-white btn-sm ar-order-btn" type="button" data-ar-order title="Оформить заказ: списать товар со склада">${iconSprite("i-box")}<span>Заказ</span></button>
-        <button class="icon-btn ar-pane-btn" type="button" data-ar-pane aria-label="Показать или скрыть панель «О диалоге»" title="Панель «О диалоге»">${iconSprite("i-info")}</button>
-        <button class="icon-btn convo-info-toggle" type="button" data-chat-info aria-label="О диалоге">${iconSprite("i-info")}</button>
-        <button class="icon-btn" type="button" data-chat-actions aria-label="Действия с диалогом">${iconSprite("i-more")}</button>
+        <span class="convo-bot-pill ${active ? "live" : "paused"}">${iconSprite(active ? "i-sparkles" : "i-pause")}${active ? "бот ведёт" : "бот на паузе"}</span>
+        ${needsAnswer(chat) && active ? `<button class="btn btn-primary btn-sm convo-take" type="button" data-convo-take>${iconSprite("i-user")}<span>Ответить самому</span></button>` : ""}
+        <button class="icon-btn" type="button" data-info-drawer aria-label="О диалоге" title="О диалоге">${iconSprite("i-info")}</button>
+        <button class="icon-btn" type="button" data-chat-actions aria-label="Действия с диалогом" title="Действия">${iconSprite("i-more")}</button>
       </div>
+    </div>`;
+  }
+
+  function takeOverChat(chat) {
+    chat.handoff = false;
+    chat.botPaused = true;
+    chat.unread = 0;
+    saveState();
+    ui.composerModeChat = chat.id;
+    ui.composerMode = "manager";
+    renderRoute();
+    requestAnimationFrame(() => $("#composer-input")?.focus());
+  }
+
+  function needsAnswer(chat) {
+    return !!chat && (chat.unread > 0 || chat.handoff);
+  }
+
+  function convoAlertMarkup(chat) {
+    if (!chat || !chat.messages.length || !needsAnswer(chat)) return "";
+    const lastBuyer = [...chat.messages].reverse().find((message) => message.from === "buyer");
+    const count = chat.unread || 0;
+    const title = chat.handoff
+      ? "Диалог передан вам"
+      : count > 1
+        ? `${count} ${plural(count, "сообщение ждёт", "сообщения ждут", "сообщений ждут")} ответа`
+        : "Покупатель ждёт ответа";
+    const meta = lastBuyer && lastBuyer.time ? `последнее — в ${esc(lastBuyer.time)}` : "бот молчит в этом диалоге";
+    return `<div class="convo-alert" id="convo-alert">
+      ${iconSprite("i-bell")}
+      <div class="convo-alert-text"><strong>${title}</strong><span>${meta}</span></div>
+      <button class="btn btn-primary btn-sm" type="button" data-convo-take>Ответить самому</button>
     </div>`;
   }
 
@@ -1342,16 +1373,24 @@
     return html;
   }
 
-  function buyerSuggestions() {
-    return ["Есть в наличии?", "Сколько стоит доставка?", "Какая гарантия?"];
+  function buyerSuggestions(chat) {
+    const product = chat ? chatProduct(chat) : null;
+    const list = [];
+    if (product && product.stock <= 0) list.push("Когда будет в наличии?");
+    else list.push("Есть в наличии?");
+    if (product && product.oldPrice) list.push("Скидку можно?");
+    else list.push("Сколько стоит?");
+    if (product && product.stock > 0) list.push("Сколько идёт доставка?");
+    else list.push("Можно предзаказ?");
+    return list;
   }
 
   function managerSuggestions() {
     return ["Сейчас уточню и вернусь.", "Товар в наличии, отправим сегодня."];
   }
 
-  function suggestionsMarkup(mode) {
-    const list = mode === "manager" ? managerSuggestions() : buyerSuggestions();
+  function suggestionsMarkup(mode, chat) {
+    const list = mode === "manager" ? managerSuggestions() : buyerSuggestions(chat);
     return list
       .map(
         (text) =>
@@ -1376,18 +1415,27 @@
     return "";
   }
 
+  function composerModeFor(chat) {
+    if (chat && ui.composerModeChat !== chat.id) {
+      ui.composerModeChat = chat.id;
+      ui.composerMode = chat.botPaused || chat.handoff ? "manager" : "buyer";
+    }
+    return ui.composerMode;
+  }
+
   function composerMarkup(chat) {
+    const mode = composerModeFor(chat);
     const active = isBotActive(chat);
     const target = chat.unread ? 0 : 0;
     return `<div class="composer-top">
         <span class="composer-bot-state ${active ? "" : "paused"}" id="composer-bot-state"><span class="demo-dot"></span> ${botStateLabel(chat)}</span>
-        <button class="mode-link" type="button" data-composer-mode="${ui.composerMode === "buyer" ? "manager" : "buyer"}">${ui.composerMode === "buyer" ? "Ответить самому" : "Вернуть бота"}</button>
+        <button class="mode-link" type="button" data-composer-mode="${mode === "buyer" ? "manager" : "buyer"}">${mode === "buyer" ? "Ответить самому" : "Вернуть бота"}</button>
       </div>
       <div id="composer-notice">${composerNotice(chat)}</div>
-      <div class="suggestion-row" id="suggestion-row">${suggestionsMarkup(ui.composerMode)}</div>
+      <div class="suggestion-row" id="suggestion-row">${suggestionsMarkup(mode, chat)}</div>
       <div class="composer-box">
         <textarea id="composer-input" rows="1" placeholder="${
-          ui.composerMode === "buyer" ? "Напишите как покупатель — бот ответит сам" : "Ответьте от имени магазина"
+          mode === "buyer" ? "Напишите как покупатель" : "Ответьте от имени магазина"
         }">${esc(ui.composerDraft || "")}</textarea>
         <div class="composer-tools">
           <button class="composer-tool" type="button" data-demo-toast="Вложения пока не загружаются" aria-label="Прикрепить файл">${iconSprite("i-paperclip")}</button>
@@ -1396,8 +1444,8 @@
         <button class="composer-send" type="button" id="composer-send" aria-label="Отправить сообщение" ${ui.pending.has(chat.id) ? "disabled" : ""}>${iconSprite("i-send")}</button>
       </div>
       <div class="composer-hint">
-        <span class="hint-mode">${iconSprite(ui.composerMode === "buyer" ? "i-sparkles" : "i-user")} ${
-      ui.composerMode === "buyer" ? "Бот ответит сам за пару секунд" : "Бот молчит, пока вы ведёте диалог"
+        <span class="hint-mode">${iconSprite(mode === "buyer" ? "i-sparkles" : "i-user")} ${
+      mode === "buyer" ? "Бот ответит сам за пару секунд" : "Бот молчит, пока вы ведёте диалог"
     }</span>
         <span class="hint-right">Enter — отправить</span>
       </div>
@@ -1786,7 +1834,7 @@
     if (row) row.innerHTML = suggestionsMarkup(mode);
     const input = $("#composer-input");
     if (input) {
-      input.placeholder = mode === "buyer" ? "Напишите как покупатель — бот ответит сам" : "Ответьте от имени магазина";
+      input.placeholder = mode === "buyer" ? "Напишите как покупатель" : "Ответьте от имени магазина";
       input.focus();
     }
     updateComposerStatus(chat);
@@ -1824,6 +1872,8 @@
       <div class="modal-body">
         <div class="info-actions" style="border-top:0;padding-top:0;margin-top:0">
           <button class="btn btn-white btn-block" type="button" data-modal-bot-toggle>${iconSprite(active ? "i-pause" : "i-play")} ${active ? "Взять диалог на себя" : "Вернуть боту"}</button>
+          <button class="btn btn-white btn-block" type="button" data-ar-order>${iconSprite("i-box")} Оформить заказ</button>
+          <button class="btn btn-white btn-block" type="button" data-modal-chat-info>${iconSprite("i-info")} Подробнее о диалоге</button>
           <button class="btn btn-white btn-block" type="button" data-modal-mark-unread>${iconSprite("i-bell")} Сделать непрочитанным</button>
           <button class="btn btn-white btn-block" type="button" data-modal-copy-link>${iconSprite("i-link")} Скопировать ссылку на диалог</button>
           <button class="btn btn-white btn-block" type="button" data-export-chat="${esc(chat.id)}">${iconSprite("i-download")} Экспорт диалога</button>
@@ -1839,6 +1889,10 @@
             closeModal();
             toast(active ? "Диалог у менеджера" : "Бот вернулся в диалог", active ? "Автоответы остановлены." : "Бот снова отвечает автоматически.", active ? "info" : "success");
             renderRoute();
+          });
+          $("[data-modal-chat-info]", modal)?.addEventListener("click", () => {
+            closeModal();
+            openChatInfoModal(chat);
           });
           $("[data-modal-mark-unread]", modal)?.addEventListener("click", () => {
             chat.unread = Math.max(1, chat.unread || 1);
@@ -1954,6 +2008,26 @@
     });
 
     $("[data-quick-message]")?.addEventListener("click", () => sendCurrentMessage("Здравствуйте! Есть в наличии?"));
+
+    const drawerButton = $("[data-info-drawer]");
+    const drawerClose = () => $("#chats-layout")?.classList.remove("info-open");
+    drawerButton?.addEventListener("click", () => {
+      const layout = $("#chats-layout");
+      if (!layout) return;
+      const open = layout.classList.toggle("info-open");
+      drawerButton.classList.toggle("active", open);
+      drawerButton.setAttribute("aria-expanded", String(open));
+    });
+    $("[data-info-drawer-close]")?.addEventListener("click", () => {
+      drawerClose();
+      drawerButton?.classList.remove("active");
+      drawerButton?.setAttribute("aria-expanded", "false");
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") drawerClose();
+    });
+
+    $("[data-convo-take]")?.addEventListener("click", () => takeOverChat(getActiveChat()));
 
     $("[data-chat-info]")?.addEventListener("click", () => openChatInfoModal(chat));
     $("[data-chat-actions]")?.addEventListener("click", () => openChatActionsModal(chat));

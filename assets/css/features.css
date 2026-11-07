@@ -343,13 +343,9 @@ a.ar-ai__k:hover { border-color: #E5A800; }
 .content[data-page="chats"] .page-title { font-size: 26px; }
 .content[data-page="chats"] .page-sub { margin-top: 2px; }
 @media (min-width: 1181px) {
-  .chats-layout { height: calc(100vh - 168px); min-height: 560px; max-height: none; grid-template-columns: 300px minmax(0, 1fr) 300px; }
-  .chats-layout.ar-pane-closed { grid-template-columns: 300px minmax(0, 1fr) 0; }
-  .chats-layout.ar-pane-closed .chat-info-pane { display: none; }
+  .chats-layout { height: calc(100vh - 152px); min-height: 560px; max-height: none; grid-template-columns: 300px minmax(0, 1fr); }
 }
 @media (min-width: 1181px) and (max-width: 1320px) { .chats-layout { grid-template-columns: 290px minmax(0, 1fr); } }
-@media (max-width: 1320px) { .ar-pane-btn { display: none !important; } }
-.ar-pane-btn.active { background: var(--ink); color: #FFC21A; border-color: var(--ink); }
 .ar-order-btn { gap: 6px; }
 .ar-order-btn .icon { width: 15px; height: 15px; }
 @media (max-width: 560px) { .ar-order-btn span { display: none; } .ar-order-btn { width: 36px; padding: 0; justify-content: center; } }
