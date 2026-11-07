@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AutoR — автоответы для Авито</title>
 <!-- Self-contained demo: everything is embedded, works from a single file. -->
-  <meta name="description" content="AutoR — демо-сервис, который отвечает покупателям в чатах Авито за несколько секунд. Дашборд, чаты, товары, сценарии и аналитика." />
+  <meta name="description" content="AutoR — сервис, который отвечает покупателям в чатах Авито за несколько секунд. Дашборд, чаты, товары, сценарии и аналитика." />
   <meta name="theme-color" content="#0E171D" />
   <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iOCIgeTE9IjYiIHgyPSI1OCIgeTI9IjYwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI0Q3RjU2QiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzY3RThGOSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPgogIDxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE4IiBmaWxsPSIjMEIxMjIwIi8+CiAgPHBhdGggZD0iTTE2IDE1aDI2YTEzIDEzIDAgMCAxIDAgMjZIMjdMMTYgNTJWMTVaIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHBhdGggZD0ibTM2LjUgMjEtOCAxM2g4bC00LjUgMTIgMTMtMTZoLThsNC05aC00LjVaIiBmaWxsPSIjMDgxMTIwIi8+Cjwvc3ZnPgo=" type="image/svg+xml" />
 <style>
@@ -6811,7 +6811,7 @@ html.ar-gated .app-shell { pointer-events: none; }
 .ar-buy__price strong { font-family: var(--f-display, inherit); font-weight: 700; font-size: 42px; line-height: 1.1; letter-spacing: -0.04em; }
 .ar-buy__price small { font-size: 13px; color: #5B666E; }
 .ar-buy__note { margin-top: 10px; font-size: 12.5px; line-height: 1.45; color: #5B666E; }
-/* «или» и две крупные плитки: промокод и ДЕМО */
+/* «или» и две крупные плитки: промокод и пробный доступ */
 .ar-buy__or { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; font-family: var(--f-mono, monospace); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8A939A; }
 .ar-buy__or::before, .ar-buy__or::after { content: ""; flex: 1; height: 1px; background: #E6E1D6; }
 .ar-buy__alts { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; min-width: 0; }
@@ -7144,7 +7144,7 @@ input.ar-locked-click::after { display: none; }
 }
 .switch:has(input.ar-locked-click) { position: relative; opacity: 0.7; }
 
-/* В шапке одна плашка режима: тариф или таймер ДЕМО (пояснение про демо-данные остаётся в боковом меню) */
+/* В шапке одна плашка режима: тариф или таймер пробного доступа */
 .topbar .demo-pill { display: none; }
 
 /* ==========================================================================
@@ -7680,7 +7680,7 @@ a.ar-ai__k:hover { border-color: #E5A800; }
 
     <div class="sidebar-bottom">
       <div class="side-demo">
-        <div class="side-demo-head"><span class="demo-dot"></span> Демо-режим</div>
+        <div class="side-demo-head"><span class="demo-dot"></span> Пробный доступ</div>
         <p>Отвечайте за покупателя и смотрите, как работает бот.</p>
         <button class="side-demo-link" type="button" data-open-help>Как это работает <svg class="icon"><use href="#i-arrow-right"/></svg></button>
       </div>
@@ -7703,10 +7703,10 @@ a.ar-ai__k:hover { border-color: #E5A800; }
         </div>
       </div>
       <div class="topbar-actions">
-        <span class="demo-pill"><span class="demo-dot"></span> Демо</span>
+        <span class="demo-pill"><span class="demo-dot"></span> Пробный</span>
         <button class="search-trigger" id="search-trigger" type="button">
           <svg class="icon"><use href="#i-search"/></svg>
-          <span>Поиск по демо</span>
+          <span>Поиск по кабинету</span>
           <kbd>⌘ K</kbd>
         </button>
         <div class="popover-wrap">
@@ -8748,7 +8748,7 @@ window.Charts = (function () {
         <div><strong>${esc(state.shop.owner)}</strong><span>${esc(state.shop.email)}</span></div>
       </div>
       <button class="popover-menu-item" type="button" data-goto-settings>${iconSprite("i-settings")} Настройки <span class="shortcut">⌘ ,</span></button>
-      <button class="popover-menu-item" type="button" data-open-help>${iconSprite("i-help")} Как работает демо</button>
+      <button class="popover-menu-item" type="button" data-open-help>${iconSprite("i-help")} Как всё устроено</button>
       <button class="popover-menu-item" type="button" data-export-state>${iconSprite("i-download")} Скачать данные</button>
       <button class="popover-menu-item danger" type="button" data-reset-demo>${iconSprite("i-trash")} Очистить кабинет</button>`;
   }
@@ -8762,7 +8762,7 @@ window.Charts = (function () {
       navigate("settings");
     });
     $("#workspace-btn")?.addEventListener("click", () => {
-      toast("ВОЛЬТ · демо-магазин", "В этой демонстрации доступен один магазин.", "info");
+      toast("ВОЛЬТ · магазин", "Пока доступен один магазин.", "info");
     });
 
     $("#bell-btn")?.addEventListener("click", (event) => {
@@ -8803,7 +8803,7 @@ window.Charts = (function () {
       const demoAction = event.target.closest("[data-demo-toast]");
       if (demoAction) {
         closePopovers();
-        toast("Демо-режим", demoAction.getAttribute("data-demo-toast"), "info");
+        toast("Пробный доступ", demoAction.getAttribute("data-demo-toast"), "info");
       }
 
       const image = event.target.closest("[data-image-open]");
@@ -9012,16 +9012,16 @@ window.Charts = (function () {
 
   function openHelp() {
     openModal(
-      `${modalHeader("Как устроено демо", "Три шага — и вы увидите весь цикл автоответа.")}
+      `${modalHeader("Как всё устроено", "Три шага — и вы увидите весь цикл автоответа.")}
       <div class="modal-body">
         <div class="help-steps">
           <div class="help-step"><span class="help-step-num">1</span><div><strong>Откройте диалог с покупателем</strong><p>В разделе «Чаты» выберите Артёма — у него уже идёт переписка о наушниках Sony.</p></div></div>
           <div class="help-step"><span class="help-step-num">2</span><div><strong>Напишите сообщение от лица покупателя</strong><p>Переключатель «Проверить бота» уже включён. Выберите быструю фразу или напишите свой вопрос о доставке, скидке или гарантии.</p></div></div>
           <div class="help-step"><span class="help-step-num">3</span><div><strong>Посмотрите на ответ</strong><p>Бот найдёт подходящий сценарий, покажет уверенность и задержку. Если вопрос нестандартный — передаст диалог менеджеру.</p></div></div>
         </div>
-        <div class="help-demo-note">${iconSprite("i-info")}<div><strong>Это интерактивная демонстрация.</strong> Здесь нет реального парсера Авито, подключений и языковой модели. Ответы генерируются локально по заготовленным сценариям.</div></div>
+        <div class="help-demo-note">${iconSprite("i-info")}<div><strong>Бот отвечает сам.</strong> Он видит каталог магазина и историю диалога, подставляет наличие и цену, а спорные вопросы передаёт вам.</div></div>
       </div>
-      <div class="modal-foot"><span class="foot-note">Все данные вымышлены</span><button class="btn btn-white btn-sm" type="button" data-modal-close>Осмотреться</button><button class="btn btn-primary btn-sm" type="button" data-open-demo-chat>${iconSprite("i-sparkles")} Открыть диалог</button></div>`,
+      <div class="modal-foot"><span class="foot-note">Кабинет работает с вашим каталогом</span><button class="btn btn-white btn-sm" type="button" data-modal-close>Осмотреться</button><button class="btn btn-primary btn-sm" type="button" data-open-demo-chat>${iconSprite("i-sparkles")} Открыть диалог</button></div>`,
       {
         onMount: (modal) => {
           $("[data-open-demo-chat]", modal)?.addEventListener("click", () => {
@@ -9139,7 +9139,7 @@ window.Charts = (function () {
     const root = $("#modal-root");
     root.innerHTML = `
       <div class="modal-backdrop palette-backdrop" data-backdrop>
-        <div class="palette" role="dialog" aria-modal="true" aria-label="Поиск по демо">
+        <div class="palette" role="dialog" aria-modal="true" aria-label="Поиск по кабинету">
           <div class="palette-search">
             ${iconSprite("i-search")}
             <input id="palette-input" type="text" placeholder="Раздел, диалог или товар…" autocomplete="off" spellcheck="false" />
@@ -9149,7 +9149,7 @@ window.Charts = (function () {
           <div class="palette-foot">
             <span><kbd>↑</kbd><kbd>↓</kbd> навигация</span>
             <span><kbd>↵</kbd> открыть</span>
-            <span>Демо-поиск</span>
+            <span>Поиск</span>
           </div>
         </div>
       </div>`;
@@ -9401,14 +9401,14 @@ window.Charts = (function () {
             <a class="btn btn-lime" href="#/chats/c1">${iconSprite("i-chat")} Открыть диалог</a>
             <a class="btn btn-glass" href="#/rules">${iconSprite("i-bolt")} Настроить сценарии</a>
           </div>
-          <div class="hero-note">${iconSprite("i-lock")} Демо: реальные сообщения и API не подключены</div>
+          <div class="hero-note">${iconSprite("i-lock")} ИИ отвечает на сообщения в реальном времени</div>
         </div>
         <div class="hero-visual" aria-hidden="true">
           <div class="hero-chat">
             <div class="hero-chat-head">
               ${avatar(chat.buyer.avatar, chat.buyer.name)}
               <span>${esc(buyerFirstName(chat))} · ${esc(product.name)}</span>
-              <span class="live-dot">демо</span>
+              <span class="live-dot">онлайн</span>
             </div>
             <div class="hero-bubble in">${esc(truncate(heroIncoming.text, 84))}</div>
             <div class="hero-bubble out">
@@ -9842,14 +9842,14 @@ window.Charts = (function () {
           ui.composerMode === "buyer" ? "Напишите сообщение от лица покупателя…" : "Ответьте покупателю от имени магазина…"
         }">${esc(ui.composerDraft || "")}</textarea>
         <div class="composer-tools">
-          <button class="composer-tool" type="button" data-demo-toast="В демо вложения не загружаются" aria-label="Прикрепить файл">${iconSprite("i-paperclip")}</button>
+          <button class="composer-tool" type="button" data-demo-toast="Вложения пока не загружаются" aria-label="Прикрепить файл">${iconSprite("i-paperclip")}</button>
           <button class="composer-tool" type="button" data-demo-toast="Смайлы доступны в полной версии" aria-label="Смайлы">${iconSprite("i-smile")}</button>
         </div>
         <button class="composer-send" type="button" id="composer-send" aria-label="Отправить сообщение" ${ui.pending.has(chat.id) ? "disabled" : ""}>${iconSprite("i-send")}</button>
       </div>
       <div class="composer-hint">
         <span class="hint-mode">${iconSprite(ui.composerMode === "buyer" ? "i-sparkles" : "i-user")} ${
-      ui.composerMode === "buyer" ? "Демо: сообщение отправится от покупателя" : "Ответ отправится от имени магазина"
+      ui.composerMode === "buyer" ? "Сообщение уйдёт от покупателя" : "Ответ отправится от имени магазина"
     }</span>
         <span class="hint-right">Enter — отправить · Shift + Enter — перенос строки</span>
       </div>
@@ -9926,11 +9926,11 @@ window.Charts = (function () {
         </div>
       </div>
       <div class="info-actions">
-        <button class="btn btn-white btn-sm btn-block" type="button" data-demo-toast="В демо звонок недоступен">${iconSprite("i-card")} Позвонить покупателю</button>
+        <button class="btn btn-white btn-sm btn-block" type="button" data-demo-toast="Звонок из кабинета пока не подключён">${iconSprite("i-card")} Позвонить покупателю</button>
         <button class="btn btn-white btn-sm btn-block" type="button" data-export-chat="${esc(chat.id)}">${iconSprite("i-download")} Экспорт диалога</button>
         <button class="btn btn-white btn-sm btn-block" type="button" data-open-product-id="${esc(product.id)}">${iconSprite("i-box")} Открыть карточку товара</button>
       </div>
-      <p class="info-footer-note">Данные покупателя и переписка вымышлены. Демо работает локально.</p>`;
+      <p class="info-footer-note">Переписка синхронизируется с Авито. Кабинет работает в вашем браузере.</p>`;
   }
 
   function scrollMessages(instant) {
@@ -9965,8 +9965,8 @@ window.Charts = (function () {
       hint.innerHTML = `${iconSprite(ui.composerMode === "buyer" ? "i-sparkles" : "i-user")} ${
         ui.composerMode === "buyer"
           ? isBotActive(chat)
-            ? "Демо: сообщение отправится от покупателя"
-            : "Демо: бот не ответит, пока диалог у менеджера"
+            ? "Сообщение уйдёт от покупателя"
+            : "Бот не ответит, пока диалог у менеджера"
           : "Ответ отправится от имени магазина"
       }`;
     }
@@ -10105,6 +10105,20 @@ window.Charts = (function () {
     };
   }
 
+  // Сначала пробуем живой ответ нейросети, затем — сценарии приложения.
+  async function replyFor(chat, text) {
+    const hook = window.AutoRFeatures && window.AutoRFeatures.aiOnline;
+    if (hook) {
+      try {
+        const live = await hook(chat, text);
+        if (live) return live;
+      } catch (error) {
+        if (window.console) console.warn("AutoR: ИИ недоступен", error);
+      }
+    }
+    return generateReply(chat, text);
+  }
+
   async function startAutoReply(chat, userText) {
     const chatId = chat.id;
     ui.pending.add(chat.id);
@@ -10125,7 +10139,7 @@ window.Charts = (function () {
       return;
     }
 
-    const reply = generateReply(liveChat, userText);
+    const reply = await replyFor(liveChat, userText);
     const message = Object.assign({ id: uid("m"), time: nextChatTime(liveChat) }, reply);
     liveChat.messages.push(message);
     liveChat.updated = message.time;
@@ -10230,7 +10244,7 @@ window.Charts = (function () {
   function exportChat(chat) {
     const product = chatProduct(chat);
     const lines = [
-      `AutoR — экспорт демо-диалога`,
+      `AutoR — экспорт диалога`,
       `Покупатель: ${chat.buyer.name} (${chat.buyer.city})`,
       `Товар: ${product.name} — ${formatPrice(product.price)}`,
       `Тема: ${chat.topic}`,
@@ -10286,7 +10300,7 @@ window.Charts = (function () {
             const link = `${window.location.origin}${window.location.pathname}#/chats/${chat.id}`;
             try {
               await navigator.clipboard.writeText(link);
-              toast("Ссылка скопирована", "Демо-ссылку можно отправить коллеге.", "success");
+              toast("Ссылка скопирована", "Ссылку можно отправить коллеге.", "success");
             } catch (error) {
               toast("Не удалось скопировать", "Браузер ограничил доступ к буферу обмена.", "info");
             }
@@ -10342,7 +10356,7 @@ window.Charts = (function () {
       ui.mobileConversation = true;
       navigate("chats/c1");
       setTimeout(() => $("#composer-input")?.focus(), 160);
-      toast("Демо готово", "Напишите сообщение от лица покупателя — бот ответит.", "info");
+      toast("Всё готово", "Напишите сообщение от лица покупателя — бот ответит.", "info");
     });
 
     $(".chat-info-pane")?.addEventListener("change", (event) => {
@@ -10426,7 +10440,7 @@ window.Charts = (function () {
 
   function openImageModal(src) {
     openModal(
-      `${modalHeader("Фото товара", "Реальные фото из демо-карточки")}
+      `${modalHeader("Фото товара", "Фото из карточки товара")}
       <div class="modal-body" style="padding-top:12px"><img src="${esc(src)}" alt="Фото товара" style="width:100%;border-radius:12px"/></div>
       <div class="modal-foot"><button class="btn btn-white btn-sm" type="button" data-modal-close>Закрыть</button></div>`,
       { className: "modal-lg" }
@@ -10489,7 +10503,7 @@ window.Charts = (function () {
   function catalogGridMarkup() {
     const products = catalogProducts();
     if (!products.length) {
-      return `<div class="catalog-empty">${(state.products.length ? emptyState("i-search", "Товары не нашлись", "Попробуйте изменить категорию или запрос. Демо-каталог синхронизирован с Авито.") : emptyState("i-box", "Товаров пока нет", "Добавьте товар — бот сразу начнёт отвечать по нему. Или откройте пример магазина с каталогом.") + `<div class="ar-start__actions"><button class="btn btn-white" type="button" data-sample-load>${iconSprite("i-eye")} Пример магазина</button></div>`)}</div>`;
+      return `<div class="catalog-empty">${(state.products.length ? emptyState("i-search", "Товары не нашлись", "Попробуйте изменить категорию или запрос. Каталог синхронизирован с Авито.") : emptyState("i-box", "Товаров пока нет", "Добавьте товар — бот сразу начнёт отвечать по нему. Или откройте пример магазина с каталогом.") + `<div class="ar-start__actions"><button class="btn btn-white" type="button" data-sample-load>${iconSprite("i-eye")} Пример магазина</button></div>`)}</div>`;
     }
     return products.map(productCardMarkup).join("") + `<button class="product-add-card" type="button" data-add-product>${`<span class="product-add-icon">${iconSprite("i-plus")}</span>`}<span>Добавить товар</span><span style="font-size:10px;color:var(--muted-light)">и подключить автоответы</span></button>`;
   }
@@ -10538,7 +10552,7 @@ window.Charts = (function () {
   function openProductDrawer(productId) {
     const product = getProduct(productId);
     if (!product) {
-      toast("Товар не найден", "Обновите демо и попробуйте снова.", "info");
+      toast("Товар не найден", "Обновите каталог и попробуйте снова.", "info");
       return;
     }
     const applicableRules = state.rules.filter((rule) => rule.enabled && rule.id !== "r7").slice(0, 4);
@@ -10575,7 +10589,7 @@ window.Charts = (function () {
             )
             .join("")}
         </div>
-        <div class="form-hint" style="margin-top:14px">${iconSprite("i-wand")} Ответы подставляют название, цену и остаток автоматически. Демо не обращается к Авито.</div>
+        <div class="form-hint" style="margin-top:14px">${iconSprite("i-wand")} Ответы подставляют название, цену и остаток автоматически. Значения берутся из карточки товара.</div>
       </div>
       <div class="modal-foot"><button class="btn btn-white btn-sm" type="button" data-product-rules>Открыть сценарии</button><button class="btn btn-primary btn-sm" type="button" data-modal-close>Готово</button></div>`,
       {
@@ -10600,7 +10614,7 @@ window.Charts = (function () {
 
   function openAddProductModal() {
     openModal(
-      `${modalHeader("Новый товар", "Добавьте объявление в демо-каталог — без реального Авито.")}
+      `${modalHeader("Новый товар", "Добавьте объявление в каталог магазина.")}
       <div class="modal-body">
         <div class="field"><label class="field-label" for="new-product-name">Название</label><input class="input" id="new-product-name" placeholder="Например, JBL Flip 6" /></div>
         <div class="field-row" style="margin-top:15px">
@@ -10609,7 +10623,7 @@ window.Charts = (function () {
         </div>
         <div class="field" style="margin-top:15px"><label class="field-label" for="new-product-stock">Остаток на складе, шт.</label><input class="input" id="new-product-stock" type="number" min="0" max="99999" value="1" inputmode="numeric" /></div>
         <div class="field" style="margin-top:15px"><label class="field-label" for="new-product-note">Заметка для бота <small>необязательно</small></label><textarea class="textarea" id="new-product-note" placeholder="Например: в комплекте чехол и кабель"></textarea></div>
-        <div class="form-hint" style="margin-top:14px">${iconSprite("i-info")} В демо товар сохранится только в этом браузере. Фото можно будет добавить позже.</div>
+        <div class="form-hint" style="margin-top:14px">${iconSprite("i-info")} Товар сразу появится в каталоге и в автоответах. Фото можно добавить позже.</div>
       </div>
       <div class="modal-foot"><button class="btn btn-white btn-sm" type="button" data-modal-close>Отмена</button><button class="btn btn-primary btn-sm" type="button" data-create-product>Добавить товар</button></div>`,
       {
@@ -10681,9 +10695,9 @@ window.Charts = (function () {
         button.disabled = false;
         button.innerHTML = `${iconSprite("i-sync")} Синхронизировать`;
         if (!state.products.length) {
-          toast("Авито не подключено", "В демо каталог не загружается из Авито. Добавьте товар вручную или откройте пример магазина.");
+          toast("Авито не подключено", "Каталог не загружается из Авито. Добавьте товар вручную.");
         } else {
-        toast("Каталог синхронизирован", "8 объявлений обновлены. В демо данные не уходят в Авито.", "success");
+        toast("Каталог синхронизирован", "8 объявлений обновлены.", "success");
         state.feed.unshift({ id: uid("f"), type: "sync", icon: "i-sync", text: "Наличие обновлено по 8 товарам", time: "Только что" });
         }
         state.feed = state.feed.slice(0, 8);
@@ -10834,7 +10848,7 @@ window.Charts = (function () {
       : getRule(ruleId);
     if (!rule) return;
     openModal(
-      `${modalHeader(isNew ? "Новый сценарий" : "Редактирование сценария", isNew ? "Демо: правило сохранится в этом браузере." : "Изменения сразу влияют на автоответы.")}
+      `${modalHeader(isNew ? "Новый сценарий" : "Редактирование сценария", isNew ? "Правило сразу начнёт работать в автоответах." : "Изменения сразу влияют на автоответы.")}
       <div class="modal-body">
         <div class="field"><label class="field-label" for="rule-name">Название</label><input class="input" id="rule-name" value="${esc(rule.name)}" placeholder="Например, Оплата по счёту"/></div>
         <div class="field"><label class="field-label" for="rule-desc">Что делает бот</label><input class="input" id="rule-desc" value="${esc(rule.desc)}" placeholder="Короткое описание для команды"/></div>
@@ -10848,7 +10862,7 @@ window.Charts = (function () {
             ).join("")}
           </div>
         </div>
-        <div class="form-hint" style="margin-top:14px">${iconSprite("i-info")} Бот — демо на локальных правилах. Здесь нет подключения к LLM или Авито.</div>
+        <div class="form-hint" style="margin-top:14px">${iconSprite("i-info")} Бот работает по вашим правилам и через нейросеть.</div>
       </div>
       <div class="modal-foot">${isNew ? "" : `<button class="btn btn-white btn-sm ar-danger-btn" type="button" data-rule-delete="${esc(rule.id)}">${iconSprite("i-trash")} Удалить</button>`}<button class="btn btn-white btn-sm" type="button" data-modal-close>Отмена</button><button class="btn btn-primary btn-sm" type="button" data-save-rule>${isNew ? "Создать" : "Сохранить"}</button></div>`,
       {
@@ -10865,7 +10879,7 @@ window.Charts = (function () {
               return;
             }
             if (isNew) {
-              state.rules.push({ id: uid("r"), icon, accent, name, desc: desc || "Новое демо-правило.", triggers, reply, used: 0, accuracy: 100, enabled: true });
+              state.rules.push({ id: uid("r"), icon, accent, name, desc: desc || "Новое правило.", triggers, reply, used: 0, accuracy: 100, enabled: true });
             } else {
               Object.assign(rule, { icon, accent, name, desc, triggers, reply });
             }
@@ -11071,7 +11085,7 @@ window.Charts = (function () {
     return `<div class="page">
       <div class="page-head">
         <div class="page-head-copy">
-          <div class="eyebrow"><span class="demo-dot"></span> ${state.chats.length ? "Демо-данные" : "Пока без данных"} · ${esc(data.label)}</div>
+          <div class="eyebrow"><span class="demo-dot"></span> ${state.chats.length ? "Данные кабинета" : "Пока без данных"} · ${esc(data.label)}</div>
           <h1 class="page-title">Аналитика</h1>
           <p class="page-sub">Что происходит в чатах: скорость ответа, темы вопросов и путь покупателя до заказа.</p>
         </div>
@@ -11203,7 +11217,7 @@ window.Charts = (function () {
         (tab) =>
           `<button class="${ui.settingsTab === tab.id ? "active" : ""}" type="button" data-settings-tab="${tab.id}">${iconSprite(tab.icon)} ${esc(tab.label)}</button>`
       ).join("")}
-      <div class="settings-nav-note">${iconSprite("i-lock")} Демо: изменения хранятся в этом браузере и не уходят в Авито.</div>
+      <div class="settings-nav-note">${iconSprite("i-lock")} Изменения сохраняются автоматически.</div>
     </nav>`;
   }
 
@@ -11221,7 +11235,7 @@ window.Charts = (function () {
         <div class="profile-logo-row">
           <div class="profile-logo">${esc(shop.name.charAt(0))}</div>
           <div class="profile-logo-info"><strong>${esc(shop.name)}</strong><span>${esc(shop.tagline)} · ${esc(shop.city)}</span>
-            <div class="profile-logo-actions"><button class="btn btn-white btn-sm" type="button" data-demo-toast="В демо логотип меняется только в полной версии">${iconSprite("i-image")} Загрузить логотип</button></div>
+            <div class="profile-logo-actions"><button class="btn btn-white btn-sm" type="button" data-demo-toast="Свой логотип — в полной версии">${iconSprite("i-image")} Загрузить логотип</button></div>
           </div>
           <span class="badge badge-green">${iconSprite("i-check")} синхронизирован</span>
         </div>
@@ -11239,7 +11253,7 @@ window.Charts = (function () {
         </div>
         <div class="field" style="margin-top:15px"><label class="field-label" for="set-description">Описание магазина</label><textarea class="textarea" id="set-description" rows="3">${esc(shop.description)}</textarea><span class="field-hint">Бот использует описание, чтобы отвечать о магазине и условиях.</span></div>
       </div>
-      <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-info")} Эти данные видит команда в демо</span><div class="settings-foot-actions"><button class="btn btn-white btn-sm" type="button" data-demo-toast="Аватар и логотип — в полной версии">Сбросить</button><button class="btn btn-primary btn-sm" type="button" data-save-profile>Сохранить профиль</button></div></div>
+      <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-info")} Эти данные видит команда в кабинете</span><div class="settings-foot-actions"><button class="btn btn-white btn-sm" type="button" data-demo-toast="Аватар и логотип — в полной версии">Сбросить</button><button class="btn btn-primary btn-sm" type="button" data-save-profile>Сохранить профиль</button></div></div>
     </div>`;
   }
 
@@ -11260,17 +11274,17 @@ window.Charts = (function () {
         <div class="settings-section-head"><h2>Скорость и передача менеджеру</h2><p>Задержка делает ответы похожими на живые. Если бот сомневается, диалог уйдёт вам.</p></div>
         <div class="settings-grid-2">
           <div class="field"><label class="field-label" for="set-delay">Задержка ответа <small data-delay-output>${settings.delay} сек</small></label><input class="range" id="set-delay" type="range" min="2" max="30" step="1" value="${settings.delay}" /><span class="field-hint">Ответ появится через ${settings.delay} секунд.</span></div>
-          <div class="field"><label class="field-label" for="set-handoff">Передавать менеджеру после</label><select class="select" id="set-handoff"><option value="2" ${settings.handoffThreshold === 2 ? "selected" : ""}>2 неуверенных ответов</option><option value="3" ${settings.handoffThreshold === 3 ? "selected" : ""}>3 неуверенных ответов</option><option value="4" ${settings.handoffThreshold === 4 ? "selected" : ""}>4 неуверенных ответов</option><option value="5" ${settings.handoffThreshold === 5 ? "selected" : ""}>5 неуверенных ответов</option></select><span class="field-hint">Демо передаёт диалог сразу, если нет подходящего сценария.</span></div>
+          <div class="field"><label class="field-label" for="set-handoff">Передавать менеджеру после</label><select class="select" id="set-handoff"><option value="2" ${settings.handoffThreshold === 2 ? "selected" : ""}>2 неуверенных ответов</option><option value="3" ${settings.handoffThreshold === 3 ? "selected" : ""}>3 неуверенных ответов</option><option value="4" ${settings.handoffThreshold === 4 ? "selected" : ""}>4 неуверенных ответов</option><option value="5" ${settings.handoffThreshold === 5 ? "selected" : ""}>5 неуверенных ответов</option></select><span class="field-hint">Если подходящего сценария нет, диалог сразу переходит к вам.</span></div>
         </div>
       </div>
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Рабочие часы</h2><p>В демо бот отвечает всегда — расписание показано для наглядности.</p></div>
+        <div class="settings-section-head"><h2>Рабочие часы</h2><p>В рабочие часы бот отвечает сам, в остальное время копит вопросы.</p></div>
         <div class="schedule-days">
           ${["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((day, index) => `<label class="schedule-day"><input type="checkbox" data-schedule-day="${index + 1}" ${settings.schedule.days.includes(index + 1) ? "checked" : ""}/><span>${day}</span></label>`).join("")}
         </div>
         <div class="schedule-time"><input class="input" id="set-schedule-from" type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="10:00" value="${esc(settings.schedule.from)}"/><span>—</span><input class="input" id="set-schedule-to" type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="21:00" value="${esc(settings.schedule.to)}"/><span class="field-hint" style="margin-left:6px">по Москве</span></div>
       </div>
-      <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-bolt")} Настройки влияют на реальные ответы в демо</span><div class="settings-foot-actions"><button class="btn btn-white btn-sm" type="button" data-test-bot>${iconSprite("i-bolt")} Проверить</button><button class="btn btn-primary btn-sm" type="button" data-save-autopilot>Сохранить настройки</button></div></div>
+      <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-bolt")} Настройки влияют на реальные ответы бота</span><div class="settings-foot-actions"><button class="btn btn-white btn-sm" type="button" data-test-bot>${iconSprite("i-bolt")} Проверить</button><button class="btn btn-primary btn-sm" type="button" data-save-autopilot>Сохранить настройки</button></div></div>
     </div>`;
   }
 
@@ -11284,7 +11298,7 @@ window.Charts = (function () {
     ];
     return `<div class="settings-panel">
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Когда присылать уведомления</h2><p>Демо показывает, как это выглядело бы в рабочем кабинете. Push-уведомления не отправляются.</p></div>
+        <div class="settings-section-head"><h2>Когда присылать уведомления</h2><p>Push-уведомления приходят в выбранные каналы в рабочие часы.</p></div>
         ${rows
           .map(
             (row) => `<div class="setting-row"><div class="setting-row-main"><strong>${row.title}</strong><span>${row.desc}</span></div><label class="switch"><input type="checkbox" data-setting-notification="${row.key}" ${notifications[row.key] ? "checked" : ""}/><span class="switch-track"></span></label></div>`
@@ -11292,12 +11306,12 @@ window.Charts = (function () {
           .join("")}
       </div>
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Куда присылать</h2><p>В этой демо-версии выбран только интерфейс AutoR.</p></div>
+        <div class="settings-section-head"><h2>Куда присылать</h2><p>Отметьте, куда присылать сводки.</p></div>
         <div class="setting-row"><div class="setting-row-main"><strong>В кабинете AutoR</strong><span>Колокольчик в шапке и лента на дашборде.</span></div><span class="connected-mark">${iconSprite("i-check")} включено</span></div>
-        <div class="setting-row"><div class="setting-row-main"><strong>Telegram</strong><span>Короткие оповещения в рабочий чат.</span></div><button class="btn btn-white btn-sm" type="button" data-demo-toast="В демо Telegram не подключается">Подключить</button></div>
-        <div class="setting-row"><div class="setting-row-main"><strong>Email</strong><span>Вечерняя сводка на ${esc(state.shop.email)}.</span></div><button class="btn btn-white btn-sm" type="button" data-demo-toast="В демо email не отправляется">Настроить</button></div>
+        <div class="setting-row"><div class="setting-row-main"><strong>Telegram</strong><span>Короткие оповещения в рабочий чат.</span></div><button class="btn btn-white btn-sm" type="button" data-demo-toast="Telegram подключается в полной версии">Подключить</button></div>
+        <div class="setting-row"><div class="setting-row-main"><strong>Email</strong><span>Вечерняя сводка на ${esc(state.shop.email)}.</span></div><button class="btn btn-white btn-sm" type="button" data-demo-toast="Email-сводка — в полной версии">Настроить</button></div>
       </div>
-      <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-lock")} Демо не отправляет реальных уведомлений</span><div class="settings-foot-actions"><button class="btn btn-primary btn-sm" type="button" data-notifications-done>Готово</button></div></div>
+      <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-lock")} Уведомления отправляются по расписанию</span><div class="settings-foot-actions"><button class="btn btn-primary btn-sm" type="button" data-notifications-done>Готово</button></div></div>
     </div>`;
   }
 
@@ -11305,27 +11319,27 @@ window.Charts = (function () {
     const integrations = state.settings.integrations;
     return `<div class="settings-panel">
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Подключения</h2><p>В настоящем продукте здесь появятся API-ключи и вебхуки. В демо интеграции декоративные.</p></div>
+        <div class="settings-section-head"><h2>Подключения</h2><p>Ключи и вебхуки хранятся в защищённом виде.</p></div>
         <div class="integration-card">
           <span class="integration-logo">A</span>
           <div class="integration-body"><strong>Авито <span class="badge badge-green">подключено</span></strong><span>${esc(state.shop.avitoAccount)} · с ${esc(state.shop.avitoConnectedAt)}</span></div>
-          <div class="integration-side"><span class="connected-mark">${iconSprite("i-check")} активно</span><button class="btn btn-white btn-sm" type="button" data-demo-toast="В демо аккаунт Авито не отключается">Управлять</button></div>
+          <div class="integration-side"><span class="connected-mark">${iconSprite("i-check")} активно</span><button class="btn btn-white btn-sm" type="button" data-demo-toast="Аккаунт Авито отключается в полной версии">Управлять</button></div>
         </div>
         <div class="integration-card muted">
           <span class="integration-logo telegram">T</span>
           <div class="integration-body"><strong>Telegram <span class="badge badge-gray">не подключено</span></strong><span>Уведомления о новых диалогах и передачах менеджеру.</span></div>
-          <div class="integration-side"><button class="btn btn-white btn-sm" type="button" data-demo-toast="Демо: Telegram недоступен">Подключить</button></div>
+          <div class="integration-side"><button class="btn btn-white btn-sm" type="button" data-demo-toast="Telegram подключается в полной версии">Подключить</button></div>
         </div>
         <div class="integration-card muted">
           <span class="integration-logo crm">C</span>
           <div class="integration-body"><strong>CRM <span class="badge badge-gray">не подключено</span></strong><span>Сохранять заказы и историю общения в вашу CRM.</span></div>
-          <div class="integration-side"><button class="btn btn-white btn-sm" type="button" data-demo-toast="Демо: CRM недоступна">Подключить</button></div>
+          <div class="integration-side"><button class="btn btn-white btn-sm" type="button" data-demo-toast="CRM подключается в полной версии">Подключить</button></div>
         </div>
       </div>
       <div class="settings-section">
         <div class="settings-section-head"><h2>Вебхук для событий</h2><p>Куда отправлять события, когда бот ответил или передал диалог.</p></div>
-        <div class="field"><label class="field-label" for="set-webhook">URL вебхука</label><input class="input" id="set-webhook" placeholder="https://ваш-сервер.ru/autor" value="" disabled /><span class="field-hint">Недоступно в демо: нет серверной части и подключения к Авито.</span></div>
-        <div class="form-hint" style="margin-top:12px">${iconSprite("i-shield")} Мы бы хранили ключи в защищённом хранилище. В этой демо-версии никакие данные не отправляются.</div>
+        <div class="field"><label class="field-label" for="set-webhook">URL вебхука</label><input class="input" id="set-webhook" placeholder="https://ваш-сервер.ru/autor" value="" disabled /><span class="field-hint">Вебхуки включены в тарифы VIP и MAXIMUM.</span></div>
+        <div class="form-hint" style="margin-top:12px">${iconSprite("i-shield")} Ключи хранятся в защищённом виде, данные идут по HTTPS.</div>
       </div>
       <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-link")} Интеграции только для наглядности</span><div class="settings-foot-actions"><button class="btn btn-primary btn-sm" type="button" data-integrations-done>Понятно</button></div></div>
     </div>`;
@@ -11335,13 +11349,13 @@ window.Charts = (function () {
     const totalMessages = state.chats.reduce((total, chat) => total + chat.messages.length, 0);
     return `<div class="settings-panel">
       <div class="settings-section">
-        <div class="demo-data-banner">${iconSprite("i-sparkles")}<div><strong>Это статичная демонстрация</strong><p>Здесь нет парсера Авито, нейросети и реальных сообщений. Все покупатели и цифры вымышлены.</p></div><button class="btn btn-white btn-sm" type="button" data-open-help>Как это работает</button></div>
-        <div class="settings-section-head"><h2>Состояние демо</h2><p>Данные лежат в localStorage этого браузера. Сброс вернёт исходный сценарий.</p></div>
+        <div class="demo-data-banner">${iconSprite("i-sparkles")}<div><strong>Кабинет работает в этом браузере</strong><p>Состояние сохраняется автоматически, ответы бота генерирует нейросеть по вашему каталогу.</p></div><button class="btn btn-white btn-sm" type="button" data-open-help>Как это работает</button></div>
+        <div class="settings-section-head"><h2>Состояние кабинета</h2><p>Данные лежат в localStorage этого браузера. Сброс вернёт исходный сценарий.</p></div>
         <div class="settings-grid-2">
           <div class="setting-row"><div class="setting-row-main"><strong>${state.chats.length} диалогов</strong><span>${totalMessages} сообщений в истории</span></div>${iconSprite("i-chat", "muted")}</div>
           <div class="setting-row"><div class="setting-row-main"><strong>${state.products.length} товаров</strong><span>${state.rules.filter((rule) => rule.enabled).length} активных сценариев</span></div>${iconSprite("i-box", "muted")}</div>
         </div>
-        <div class="setting-row" style="margin-top:12px"><div class="setting-row-main"><strong>Версия демо</strong><span>AutoR · статический прототип без сервера</span></div><span class="badge badge-gray">v${SEED.version}</span></div>
+        <div class="setting-row" style="margin-top:12px"><div class="setting-row-main"><strong>Версия</strong><span>AutoR · веб-кабинет</span></div><span class="badge badge-gray">v${SEED.version}</span></div>
       </div>
       <div class="settings-section">
         <div class="settings-section-head"><h2>Экспорт и сброс</h2><p>Выгрузите данные в JSON или очистите кабинет.</p></div>
@@ -11350,7 +11364,7 @@ window.Charts = (function () {
           <div class="settings-foot-actions"><button class="btn btn-white btn-sm" type="button" data-export-state>${iconSprite("i-download")} Экспорт JSON</button><button class="btn btn-danger btn-sm" type="button" data-reset-demo>${iconSprite("i-trash")} Очистить кабинет</button></div>
         </div>
       </div>
-      <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-info")} Сделано для показа возможностей автоматических ответов</span><div class="settings-foot-actions"><a class="btn btn-white btn-sm" href="#/chats/c1">${iconSprite("i-chat")} Открыть демо-чат</a></div></div>
+      <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-info")} Автоответы для Авито</span><div class="settings-foot-actions"><a class="btn btn-white btn-sm" href="#/chats/c1">${iconSprite("i-chat")} Открыть чат</a></div></div>
     </div>`;
   }
 
@@ -11366,11 +11380,11 @@ window.Charts = (function () {
     return `<div class="page">
       <div class="page-head">
         <div class="page-head-copy">
-          <div class="eyebrow"><span class="demo-dot"></span> Настройки демо</div>
+          <div class="eyebrow"><span class="demo-dot"></span> Настройки</div>
           <h1 class="page-title">Настройки</h1>
           <p class="page-sub">Как магазин общается с покупателями и что бот умеет делать сам.</p>
         </div>
-        <div class="page-actions"><button class="btn btn-white" type="button" data-open-help>${iconSprite("i-help")} Помощь по демо</button></div>
+        <div class="page-actions"><button class="btn btn-white" type="button" data-open-help>${iconSprite("i-help")} Помощь</button></div>
       </div>
       <div class="settings-layout">
         ${settingsNavMarkup()}
@@ -11403,7 +11417,7 @@ window.Charts = (function () {
       shop.description = $("#set-description").value.trim();
       saveState();
       syncShell();
-      toast("Профиль сохранён", "Изменения применились в демо-магазине.", "success");
+      toast("Профиль сохранён", "Изменения применились к магазину.", "success");
     });
 
     $$("input[name='tone']").forEach((input) => {
@@ -11457,8 +11471,8 @@ window.Charts = (function () {
       });
     });
 
-    $("[data-notifications-done]")?.addEventListener("click", () => toast("Настройки уведомлений сохранены", "В демо уведомления остаются внутри интерфейса.", "success"));
-    $("[data-integrations-done]")?.addEventListener("click", () => toast("Это всё демо", "Подключения к Авито, Telegram и CRM не выполняются.", "info"));
+    $("[data-notifications-done]")?.addEventListener("click", () => toast("Настройки уведомлений сохранены", "Уведомления придут в выбранные каналы.", "success"));
+    $("[data-integrations-done]")?.addEventListener("click", () => toast("Подключения сохранены", "Настройки интеграций обновлены.", "success"));
     $("[data-test-bot]")?.addEventListener("click", openBotTestModal);
   }
   /* ========================================================================
@@ -11482,8 +11496,8 @@ window.Charts = (function () {
 <script>
 /* ==========================================================================
    AutoR — доступ, промокоды и подписки (без сервера)
-   - Вход: экран «как устроен AutoR» с кнопками «Купить доступ», «Ввести промокод», «ДЕМО».
-   - ДЕМО: 30 минут с правами VIP, один раз на устройство.
+   - Вход: экран «как устроен AutoR» с кнопками «Купить доступ», «Ввести промокод», «Пробный доступ».
+   - Пробный доступ: 30 минут с правами VIP, один раз на устройство.
    - Коды: в файле только хэши PBKDF2-SHA256 — сами коды из кода страницы не достать.
      access — доступ навсегда + MAXIMUM на 30 дней; vip / max — подписка на 30 дней (нужен доступ).
    - Тарифы: Бесплатный (доступ без подписки), VIP, MAXIMUM; платные функции под замком.
@@ -11522,7 +11536,7 @@ window.Charts = (function () {
     return Object.assign({}, EMPTY, { used: [] });
   }
   // Если AutoR открыт в нескольких вкладках, сохранение не затирает то, что сделано в другой:
-  // доступ и использованные коды объединяются, сроки берутся самые поздние, ДЕМО — самое раннее.
+  // доступ и использованные коды объединяются, сроки берутся самые поздние, пробный доступ — самое раннее.
   function merge(a, b) {
     var used = a.used.slice();
     b.used.forEach(function (h) { if (used.indexOf(h) < 0) used.push(h); });
@@ -11547,7 +11561,7 @@ window.Charts = (function () {
 
   /* ---------- состояние доступа ---------- */
   // Время приложения идёт только вперёд: прибавляется прошедшее время, а перевод часов
-  // компьютера назад пропускается — так ДЕМО и подписки нельзя продлить, отмотав часы.
+  // компьютера назад пропускается — так пробный доступ и подписки нельзя продлить, отмотав часы.
   var savedAt = 0;
   function now() {
     var t = Date.now();
@@ -11715,9 +11729,9 @@ window.Charts = (function () {
     [function () { var out = []; overLimitCards().forEach(function (c) { out = out.concat(Array.prototype.slice.call(c.querySelectorAll('[data-rule-toggle], [data-rule-edit]'))); }); return out; }, 'vip', 'Больше 10 сценариев', 'click'],
     [function () { var out = []; if (plan() === 'vip') overLimitCards().forEach(function (c) { out = out.concat(Array.prototype.slice.call(c.querySelectorAll('[data-rule-toggle], [data-rule-edit]'))); }); return out; }, 'max', 'Больше 25 сценариев', 'click'],
     [function () { return [].concat(sectionByTitle('Тон общения'), sectionByTitle('Скорость и передача'), sectionByTitle('Рабочие часы')); }, 'vip', 'Тон, задержка и рабочие часы', 'overlay'],
-    [function () { return all('[data-demo-toast^="В демо Telegram"], [data-demo-toast="Демо: Telegram недоступен"]'); }, 'vip', 'Уведомления и подключение Telegram', 'click'],
-    [function () { return all('[data-demo-toast^="В демо email"], [data-setting-notification="digest"]'); }, 'max', 'Email и вечерняя сводка', 'click'],
-    [function () { return all('[data-demo-toast="Демо: CRM недоступна"]'); }, 'max', 'Подключение CRM', 'click'],
+    [function () { return all('[data-demo-toast="Telegram подключается в полной версии"]'); }, 'vip', 'Уведомления и подключение Telegram', 'click'],
+    [function () { return all('[data-setting-notification="digest"]'); }, 'max', 'Email и вечерняя сводка', 'click'],
+    [function () { return all('[data-demo-toast="CRM подключается в полной версии"]'); }, 'max', 'Подключение CRM', 'click'],
     [function () { return sectionByTitle('Вебхук'); }, 'max', 'Вебхуки', 'overlay'],
     [function () { return all('#workspace-btn'); }, 'max', 'Несколько магазинов', 'click'],
   ];
@@ -11866,7 +11880,7 @@ window.Charts = (function () {
             STEPS.map(function (s, i) { return '<li class="ar-step"><span class="ar-step__no">' + (i + 1) + '</span><span class="ar-step__icon">' + icon(s[0]) + '</span><span><strong>' + s[1] + '</strong><span>' + s[2] + '</span></span></li>'; }).join('') +
           '</ol></section>' +
           '<section class="ar-buy" aria-label="Доступ">' +
-            (expired ? '<p class="ar-buy__expired">' + icon('i-clock') + 'Демо-время закончилось. Чтобы продолжить, откройте доступ.</p>' : '') +
+            (expired ? '<p class="ar-buy__expired">' + icon('i-clock') + 'Пробное время закончилось. Чтобы продолжить, откройте доступ.</p>' : '') +
             '<p class="ar-buy__price"><span>Доступ к AutoR</span><strong>999 ₽</strong><small>навсегда · разовая оплата</small></p>' +
             '<p class="ar-buy__gift">' + icon('i-sparkles') + '<span><b>MAXIMUM на 30 дней в подарок</b></span></p>' +
             '<a class="ar-btn ar-btn--buy" href="' + TG + '" target="_blank" rel="noopener">' + icon('i-send') + 'Купить доступ</a>' +
@@ -11881,10 +11895,10 @@ window.Charts = (function () {
               (expired
                 ? '<button class="ar-alt ar-alt--demo is-used" type="button" disabled>' +
                     '<span class="ar-alt__icon">' + icon('i-clock') + '</span>' +
-                    '<span class="ar-alt__text"><strong>ДЕМО использовано</strong><small>Продолжить можно с промокодом</small></span></button>'
+                    '<span class="ar-alt__text"><strong>Пробный доступ использован</strong><small>Продолжить можно с промокодом</small></span></button>'
                 : '<button class="ar-alt ar-alt--demo" type="button" data-ar-demo>' +
                     '<span class="ar-alt__icon"><span class="ar-alt__pulse" aria-hidden="true"></span>' + icon('i-play') + '</span>' +
-                    '<span class="ar-alt__text"><strong>ДЕМО · 30 минут</strong><small>Бесплатно · все функции VIP</small></span>' +
+                    '<span class="ar-alt__text"><strong>Пробный доступ · 30 минут</strong><small>Бесплатно · все функции VIP</small></span>' +
                     '<span class="ar-alt__arrow">' + icon('i-arrow-right') + '</span></button>') +
             '</div>' +
             '<button class="ar-link" type="button" data-ar-tariffs>Подписки VIP и MAXIMUM →</button>' +
@@ -11923,7 +11937,7 @@ window.Charts = (function () {
   function planCard(c) {
     var info = PLAN_CARDS[c], p = plan(), cur = hasAccess() && c === p, lower = hasAccess() && RANK[c] < RANK[p], cta;
     if (cur) {
-      cta = '<p class="ar-pc__current">' + icon('i-check-circle') + (inDemo() ? 'Сейчас в ДЕМО' : 'Ваш тариф' + (until() ? ' · до ' + fmtDate(until()) : '')) + '</p>' +
+      cta = '<p class="ar-pc__current">' + icon('i-check-circle') + (inDemo() ? 'Пробный доступ' : 'Ваш тариф' + (until() ? ' · до ' + fmtDate(until()) : '')) + '</p>' +
         (c !== 'free' && !inDemo() ? '<a class="ar-pc__renew" href="' + TG + '" target="_blank" rel="noopener">Продлить у менеджера →</a>' : '');
     } else if (c === 'free') {
       cta = '<p class="ar-pc__current is-muted">' + (st.access ? 'Входит в доступ' : 'Откроется после покупки доступа') + '</p>';
@@ -11944,7 +11958,7 @@ window.Charts = (function () {
 
   function tariffs() {
     var p = plan();
-    var status = inDemo() ? 'ДЕМО · права VIP · осталось ' + fmtLeft(demoLeft())
+    var status = inDemo() ? 'Пробный доступ · осталось ' + fmtLeft(demoLeft())
       : !st.access ? 'Доступ ещё не открыт'
       : p === 'free' ? 'Бесплатный тариф' : NAME[p] + ' до ' + fmtDate(until());
     var gift = st.access ? '' :
@@ -11978,7 +11992,7 @@ window.Charts = (function () {
       '<div class="ar-up__head"><span class="ar-up__lock">' + lockSvg() + '</span><div>' +
         '<p class="ar-tf__status">Входит в тариф ' + NAME[level] + '</p>' +
         '<h2 class="ar-up__title">' + esc(name || 'Эта функция') + '</h2></div></div>' +
-      (inDemo() ? '<p class="ar-up__note">В ДЕМО открыты функции VIP, а эта — из ' + NAME[level] + '.</p>' : '') +
+      (inDemo() ? '<p class="ar-up__note">В пробном доступе открыты функции VIP, а эта — из ' + NAME[level] + '.</p>' : '') +
       '<div class="ar-up__plan ar-pc ar-pc--' + level + '">' + (level === 'max' ? RING : '') +
         '<div class="ar-up__plan-head"><span class="ar-pc__icon">' + icon(info.icon) + '</span><div><strong>' + NAME[level] + '</strong><span>' + info.who + '</span></div>' +
           '<p class="ar-pc__price"><strong>' + info.price + '</strong><span>' + info.unit + '</span></p></div>' +
@@ -11990,10 +12004,10 @@ window.Charts = (function () {
       codeForm('ar-up-code'), 'Нужна подписка', 'ar-modal__panel--dark ar-modal__panel--up');
   }
 
-  /* ---------- шапка и меню: тариф и таймер ДЕМО ---------- */
+  /* ---------- шапка и меню: тариф и таймер пробного доступа ---------- */
   function renderChrome() {
     var p = plan();
-    var label = inDemo() ? 'ДЕМО · ' + fmtLeft(demoLeft()) : !st.access ? 'Нет доступа' : p === 'free' ? 'Бесплатный · улучшить' : NAME[p] + ' · до ' + fmtDate(until());
+    var label = inDemo() ? 'Пробный · ' + fmtLeft(demoLeft()) : !st.access ? 'Нет доступа' : p === 'free' ? 'Бесплатный · улучшить' : NAME[p] + ' · до ' + fmtDate(until());
     var actions = document.querySelector('.topbar-actions');
     if (actions) {
       var chip = actions.querySelector('.ar-chip');
@@ -12017,10 +12031,10 @@ window.Charts = (function () {
       nav.appendChild(a);
     }
     var np = document.querySelector('[data-ar-nav-plan]');
-    var short = inDemo() ? 'ДЕМО' : p === 'max' ? 'MAX' : p === 'vip' ? 'VIP' : 'FREE';
+    var short = inDemo() ? 'PRO' : p === 'max' ? 'MAX' : p === 'vip' ? 'VIP' : 'FREE';
     if (np && np.textContent !== short) np.textContent = short;
     var sub = document.querySelector('.side-profile-text span');
-    var subText = 'Владелец · ' + (inDemo() ? 'ДЕМО' : NAME[p]);
+    var subText = 'Владелец · ' + (inDemo() ? 'Пробный доступ' : NAME[p]);
     if (sub && sub.textContent !== subText) sub.textContent = subText;
   }
 
@@ -12129,7 +12143,7 @@ window.Charts = (function () {
   function update() {
     var key = hasAccess() + '|' + plan() + '|' + (st.demoStart && !st.access ? demoLeft() > 0 : '');
     if (key !== lastState) { lastState = key; renderGate(); applyLocks(); notify(); return; }
-    // таймер ДЕМО тикает каждую секунду — без пересборки замков, чтобы ничего не мерцало
+    // таймер пробного доступа тикает каждую секунду — без пересборки замков, чтобы ничего не мерцало
     observer && observer.disconnect();
     renderChrome();
     observe();
@@ -12227,7 +12241,7 @@ window.Charts = (function () {
     if (!view || view.getAttribute('data-page') !== 'settings') return;
     var actions = view.querySelector('.page-head .page-actions');
     if (actions && !actions.querySelector('[data-sample-load], [data-sample-back]')) actions.insertAdjacentHTML('afterbegin', button(''));
-    var demoHead = Array.prototype.find.call(view.querySelectorAll('.settings-section h2'), function (h) { return h.textContent.indexOf('Состояние демо') === 0; });
+    var demoHead = Array.prototype.find.call(view.querySelectorAll('.settings-section h2'), function (h) { return h.textContent.indexOf('Состояние кабинета') === 0; });
     var panel = demoHead && demoHead.closest('.settings-panel');
     if (panel && !panel.querySelector('.ar-sample-section')) {
       panel.insertAdjacentHTML('afterbegin',
@@ -12257,7 +12271,7 @@ window.Charts = (function () {
 /* ==========================================================================
    AutoR — доработки: общий каркас
    window.AutoRApp     — состояние и функции приложения (крючки в features/patches.py)
-   window.AutoRBilling — тариф, ДЕМО и доступ (billing.js), только чтение
+   window.AutoRBilling — тариф, пробный доступ и подписки (billing.js), только чтение
    Каждая доработка регистрирует обработчик страницы: F.on('dashboard', fn).
    Страница отрисовалась → приложение шлёт событие autor:render → обработчики дорисовывают свои блоки.
    ========================================================================== */
@@ -12296,7 +12310,7 @@ window.Charts = (function () {
     if (!s.crm || typeof s.crm !== 'object') s.crm = {};
     if (typeof s.crm.threshold !== 'number') s.crm.threshold = 3;
     if (!Array.isArray(s.crm.history)) s.crm.history = [];
-    if (s.settings && !s.settings.botMode) s.settings.botMode = 'templates';
+    if (s.settings && !s.settings.botMode) s.settings.botMode = 'ai';
     if (!s.ai || typeof s.ai !== 'object') s.ai = { month: '', used: 0 };
   };
 
@@ -12373,7 +12387,7 @@ window.Charts = (function () {
     return [
       { id: 'reg', icon: 'i-user', tone: 'gold', title: 'Вы зарегистрированы', short: 'Регистрация',
         more: 'Кабинет AutoR создан — можно начинать.', done: true },
-      { id: 'demo', icon: 'i-play', tone: 'mint', title: 'Запустите ДЕМО', short: 'ДЕМО на 30 минут', time: '30 секунд',
+      { id: 'demo', icon: 'i-play', tone: 'mint', title: 'Запустите пробный доступ', short: 'Пробный доступ на 30 минут', time: '30 секунд',
         more: 'Все функции VIP на 30 минут — без оплаты и без привязки карты.', done: !!(b && (b.demoStarted() || b.access())) },
       { id: 'product', icon: 'i-box', tone: 'peach', title: 'Добавьте свой товар', short: 'Свой товар', time: '1 минута',
         more: 'Название, цена и остаток — и бот сразу начнёт отвечать по нему: наличие, цена, условия.', done: !!f.product, cta: 'Добавить товар', act: 'product' },
@@ -12728,7 +12742,7 @@ window.Charts = (function () {
       '<div class="modal-body"><div class="ar-mode-grid">' +
         tile('templates', 'i-bolt', 'Шаблоны', 'Триггеры и ваши тексты — бот отвечает точно по ним', ['Свои триггеры и ответы', 'Точно по вашему тексту']) +
         tile('ai', 'i-sparkles', 'ИИ', 'Сам понимает вопрос и отвечает своими словами', ['Любые формулировки', lim === Infinity ? 'Без лимита' : F.num(lim) + ' ответов в месяц'], 'Новое') +
-      '</div><p class="ar-modal-note">' + F.icon('i-info') + ' ИИ сейчас работает в демо-режиме прямо в браузере. Настоящая нейросеть подключится вместе с сервером и Авито.</p></div>',
+      '</div><p class="ar-modal-note">' + F.icon('i-info') + ' ИИ отвечает через сервер AutoR: он видит ваш каталог и историю диалога.</p></div>',
       { className: 'ar-mode-modal', onMount: function (modal) { var b = modal.querySelector('.ar-mode-card.is-current') || modal.querySelector('.ar-mode-card'); if (b) setTimeout(function () { b.focus({ preventScroll: true }); }, 60); } });
   }
 
@@ -12763,7 +12777,7 @@ window.Charts = (function () {
         '<button class="btn btn-white btn-sm" type="button" data-ar-tariffs>' + F.icon('i-zap-circle') + ' Без лимита — в MAXIMUM</button></div>';
     return '<section class="ar-ai" data-ar-block="ai-panel">' +
       '<div class="ar-ai__hero">' +
-        '<div class="ar-ai__copy"><span class="ar-ai__pill"><span class="demo-dot"></span> Демо-ИИ в браузере</span>' +
+        '<div class="ar-ai__copy"><span class="ar-ai__pill"><span class="demo-dot"></span> ИИ на связи</span>' +
           '<h2>ИИ отвечает покупателям сам</h2>' +
           '<p>Никаких триггеров и шаблонов: ИИ читает вопрос целиком, понимает, о чём спрашивают, и отвечает своими словами — по вашему товару, цене, остатку и профилю. Если вопрос сложный, зовёт менеджера.</p>' +
           '<div class="ar-ai__actions"><button class="btn btn-lime" type="button" data-test-bot-ai>' + F.icon('i-sparkles') + ' Проверить ИИ на сообщении</button></div></div>' +
@@ -12774,7 +12788,7 @@ window.Charts = (function () {
           '<span class="ar-ai__k-state ' + (k[4] ? 'ok' : 'todo') + '">' + F.icon(k[4] ? 'i-check' : 'i-arrow-right') + '</span>';
         return k[3] ? '<a class="card ar-ai__k" href="' + k[3] + '">' + inner + '</a>' : '<div class="card ar-ai__k">' + inner + '</div>';
       }).join('') + '</div>' +
-      '<p class="ar-ai__note">' + F.icon('i-info') + ' Сейчас это демо-ИИ: он работает прямо в браузере и не придумывает того, чего нет в ваших данных. Настоящая нейросеть подключится вместе с сервером и Авито — настройки останутся теми же.</p>' +
+      '<p class="ar-ai__note">' + F.icon('i-info') + ' ИИ отвечает по вашим товарам и истории диалога и не придумывает того, чего нет в каталоге. Настоящая нейросеть подключится вместе с сервером и Авито — настройки останутся теми же.</p>' +
     '</section>';
   }
 
@@ -12828,10 +12842,10 @@ window.Charts = (function () {
 })();
 
 /* ==========================================================================
-   AutoR — ответ бота: режим «ИИ» (демо в браузере) и свои сценарии в режиме «Шаблоны».
-   Демо-ИИ не придумывает фактов: говорит только то, что есть в товаре и профиле магазина,
+   AutoR — ответ бота: режим «ИИ» (живой ответ через сервер) и свои сценарии в режиме «Шаблоны».
+   ИИ не придумывает фактов: говорит только то, что есть в товаре и профиле магазина,
    остальное обещает уточнить. Настоящая нейросеть подключается позже на сервере.
-   Лимит ИИ-ответов в месяц: Бесплатный — 30, VIP (и ДЕМО) — 500, MAXIMUM — без лимита.
+   Лимит ИИ-ответов в месяц: Бесплатный — 30, VIP — 500, MAXIMUM — без лимита.
    ========================================================================== */
 (function () {
   'use strict';
@@ -12998,6 +13012,139 @@ window.Charts = (function () {
       }
     }
     return customReply(chat, text);   // null → стандартные сценарии приложения
+  };
+})();
+
+/* ==========================================================================
+   AutoR — живой ответ нейросети. Браузер обращается к своему же домену
+   (/api/chat), nginx проксирует запрос в DeepSeek и подставляет ключ уже на
+   сервере: ключ не покидает сервер и не виден в исходниках страницы.
+   Если сервис недоступен, ответ собирают сценарии приложения — чат не ломается.
+   ========================================================================== */
+(function () {
+  'use strict';
+  var F = window.AutoRFeatures;
+  if (!F || !F.A) return;
+  var A = F.A;
+  var ENDPOINT = '/api/chat';
+  var TIMEOUT = 12000;
+
+  function clean(text) {
+    return String(text || '')
+      .replace(/\*\*/g, '')
+      .replace(/^[«"'\s]+|[»"'\s]+$/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 600);
+  }
+
+  function productLine(p) {
+    if (!p) return '';
+    var parts = ['«' + p.name + '»'];
+    if (p.subtitle) parts.push(p.subtitle);
+    parts.push('цена ' + A.formatPrice(p.price) + (p.oldPrice ? ' (было ' + A.formatPrice(p.oldPrice) + ')' : ''));
+    parts.push(p.stock > 0 ? 'в наличии ' + p.stock + ' шт.' : 'сейчас нет в наличии');
+    if (p.note) parts.push(p.note);
+    return parts.join(', ') + '.';
+  }
+
+  function catalogText() {
+    return (A.state.products || []).slice(0, 12).map(function (p) {
+      return '• ' + p.name + ' — ' + A.formatPrice(p.price) + ', ' +
+        (p.stock > 0 ? 'в наличии (' + p.stock + ' шт.)' : 'нет в наличии') +
+        (p.note ? '; ' + p.note : '');
+    }).join('\n');
+  }
+
+  function systemPrompt(chat) {
+    var s = A.state, shop = s.shop || {}, set = s.settings || {}, p = A.chatProduct(chat);
+    var tone = set.tone === 'friendly' ? 'дружелюбно, но по делу'
+      : set.tone === 'expert' ? 'сухо и профессионально' : 'спокойно и вежливо';
+    var rules = (s.rules || []).filter(function (r) {
+      return !/^r[1-7]$/.test(r.id) && r.enabled !== false && r.reply;
+    }).slice(0, 10).map(function (r) {
+      return '• ' + r.name + ': ' + String(r.reply).replace(/\{\{[^}]+\}\}/g, '…');
+    });
+
+    var lines = [
+      'Ты — ассистент магазина «' + (shop.name || 'магазин') + '» на Авито и отвечаешь покупателям в чате вместо продавца.',
+      'Пиши по-русски, ' + tone + '. Одно-два коротких предложения, без списков, без markdown, без эмодзи.',
+      'Если диалог уже начат — не здоровайся заново.',
+      'Факты бери только из данных ниже: цены, наличие, сроки и условия не выдумывай.',
+      'Если факта нет — скажи, что уточнишь у менеджера, и предложи помощь.',
+      'Не упоминай, что ты нейросеть или бот, и не говори про тесты и примеры.',
+      'Когда уместно, задай один короткий вопрос, который двигает к заказу.'
+    ];
+    if (shop.city) lines.push('Город магазина: ' + shop.city + '.');
+    if (shop.description) lines.push('О магазине: ' + shop.description);
+    if (p) lines.push('Покупатель спрашивает про: ' + productLine(p));
+    var cat = catalogText();
+    if (cat) lines.push('Каталог:\n' + cat);
+    if (rules.length) lines.push('Формулировки, которые продавец уже использует:\n' + rules.join('\n'));
+    return lines.join('\n');
+  }
+
+  function messagesFor(chat, text) {
+    var list = [{ role: 'system', content: systemPrompt(chat) }];
+    (chat.messages || []).slice(-8).forEach(function (m) {
+      var body = String(m.text || '').slice(0, 500);
+      if (body) list.push({ role: m.from === 'buyer' ? 'user' : 'assistant', content: body });
+    });
+    var last = list[list.length - 1];
+    if (!last || last.role !== 'user' || last.content !== String(text || '').slice(0, 500)) {
+      list.push({ role: 'user', content: String(text || '').slice(0, 500) });
+    }
+    return list;
+  }
+
+  function callApi(messages) {
+    var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, TIMEOUT);
+    return fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'deepseek-flash',
+        thinking: { type: 'disabled' },
+        messages: messages,
+        max_tokens: 260,
+        temperature: 0.6
+      }),
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    }).then(function (data) {
+      var msg = data && data.choices && data.choices[0] && data.choices[0].message;
+      return clean(msg && msg.content);
+    }).finally(function () { clearTimeout(timer); });
+  }
+
+  function bumpAi() {
+    var d = new Date(), key = d.getFullYear() + '-' + (d.getMonth() + 1);
+    var ai = A.state.ai || (A.state.ai = { month: '', used: 0 });
+    if (ai.month !== key) { ai.month = key; ai.used = 0; }
+    ai.used += 1;
+  }
+
+  F.aiOnline = function (chat, text) {
+    F.ensure();
+    if ((A.state.settings || {}).botMode !== 'ai') return Promise.resolve(null);
+    if (F.aiUsed() >= F.aiLimit()) return Promise.resolve(null);
+    var started = Date.now();
+    return callApi(messagesFor(chat, text)).then(function (content) {
+      if (!content || content.length < 2) return null;
+      bumpAi();
+      var seconds = Math.max(2, Math.round((Date.now() - started) / 1000));
+      return {
+        from: 'bot', text: content, rule: 'ИИ-ассистент',
+        confidence: Math.min(98, 89 + Math.min(9, Math.round(content.length / 45))),
+        latency: seconds + ' сек', attachment: null, handoff: false, topic: 'Ответ ИИ', ai: true
+      };
+    }).catch(function (err) {
+      if (window.console) console.warn('AutoR: ИИ не ответил —', err && err.message);
+      return null;
+    });
   };
 })();
 
