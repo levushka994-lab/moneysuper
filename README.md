@@ -34,6 +34,7 @@ assets/
       catalog.css          379   товары
       rules.css            340   сценарии
       analytics.css        293   аналитика
+      analysis.css         675   анализ диалогов: KPI, карта потерь, разбор, настройки ИИ, каналы
       settings.css         695   настройки
     responsive.css         787   адаптив: планшет и мобильный
     theme.css              260   тема «Пульт автопилота»
@@ -43,7 +44,7 @@ assets/
   js/
     seed.js                510   данные: магазин, товары, чаты, сценарии (window.AUTOR_SEED)
     charts.js              203   графики на чистом SVG (window.AutoRCharts)
-    app.js                3053   кабинет: состояние, роутер, страницы, модалы, тосты
+    app.js                3715   кабинет: состояние, роутер, страницы, модалы, тосты
     billing.js             661   доступ, промокоды, тарифы (window.AutoRBilling)
     cabinet.js             107   чистый кабинет и «Показать пример магазина»
     features.js           1171   доработки страниц (window.AutoRFeatures)

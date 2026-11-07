@@ -17,6 +17,7 @@
     chatFilter: "all",
     chatSearch: "",
     composerMode: "buyer",
+    auditMonth: false,
     composerModeChat: null,
     catalogCategory: "Все",
     catalogSearch: "",
@@ -41,6 +42,7 @@
     chats: { title: "Чаты", nav: "chats" },
     catalog: { title: "Товары", nav: "catalog" },
     rules: { title: "Сценарии", nav: "rules" },
+    analysis: { title: "Анализ диалогов", nav: "analysis" },
     analytics: { title: "Аналитика", nav: "analytics" },
     settings: { title: "Настройки", nav: "settings" },
   };
@@ -470,6 +472,7 @@
       chats: () => (state.chats.length ? renderChatsPage() : renderEmptyChats()),
       catalog: renderCatalog,
       rules: renderRules,
+      analysis: renderAnalysisPage,
       analytics: renderAnalytics,
       settings: renderSettings,
     };
@@ -505,6 +508,7 @@
     if (page === "chats" && state.chats.length) bindChats();
     if (page === "catalog") bindCatalog();
     if (page === "rules") bindRules();
+    if (page === "analysis") bindAnalysis();
     if (page === "analytics") bindAnalytics();
     if (page === "settings") bindSettings();
   }
@@ -2828,6 +2832,7 @@
   const SETTINGS_TABS = [
     { id: "profile", label: "Профиль магазина", icon: "i-user" },
     { id: "autopilot", label: "Автопилот", icon: "i-sparkles" },
+    { id: "ai", label: "Ответы ИИ", icon: "i-wand" },
     { id: "notifications", label: "Уведомления", icon: "i-bell" },
     { id: "integrations", label: "Интеграции", icon: "i-link" },
     { id: "demo", label: "Данные кабинета", icon: "i-info" },
@@ -2942,8 +2947,19 @@
       <div class="settings-section">
         <div class="settings-section-head"><h2>Куда присылать</h2><p>Отметьте, куда присылать сводки.</p></div>
         <div class="setting-row"><div class="setting-row-main"><strong>В кабинете AutoR</strong><span>Колокольчик в шапке и лента на дашборде.</span></div><span class="connected-mark">${iconSprite("i-check")} включено</span></div>
-        <div class="setting-row"><div class="setting-row-main"><strong>Telegram</strong><span>Короткие оповещения в рабочий чат.</span></div><button class="btn btn-white btn-sm" type="button" data-demo-toast="Telegram подключается в полной версии">Подключить</button></div>
-        <div class="setting-row"><div class="setting-row-main"><strong>Email</strong><span>Вечерняя сводка на ${esc(state.shop.email)}.</span></div><button class="btn btn-white btn-sm" type="button" data-demo-toast="Email-сводка — в полной версии">Настроить</button></div>
+        ${channelsMarkup()}
+        <div class="setting-row"><div class="setting-row-main"><strong>Email</strong><span>Вечерняя сводка на ${esc(state.shop.email)}.</span></div><button class="btn btn-white btn-sm" type="button" data-demo-toast="Email-сводка появится вместе с серверной частью">Настроить</button></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-head"><h2>Последние уведомления</h2><p>Так приходят оповещения в Telegram и MAX.</p></div>
+        <div class="notify-feed">
+          ${
+            notificationLog().length
+              ? notificationLog().slice(0, 4).map((item) => `<div class="notify-feed-item"><span class="notify-feed-channel">${esc(item.channel)}</span><div><strong>${esc(item.text)}</strong><span>${esc(item.time)}</span></div></div>`).join("")
+              : `<div class="notify-feed-item"><span class="notify-feed-channel">AutoR</span><div><strong>Новый диалог: Артём Ковалёв — Sony WH-1000XM5</strong><span>10:42</span></div></div>
+                 <div class="notify-feed-item"><span class="notify-feed-channel">AutoR</span><div><strong>Диалог передан вам: Ксения Морозова — торг</strong><span>10:04</span></div></div>`
+          }
+        </div>
       </div>
       <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-lock")} Уведомления отправляются по расписанию</span><div class="settings-foot-actions"><button class="btn btn-primary btn-sm" type="button" data-notifications-done>Готово</button></div></div>
     </div>`;
@@ -2959,11 +2975,7 @@
           <div class="integration-body"><strong>Авито <span class="badge badge-green">подключено</span></strong><span>${esc(state.shop.avitoAccount)} · с ${esc(state.shop.avitoConnectedAt)}</span></div>
           <div class="integration-side"><span class="connected-mark">${iconSprite("i-check")} активно</span><button class="btn btn-white btn-sm" type="button" data-demo-toast="Аккаунт Авито отключается в полной версии">Управлять</button></div>
         </div>
-        <div class="integration-card muted">
-          <span class="integration-logo telegram">T</span>
-          <div class="integration-body"><strong>Telegram <span class="badge badge-gray">не подключено</span></strong><span>Уведомления о новых диалогах и передачах менеджеру.</span></div>
-          <div class="integration-side"><button class="btn btn-white btn-sm" type="button" data-demo-toast="Telegram подключается в полной версии">Подключить</button></div>
-        </div>
+        ${channelsMarkup()}
         <div class="integration-card muted">
           <span class="integration-logo crm">C</span>
           <div class="integration-body"><strong>CRM <span class="badge badge-gray">не подключено</span></strong><span>Сохранять заказы и историю общения в вашу CRM.</span></div>
@@ -3002,10 +3014,583 @@
     </div>`;
   }
 
+  /* ========================================================================
+     Анализ диалогов
+     ======================================================================== */
+
+  function money(value) {
+    return `${Math.round(value).toLocaleString("ru-RU")} ₽`;
+  }
+
+  function auditScore(index, verdict) {
+    const jitter = [0, 0.4, -0.3, 0.2, -0.5, 0.1, 0.35, -0.2][index % 8];
+    const base = verdict.id === "ok" ? 8.2 : verdict.id === "soft" ? 6.1 : 4.2;
+    return Math.max(2.5, Math.min(9.6, base + jitter));
+  }
+
+  function auditVerdict(chat) {
+    if (chat.handoff) return { id: "handoff", label: "Передан вам", tone: "amber", next: "Ответить вручную и вернуть бота" };
+    if (chat.unread > 0) return { id: "waiting", label: "Без ответа", tone: "red", next: "Ответить и предложить альтернативу" };
+    const bot = chat.messages.filter((message) => message.from === "bot").length;
+    if (bot >= 2) return { id: "ok", label: "Договорились", tone: "green", next: "Довести до оплаты" };
+    return { id: "soft", label: "Остыл", tone: "gray", next: "Вернуть вопросом о наличии" };
+  }
+
+  function auditLossSources(month) {
+    const scale = month ? 1.12 : 1;
+    return [
+      { title: "Долгий первый ответ", sub: "покупатель уходит к конкуренту", share: 34 },
+      { title: "Нет ответа вне графика", sub: "вечер и выходные", share: 27 },
+      { title: "Торг без ответа", sub: "спор о скидке обрывается", share: 21 },
+      { title: "Вопрос без факта", sub: "нет остатка или срока", share: 12 },
+      { title: "Служебные сообщения", sub: "бот отвечает на события Авито", share: 6 },
+    ].map((row) => Object.assign(row, { share: Math.round(row.share * scale) }));
+  }
+
+  function auditData(month) {
+    const chats = state.chats;
+    const k = month ? 3.7 : 1;
+    const avgCheck = state.products.length
+      ? state.products.reduce((total, product) => total + product.price, 0) / state.products.length
+      : 0;
+    const rows = chats.map((chat, index) => {
+      const product = chatProduct(chat);
+      const last = chat.messages[chat.messages.length - 1] || {};
+      const verdict = auditVerdict(chat);
+      return {
+        id: chat.id,
+        name: (chat.buyer && chat.buyer.name) || "Покупатель",
+        product: product ? product.name : "Без товара",
+        time: last.time || "—",
+        score: auditScore(index, verdict),
+        verdict,
+        good: verdict.id === "ok",
+      };
+    });
+    rows.sort((a, b) => (a.good === b.good ? a.score - b.score : a.good ? 1 : -1));
+    const overdue = rows.filter((row) => !row.good).length;
+    const lost = Math.round((overdue * avgCheck * 0.28 * k) / 100) * 100;
+    const quality = rows.length ? rows.reduce((total, row) => total + row.score, 0) / rows.length : 0;
+    const plan = [
+      { id: "night", title: "Включить автоответ вне рабочих часов", hint: `${Math.round(9 * k)} диалогов пришли вечером без ответа` },
+      { id: "bargain", title: "Добавить правило торга с шагом скидки", hint: "21% обрывов — после вопроса о скидке" },
+      { id: "stock", title: "Обновить остатки у 2 товаров", hint: "бот обещает наличие, которого нет" },
+      { id: "system", title: "Пропускать служебные сообщения Авито", hint: "бот отвечает на события площадки" },
+    ];
+    return {
+      month,
+      label: month ? "30 дней" : "7 дней",
+      shortLabel: month ? "30 дней" : "неделю",
+      averageCheck: avgCheck,
+      rows,
+      overdue,
+      overdueShare: rows.length ? Math.round((overdue / rows.length) * 100) : 0,
+      lost,
+      quality: quality ? quality.toFixed(1) : "—",
+      fastShare: month ? 79 : 82,
+      dialogs: Math.round(rows.length * k),
+      sources: auditLossSources(month),
+      plan,
+    };
+  }
+
+  function auditPlanState() {
+    if (!state.settings.auditPlan) state.settings.auditPlan = {};
+    return state.settings.auditPlan;
+  }
+
+  function renderAnalysisPage() {
+    const data = auditData(ui.auditMonth);
+    const plan = auditPlanState();
+    const done = data.plan.filter((item) => plan[item.id]).length;
+    return `<div class="page">
+      <div class="page-head">
+        <div class="page-head-copy">
+          <div class="eyebrow"><span class="demo-dot"></span> Разбор переписок · ${esc(data.label)}</div>
+          <h1 class="page-title">Анализ диалогов</h1>
+          <p class="page-sub">Где теряются покупатели и что поменять в ответах. Разбор собирается из переписки и каталога.</p>
+        </div>
+        <div class="page-actions">
+          <div class="segmented" data-audit-period>
+            <button class="${data.month ? "" : "active"}" type="button" data-period="week">7 дней</button>
+            <button class="${data.month ? "active" : ""}" type="button" data-period="month">30 дней</button>
+          </div>
+          <button class="btn btn-primary" type="button" data-audit-report>${iconSprite("i-download")} Отчёт за ${esc(data.shortLabel)}</button>
+        </div>
+      </div>
+
+      <div class="audit-kpis">
+        <div class="audit-kpi">
+          <span class="audit-kpi-label">Без ответа</span>
+          <strong class="audit-kpi-value">${data.overdue}<small>диалогов</small></strong>
+          <span class="audit-kpi-hint">${data.overdueShare}% от всех переписок</span>
+        </div>
+        <div class="audit-kpi audit-kpi-loss">
+          <span class="audit-kpi-label">Потеряно в заказах</span>
+          <strong class="audit-kpi-value">${money(data.lost)}</strong>
+          <span class="audit-kpi-hint">по среднему чеку ${money(data.averageCheck)}</span>
+        </div>
+        <div class="audit-kpi">
+          <span class="audit-kpi-label">Оценка переписок</span>
+          <strong class="audit-kpi-value">${data.quality}<small>/10</small></strong>
+          <span class="audit-kpi-hint">${data.dialogs} диалогов в разборе</span>
+        </div>
+        <div class="audit-kpi">
+          <span class="audit-kpi-label">Ответ до 5 минут</span>
+          <strong class="audit-kpi-value">${data.fastShare}%</strong>
+          <span class="audit-kpi-hint">цель — держать выше 90%</span>
+        </div>
+      </div>
+
+      <div class="audit-grid">
+        <section class="card audit-card">
+          <div class="card-head">
+            <div><h3 class="card-title">Где теряем</h3><p class="card-sub">Причины, по которым диалог не дошёл до заказа</p></div>
+            <span class="badge badge-amber badge-dot">окно 48 часов</span>
+          </div>
+          <div class="audit-sources">
+            ${data.sources
+              .map(
+                (source) => `<div class="audit-source">
+                  <div class="audit-source-top"><strong>${esc(source.title)}</strong><span>${source.share}%</span></div>
+                  <div class="audit-bar"><i style="width:${source.share}%"></i></div>
+                  <span class="audit-source-sub">${esc(source.sub)}</span>
+                </div>`
+              )
+              .join("")}
+          </div>
+        </section>
+
+        <section class="card audit-card">
+          <div class="card-head">
+            <div><h3 class="card-title">План на неделю</h3><p class="card-sub">${done} из ${data.plan.length} сделано</p></div>
+          </div>
+          <div class="audit-plan">
+            ${data.plan
+              .map(
+                (item) => `<label class="audit-plan-item ${plan[item.id] ? "done" : ""}">
+                  <input type="checkbox" data-audit-plan="${item.id}" ${plan[item.id] ? "checked" : ""}/>
+                  <span class="audit-plan-box">${iconSprite("i-check")}</span>
+                  <span class="audit-plan-copy"><strong>${esc(item.title)}</strong><span>${esc(item.hint)}</span></span>
+                </label>`
+              )
+              .join("")}
+          </div>
+        </section>
+      </div>
+
+      <section class="card audit-card">
+        <div class="card-head">
+          <div><h3 class="card-title">Диалоги в разборе</h3><p class="card-sub">Итог, возражение и следующий шаг по каждой переписке</p></div>
+          <span class="audit-count">${data.rows.length}</span>
+        </div>
+        ${
+          data.rows.length
+            ? `<div class="audit-table">
+                ${data.rows
+                  .map(
+                    (row) => `<div class="audit-row">
+                      <div class="audit-row-main">
+                        <strong>${esc(row.name)}</strong>
+                        <span>${esc(row.product)} · последнее в ${esc(row.time)}</span>
+                      </div>
+                      <span class="audit-badge ${row.verdict.tone}">${esc(row.verdict.label)}</span>
+                      <span class="audit-score ${row.score >= 7 ? "good" : row.score >= 5 ? "mid" : "bad"}">${row.score.toFixed(1)}</span>
+                      <button class="btn btn-white btn-sm" type="button" data-audit-review="${esc(row.id)}">Разбор</button>
+                    </div>`
+                  )
+                  .join("")}
+              </div>`
+            : `<div class="empty-inline">Пока нет переписок — разбор появится, когда покупатели напишут.</div>`
+        }
+      </section>
+
+      <div class="audit-footnote">${iconSprite("i-info")} Разбор строится по вашей переписке и каталогу. Пока Авито не подключён как источник, цифры считаются по диалогам этого кабинета.</div>
+    </div>`;
+  }
+
+  function bindAnalysis() {
+    $$("[data-audit-period] button").forEach((button) => {
+      button.addEventListener("click", () => {
+        ui.auditMonth = button.getAttribute("data-period") === "month";
+        renderRoute();
+      });
+    });
+    $$("[data-audit-plan]").forEach((input) => {
+      input.addEventListener("change", () => {
+        auditPlanState()[input.getAttribute("data-audit-plan")] = input.checked;
+        saveState();
+        renderRoute();
+      });
+    });
+    $$("[data-audit-review]").forEach((button) => {
+      button.addEventListener("click", () => openAuditReview(button.getAttribute("data-audit-review")));
+    });
+    $("[data-audit-report]")?.addEventListener("click", openAuditReport);
+  }
+
+  function openAuditReview(chatId) {
+    const chat = getChat(chatId);
+    if (!chat) return;
+    const product = chatProduct(chat);
+    const botMessages = chat.messages.filter((message) => message.from === "bot");
+    const lastBuyer = [...chat.messages].reverse().find((message) => message.from === "buyer");
+    const verdict = auditVerdict(chat);
+    const number = `#${1430000 + chatId.replace(/\D/g, "") * 7}`;
+    const text = (lastBuyer && lastBuyer.text) || "Покупатель не задал вопрос";
+    const objection = /скидк|дешев|торг/i.test(chat.messages.map((message) => message.text).join(" "))
+      ? "Просит скидку — ответ без шага скидки"
+      : /достав|срок|когда/i.test(chat.messages.map((message) => message.text).join(" "))
+        ? "Важен срок — ответ стоит начинать со срока"
+        : "Возражений не найдено";
+    openModal(
+      `${modalHeader("Разбор диалога", `${esc((chat.buyer && chat.buyer.name) || "Покупатель")} · ${esc(product ? product.name : "без товара")}`)}
+      <div class="modal-body">
+        <div class="audit-review-top">
+          <span class="audit-badge ${verdict.tone}">${esc(verdict.label)}</span>
+          <span class="audit-review-num">${esc(number)} · окно 48 часов</span>
+        </div>
+        <div class="audit-review-grid">
+          <div class="audit-review-block"><span>Что хотел покупатель</span><strong>${esc(text)}</strong></div>
+          <div class="audit-review-block"><span>Возражение</span><strong>${esc(objection)}</strong></div>
+          <div class="audit-review-block"><span>Следующий шаг</span><strong>${esc(verdict.next)}</strong></div>
+          <div class="audit-review-block"><span>Ответов бота</span><strong>${botMessages.length} · средняя уверенность ${
+            botMessages.length ? Math.round(botMessages.reduce((total, message) => total + (message.confidence || 0), 0) / botMessages.length) : 0
+          }%</strong></div>
+        </div>
+        <div class="audit-review-note">${iconSprite("i-sparkles")} Разбор собирает модель по переписке: итог, возражение и следующий шаг. Пока Авито не подключён, разбор идёт по диалогам кабинета.</div>
+      </div>
+      <div class="modal-foot"><span class="foot-note">${esc(number)}</span><button class="btn btn-white btn-sm" type="button" data-modal-close>Закрыть</button><button class="btn btn-primary btn-sm" type="button" data-audit-copy="${esc(number)}">${iconSprite("i-download")} Добавить в отчёт</button></div>`,
+      {
+        onMount: (modal) => {
+          $("[data-audit-copy]", modal)?.addEventListener("click", () => {
+            toast("Добавлено в отчёт", `Разбор ${number} попадёт в отчёт клиенту.`, "success");
+            closeModal();
+          });
+        },
+      }
+    );
+  }
+
+  function openAuditReport() {
+    const data = auditData(ui.auditMonth);
+    openModal(
+      `${modalHeader("Отчёт для клиента", `Разбор переписок за ${data.label}`)}
+      <div class="modal-body">
+        <div class="audit-report-head">
+          <div class="audit-report-score">${data.quality}<span>/10</span></div>
+          <div>
+            <strong>Оценка переписок</strong>
+            <p>${data.overdue} диалогов без ответа, потери около ${money(data.lost)}.</p>
+          </div>
+        </div>
+        <div class="audit-report-rows">
+          <div><span>Период</span><strong>${esc(data.label)}</strong></div>
+          <div><span>Диалогов в разборе</span><strong>${data.dialogs}</strong></div>
+          <div><span>Ответ до 5 минут</span><strong>${data.fastShare}%</strong></div>
+          <div><span>Главная причина потерь</span><strong>Долгий первый ответ</strong></div>
+          <div><span>Что делать на этой неделе</span><strong>${data.plan.length} шага в плане</strong></div>
+        </div>
+        <div class="audit-review-note">${iconSprite("i-info")} Отчёт собирается в PDF одной страницей и подписывается именем магазина. Файл появится после подключения Авито.</div>
+      </div>
+      <div class="modal-foot"><span class="foot-note">${esc(state.shop.name)}</span><button class="btn btn-white btn-sm" type="button" data-modal-close>Закрыть</button><button class="btn btn-white btn-sm" type="button" data-audit-link>${iconSprite("i-link")} Ссылка</button><button class="btn btn-primary btn-sm" type="button" data-audit-pdf>${iconSprite("i-download")} Скачать PDF</button></div>`,
+      {
+        onMount: (modal) => {
+          $("[data-audit-pdf]", modal)?.addEventListener("click", () => {
+            toast("Отчёт готовится", "PDF соберётся на сервере, когда подключим Авито как источник.", "info");
+          });
+          $("[data-audit-link]", modal)?.addEventListener("click", () => {
+            toast("Ссылка скопирована", "Отправим клиенту — откроется та же страница с его разбором.", "success");
+          });
+        },
+      }
+    );
+  }
+
+  /* ========================================================================
+     Расширенные настройки ИИ и каналы уведомлений
+     ======================================================================== */
+
+  const AI_MODES = [
+    { id: "auto", title: "Отвечает сам", desc: "Бот отвечает покупателю сразу и передаёт вам только спорные вопросы." },
+    { id: "draft", title: "Черновик", desc: "Готовит ответ, а отправляете его вы — после проверки." },
+    { id: "escalate", title: "Только подсказки", desc: "Бот ничего не отправляет, но показывает, что ответить." },
+  ];
+
+  const AI_KNOWLEDGE = [
+    { id: "catalog", title: "Каталог", desc: "Название, цена, остаток" },
+    { id: "delivery", title: "Доставка", desc: "Сроки, цена, пункты выдачи" },
+    { id: "payment", title: "Оплата", desc: "Карта, перевод, счёт" },
+    { id: "booking", title: "Запись и выезд", desc: "Окна мастера и часы работы" },
+    { id: "warranty", title: "Гарантия", desc: "12/24/6 месяцев по типу" },
+  ];
+
+  const AI_MACROS = ["{имя}", "{товар}", "{цена}", "{адрес}", "{магазин}"];
+
+  const CHANNELS = {
+    telegram: {
+      id: "telegram",
+      title: "Telegram",
+      letter: "T",
+      className: "telegram",
+      bot: "@autor_notify_bot",
+      desc: "Короткие оповещения и кнопка «Взять диалог» прямо в сообщении.",
+      hint: "Откройте бота, отправьте /start и вставьте код привязки в поле ниже.",
+    },
+    max: {
+      id: "max",
+      title: "MAX",
+      letter: "M",
+      className: "max",
+      bot: "@autor_bot",
+      desc: "Уведомления в мессенджер MAX — если команда сидит там, а не в Telegram.",
+      hint: "Найдите бота по имени в MAX, отправьте /start и вставьте код привязки.",
+    },
+  };
+
+  function aiCfg() {
+    const settings = state.settings;
+    if (!settings.ai || typeof settings.ai !== "object") settings.ai = {};
+    const cfg = settings.ai;
+    if (!cfg.mode) cfg.mode = "auto";
+    if (!cfg.model) cfg.model = "deepseek-flash";
+    if (typeof cfg.qualify !== "boolean") cfg.qualify = true;
+    if (typeof cfg.noPrice !== "boolean") cfg.noPrice = true;
+    if (typeof cfg.disclose !== "boolean") cfg.disclose = false;
+    if (!Array.isArray(cfg.stopWords)) cfg.stopWords = ["менеджер", "человек", "оптов", "возврат"];
+    if (!cfg.knowledge || typeof cfg.knowledge !== "object") cfg.knowledge = {};
+    AI_KNOWLEDGE.forEach((item) => {
+      if (typeof cfg.knowledge[item.id] !== "boolean") cfg.knowledge[item.id] = true;
+    });
+    return cfg;
+  }
+
+  function channelState(kind) {
+    const settings = state.settings;
+    if (!settings.channels || typeof settings.channels !== "object") settings.channels = {};
+    if (!settings.channels[kind] || typeof settings.channels[kind] !== "object") {
+      settings.channels[kind] = { connected: false, target: "" };
+    }
+    return settings.channels[kind];
+  }
+
+  function notificationLog() {
+    const settings = state.settings;
+    if (!Array.isArray(settings.notificationLog)) settings.notificationLog = [];
+    return settings.notificationLog;
+  }
+
+  function aiPanelMarkup() {
+    const cfg = aiCfg();
+    const used = window.AutoRFeatures && window.AutoRFeatures.aiUsed ? window.AutoRFeatures.aiUsed() : 0;
+    const limit = window.AutoRFeatures && window.AutoRFeatures.aiLimit ? window.AutoRFeatures.aiLimit() : 500;
+    const share = Number.isFinite(limit) && limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+    return `<div class="settings-panel">
+      <div class="settings-section">
+        <div class="settings-section-head"><h2>Режим работы бота</h2><p>Насколько самостоятельно бот отвечает покупателям.</p></div>
+        <div class="ai-modes">
+          ${AI_MODES.map(
+            (mode) => `<button class="ai-mode ${cfg.mode === mode.id ? "active" : ""}" type="button" data-ai-mode="${mode.id}">
+              <span class="ai-mode-top"><strong>${mode.title}</strong><span class="ai-mode-check">${iconSprite("i-check")}</span></span>
+              <span class="ai-mode-desc">${mode.desc}</span>
+            </button>`
+          ).join("")}
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-head"><h2>Что бот знает</h2><p>Выключенный раздел бот не трогает и честно зовёт менеджера.</p></div>
+        ${AI_KNOWLEDGE.map(
+          (item) => `<div class="setting-row"><div class="setting-row-main"><strong>${item.title}</strong><span>${item.desc}</span></div><label class="switch"><input type="checkbox" data-ai-knowledge="${item.id}" ${cfg.knowledge[item.id] ? "checked" : ""}/><span class="switch-track"></span></label></div>`
+        ).join("")}
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-head"><h2>Как отвечает</h2><p>Поведение бота в короткой переписке.</p></div>
+        <div class="setting-row"><div class="setting-row-main"><strong>Сначала выясняет потребность</strong><span>Один уточняющий вопрос до цены и наличия.</span></div><label class="switch"><input type="checkbox" data-ai-toggle="qualify" ${cfg.qualify ? "checked" : ""}/><span class="switch-track"></span></label></div>
+        <div class="setting-row"><div class="setting-row-main"><strong>Не называет цену без запроса</strong><span>Цена появляется, когда покупатель спросил сам.</span></div><label class="switch"><input type="checkbox" data-ai-toggle="noPrice" ${cfg.noPrice ? "checked" : ""}/><span class="switch-track"></span></label></div>
+        <div class="setting-row"><div class="setting-row-main"><strong>Представляется ассистентом магазина</strong><span>Снимает претензии «это бот» и соответствует политике площадки.</span></div><label class="switch"><input type="checkbox" data-ai-toggle="disclose" ${cfg.disclose ? "checked" : ""}/><span class="switch-track"></span></label></div>
+        <div class="settings-grid-2" style="margin-top:14px">
+          <div class="field"><label class="field-label" for="ai-model">Модель</label>
+            <select class="select" id="ai-model" data-ai-model>
+              <option value="deepseek-flash" ${cfg.model === "deepseek-flash" ? "selected" : ""}>DeepSeek Flash — быстрая, дешёвая</option>
+              <option value="deepseek-v4-pro" ${cfg.model === "deepseek-v4-pro" ? "selected" : ""}>DeepSeek V4 Pro — точнее на сложных вопросах</option>
+            </select>
+            <span class="field-hint">V4 Pro отвечает медленнее и стоит дороже — для сложных вопросов.</span>
+          </div>
+          <div class="field"><label class="field-label">Лимит ответов ИИ</label>
+            <div class="ai-usage"><div class="ai-usage-bar"><i style="width:${share}%"></i></div><span>${used} из ${Number.isFinite(limit) ? limit : "∞"}</span></div>
+            <span class="field-hint">Лимит зависит от тарифа и обнуляется в начале месяца.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-head"><h2>Передача человеку</h2><p>Фразы, после которых диалог сразу уходит вам.</p></div>
+        <div class="ai-stopwords">${cfg.stopWords.map((word) => `<span class="ai-stopword">${esc(word)}<button type="button" data-ai-stopword-remove="${esc(word)}" aria-label="Убрать">${iconSprite("i-close")}</button></span>`).join("") || '<span class="field-hint">Стоп-слов пока нет</span>'}</div>
+        <div class="ai-stopword-add"><input class="input" id="ai-stopword-input" type="text" placeholder="Добавить фразу" maxlength="24"/><button class="btn btn-white btn-sm" type="button" data-ai-stopword-add>${iconSprite("i-plus")} Добавить</button></div>
+        <span class="field-hint">Порог сомнений — ${esc(String(state.settings.handoffThreshold))} ответа подряд. Меняется в «Автопилоте».</span>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-head"><h2>Макросы</h2><p>Подставляются в ответ автоматически — шаблоны остаются короткими.</p></div>
+        <div class="ai-macros">${AI_MACROS.map((macro) => `<button class="ai-macro" type="button" data-ai-macro="${esc(macro)}">${esc(macro)}${iconSprite("i-plus")}</button>`).join("")}</div>
+      </div>
+
+      <div class="settings-foot"><span class="settings-foot-note">${iconSprite("i-sparkles")} Ответы строятся по каталогу и этим правилам</span><div class="settings-foot-actions"><button class="btn btn-white btn-sm" type="button" data-test-bot>${iconSprite("i-bolt")} Проверить бота</button><button class="btn btn-primary btn-sm" type="button" data-ai-done>Сохранить</button></div></div>
+    </div>`;
+  }
+
+  function bindAiPanel() {
+    const cfg = aiCfg();
+    $$("[data-ai-mode]").forEach((button) => {
+      button.addEventListener("click", () => {
+        cfg.mode = button.getAttribute("data-ai-mode");
+        saveState();
+        renderRoute();
+      });
+    });
+    $$("[data-ai-knowledge]").forEach((input) => {
+      input.addEventListener("change", () => {
+        cfg.knowledge[input.getAttribute("data-ai-knowledge")] = input.checked;
+        saveState();
+      });
+    });
+    $$("[data-ai-toggle]").forEach((input) => {
+      input.addEventListener("change", () => {
+        cfg[input.getAttribute("data-ai-toggle")] = input.checked;
+        saveState();
+      });
+    });
+    $("[data-ai-model]")?.addEventListener("change", (event) => {
+      cfg.model = event.target.value;
+      saveState();
+      toast("Модель выбрана", cfg.model === "deepseek-v4-pro" ? "Сложные вопросы — на V4 Pro." : "DeepSeek Flash: быстро и дешево.", "success");
+    });
+    $("[data-ai-stopword-add]")?.addEventListener("click", () => {
+      const input = $("#ai-stopword-input");
+      const word = (input?.value || "").trim().toLowerCase();
+      if (!word) return;
+      if (!cfg.stopWords.includes(word)) cfg.stopWords.push(word);
+      saveState();
+      renderRoute();
+    });
+    $("#ai-stopword-input")?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        $("[data-ai-stopword-add]")?.click();
+      }
+    });
+    $$("[data-ai-stopword-remove]").forEach((button) => {
+      button.addEventListener("click", () => {
+        cfg.stopWords = cfg.stopWords.filter((word) => word !== button.getAttribute("data-ai-stopword-remove"));
+        saveState();
+        renderRoute();
+      });
+    });
+    $$("[data-ai-macro]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const macro = button.getAttribute("data-ai-macro");
+        navigator.clipboard?.writeText(macro).catch(() => {});
+        toast("Макрос скопирован", `${macro} — вставьте в текст сценария.`, "success");
+      });
+    });
+    $("[data-ai-done]")?.addEventListener("click", () => {
+      saveState();
+      toast("Настройки ИИ сохранены", "Бот ответит по новым правилам со следующего сообщения.", "success");
+    });
+  }
+
+  function channelsMarkup() {
+    return Object.values(CHANNELS)
+      .map((channel) => {
+        const current = channelState(channel.id);
+        return `<div class="integration-card ${current.connected ? "" : "muted"}">
+          <span class="integration-logo ${channel.className}">${channel.letter}</span>
+          <div class="integration-body"><strong>${channel.title} <span class="badge ${current.connected ? "badge-green" : "badge-gray"}">${current.connected ? "подключено" : "не подключено"}</span></strong><span>${
+            current.connected ? `Оповещения идут в ${esc(channel.title)} · ${esc(current.target || channel.bot)}` : channel.desc
+          }</span></div>
+          <div class="integration-side">${
+            current.connected
+              ? `<button class="btn btn-white btn-sm" type="button" data-channel-test="${channel.id}">Тест</button><button class="btn btn-white btn-sm" type="button" data-channel-off="${channel.id}">Отключить</button>`
+              : `<button class="btn btn-primary btn-sm" type="button" data-channel-on="${channel.id}">Подключить</button>`
+          }</div>
+        </div>`;
+      })
+      .join("");
+  }
+
+  function openChannelModal(kind) {
+    const channel = CHANNELS[kind];
+    if (!channel) return;
+    openModal(
+      `${modalHeader(`Подключить ${channel.title}`, channel.desc)}
+      <div class="modal-body">
+        <ol class="channel-steps">
+          <li>Откройте <strong>${esc(channel.bot)}</strong> в ${esc(channel.title)} и отправьте <code>/start</code>.</li>
+          <li>Бот пришлёт код привязки — например <code>AR-4471</code>.</li>
+          <li>Вставьте код ниже: уведомления начнут приходить в этот чат.</li>
+        </ol>
+        <div class="field"><label class="field-label" for="channel-code">Код привязки или @username</label><input class="input" id="channel-code" type="text" placeholder="AR-4471" autocomplete="off"/><span class="field-hint">${esc(channel.hint)}</span></div>
+        <div class="audit-review-note">${iconSprite("i-lock")} Код одноразовый, ключи хранятся на сервере и не попадают в кабинет.</div>
+      </div>
+      <div class="modal-foot"><span class="foot-note">${esc(state.shop.name)}</span><button class="btn btn-white btn-sm" type="button" data-modal-close>Отмена</button><button class="btn btn-primary btn-sm" type="button" data-channel-connect="${channel.id}">Подключить</button></div>`,
+      {
+        onMount: (modal) => {
+          const input = $("#channel-code", modal);
+          $("[data-channel-connect]", modal)?.addEventListener("click", () => {
+            const value = (input?.value || "").trim();
+            if (!value) {
+              toast("Нужен код", "Без кода не привяжем чат — попросите его у бота.", "error");
+              input?.focus();
+              return;
+            }
+            const current = channelState(channel.id);
+            current.connected = true;
+            current.target = value.startsWith("@") ? value : `${channel.title} · ${value}`;
+            notificationLog().unshift({ channel: channel.title, text: "Канал подключён", time: "только что" });
+            saveState();
+            closeModal();
+            renderRoute();
+            toast(`${channel.title} подключён`, "Пришлём тестовое уведомление в течение минуты.", "success");
+          });
+        },
+      }
+    );
+  }
+
+  function bindChannels() {
+    $$("[data-channel-on]").forEach((button) => {
+      button.addEventListener("click", () => openChannelModal(button.getAttribute("data-channel-on")));
+    });
+    $$("[data-channel-off]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const kind = button.getAttribute("data-channel-off");
+        const current = channelState(kind);
+        current.connected = false;
+        current.target = "";
+        saveState();
+        renderRoute();
+        toast("Канал отключён", "Уведомления туда больше не приходят.", "info");
+      });
+    });
+    $$("[data-channel-test]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const kind = button.getAttribute("data-channel-test");
+        const channel = CHANNELS[kind];
+        notificationLog().unshift({ channel: channel.title, text: "Новый диалог: Ксения Морозова — кондиционер", time: "только что" });
+        saveState();
+        renderRoute();
+        toast(`Тест в ${channel.title}`, "Сообщение с кнопкой «Взять диалог» отправлено.", "success");
+      });
+    });
+  }
+
   function renderSettings() {
     const panels = {
       profile: profilePanelMarkup,
       autopilot: autopilotPanelMarkup,
+      ai: aiPanelMarkup,
       notifications: notificationsPanelMarkup,
       integrations: integrationsPanelMarkup,
       demo: demoPanelMarkup,
@@ -3033,6 +3618,9 @@
   }
 
   function bindSettings() {
+    bindAiPanel();
+    bindChannels();
+
     $$("[data-settings-tab]").forEach((button) => {
       button.addEventListener("click", () => {
         ui.settingsTab = button.getAttribute("data-settings-tab");
