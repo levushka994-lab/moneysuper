@@ -1,0 +1,260 @@
+/* ==========================================================================
+   AutoR — тема «Пульт автопилота»
+   Слой поверх базовых стилей (логика и разметка не меняются).
+   Рабочие экраны — тёплая бумага: спокойно для глаз при долгой работе.
+   Навигация и панель автопилота — тёмный пульт с индикаторами.
+   Сигнальный жёлтый — только главные действия и «бот ответил».
+   Шрифты: Unbounded — заголовки и крупные цифры; Golos Text — текст;
+   JetBrains Mono — подписи, время, счётчики.
+   ========================================================================== */
+
+:root {
+  --bg: #F3F0E8;
+  --surface: #FFFEFB;
+  --surface-soft: #F8F6F0;
+  --surface-blue: #FFF7DD;
+  --ink: #121C23;
+  --ink-soft: #37434B;
+  --muted: #5B666E;          /* 5.4:1 на бумаге */
+  --muted-light: #858E95;
+  --line: #E6E1D6;
+  --line-strong: #D5CEBF;
+
+  --blue: #121C23;
+  --blue-dark: #0B1217;
+  --blue-deep: #0E171D;
+  --sky: #FFC21A;
+  --cyan: #E8A600;
+  --lime: #FFC21A;
+  --lime-strong: #F5AE00;
+
+  --sidebar: #0E171D;
+  --sidebar-2: #16222B;
+  --sidebar-ink: #AEBAC2;
+  --sidebar-line: rgba(255, 255, 255, 0.08);
+
+  --signal: #FFC21A;
+  --signal-2: #F5AE00;
+  --signal-ink: #1A1300;
+  --led: #3FDB80;
+
+  --f-display: "Unbounded", "Golos Text", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --radius-xl: 22px;
+  --radius-lg: 16px;
+  --shadow-card: 0 1px 0 rgba(18, 28, 35, 0.04), 0 16px 32px -26px rgba(18, 28, 35, 0.45);
+  --shadow-float: 0 28px 60px -26px rgba(14, 23, 29, 0.55);
+  --shadow-blue: 0 10px 24px -12px rgba(229, 168, 0, 0.75);
+}
+
+/* --- Бумага с миллиметровкой --- */
+body {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(rgba(18, 28, 35, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(18, 28, 35, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-attachment: fixed;
+}
+::selection { background: var(--signal); color: var(--signal-ink); }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* --- Заголовки и подписи --- */
+.page-title, .hero-title, .modal-head h2, .automation-copy h2 {
+  font-family: var(--f-display);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+.page-title { font-size: 30px; line-height: 1.12; }
+.eyebrow {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.eyebrow .demo-dot, .demo-dot {
+  background: var(--led);
+  box-shadow: 0 0 0 3px rgba(63, 219, 128, 0.16), 0 0 10px rgba(63, 219, 128, 0.7);
+  animation: ar-blink 2.6s ease-in-out infinite;
+}
+@keyframes ar-blink { 50% { opacity: 0.45; } }
+.nav-label, .card-sub, .kpi-label, .field-label, .info-label, .modal-section-label, .rule-trigger-label, .rule-reply-label, .palette-group {
+  letter-spacing: 0.01em;
+}
+.nav-label, .info-label, .modal-section-label, .rule-trigger-label, .rule-reply-label, .palette-group, .bubble-label {
+  font-family: var(--f-mono);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.chat-row-time, .dialog-time, .feed-time, .bubble-foot, kbd, .nav-count, .delta, .badge, .range-value, .scenario-num {
+  font-family: var(--f-mono);
+}
+
+/* --- Тёмный пульт навигации --- */
+.sidebar {
+  background:
+    radial-gradient(70% 40% at 0% 0%, rgba(255, 194, 26, 0.10) 0%, transparent 60%),
+    linear-gradient(180deg, #16222B 0%, #0E171D 55%, #0A1116 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+.sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+.sidebar::after, .sidebar-glow { display: none; }
+.sidebar > * { position: relative; }
+.brand-word { font-family: var(--f-display); font-weight: 700; letter-spacing: -0.02em; }
+.brand-beta { font-family: var(--f-mono); background: var(--signal); color: var(--signal-ink); }
+.workspace {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+.workspace-logo { background: var(--signal); color: var(--signal-ink); font-family: var(--f-display); }
+.nav-label { color: #6F7F89; font-size: 10px; }
+.nav-item { border-radius: 10px; }
+.nav-item .icon { color: #7E8E98; }
+.nav-item:hover { color: #FFFFFF; background: rgba(255, 255, 255, 0.05); }
+.nav-item:hover .icon { color: var(--signal); }
+.nav-item.active {
+  color: #FFFFFF;
+  background: linear-gradient(90deg, rgba(255, 194, 26, 0.16), rgba(255, 194, 26, 0.03));
+  border-color: rgba(255, 194, 26, 0.22);
+}
+.nav-item.active::before {
+  background: var(--signal);
+  box-shadow: 0 0 12px rgba(255, 194, 26, 0.8);
+}
+.nav-item.active .icon { color: var(--signal); }
+.nav-count { background: var(--signal); color: var(--signal-ink); font-weight: 700; }
+.nav-count.soft { background: rgba(255, 255, 255, 0.1); color: #DCE3E8; }
+.side-demo {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 194, 26, 0.35);
+}
+.side-demo-head { font-family: var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px; color: var(--signal); }
+.side-demo-link { color: var(--signal); }
+
+/* --- Верхняя панель --- */
+.topbar {
+  background: rgba(243, 240, 232, 0.86);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.demo-pill {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: #E9F7EF;
+  border-color: var(--ink);
+}
+.search-trigger { background: var(--surface); border-color: var(--line-strong); }
+.search-trigger kbd { background: var(--bg); border-color: var(--line-strong); color: var(--ink-soft); }
+
+/* --- Кнопки: главное действие — сигнальный жёлтый --- */
+.btn { border-radius: 11px; }
+.btn-primary, .btn-lime {
+  color: var(--signal-ink);
+  background: var(--signal);
+  border-color: #E5A800;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45) inset, 0 8px 18px -10px rgba(229, 168, 0, 0.9);
+}
+.btn-primary:hover, .btn-lime:hover {
+  background: #FFCC3D;
+  border-color: #E5A800;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 12px 24px -12px rgba(229, 168, 0, 0.95);
+}
+.btn-dark { background: var(--ink); border-color: var(--ink); color: #FFFEFB; }
+.btn-dark:hover { background: #26343E; }
+
+/* --- Карточки --- */
+.card, .kpi-card, .product-card, .rule-card, .analytics-card, .chart-card, .feed-card, .dialog-list-card, .settings-panel, .integration-card, .choice-card, .decision-card {
+  border-color: var(--line);
+}
+.card, .kpi-card, .analytics-card { background: var(--surface); }
+.card-title { letter-spacing: -0.02em; }
+
+/* --- Главная: панель автопилота --- */
+.hero {
+  background:
+    radial-gradient(60% 120% at 100% 0%, rgba(255, 194, 26, 0.16) 0%, transparent 55%),
+    radial-gradient(50% 90% at 0% 100%, rgba(63, 219, 128, 0.08) 0%, transparent 60%),
+    linear-gradient(120deg, #0E171D 0%, #16222B 60%, #1E2D37 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 30px 60px -36px rgba(14, 23, 29, 0.9);
+}
+.hero-status {
+  font-family: var(--f-mono);
+  letter-spacing: 0.12em;
+  color: #DFF8EA;
+  background: rgba(63, 219, 128, 0.1);
+  border-color: rgba(63, 219, 128, 0.45);
+}
+.hero-title { font-size: clamp(26px, 2.4vw, 34px); line-height: 1.12; }
+.hero-title .accent { color: var(--signal); }
+
+/* --- Цифры: крупно, шрифтом табло --- */
+.kpi-value, .analytics-stat-value, .drawer-stats strong, .funnel-value, .product-price {
+  font-family: var(--f-display);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.kpi-icon { background: var(--bg); color: var(--ink); border: 1px solid var(--line); }
+.kpi-icon.lime { background: #FFF4D1; color: #6E4A00; border-color: #F2DD9C; }
+
+/* --- Чаты: строки как карточки на диспетчерском столе --- */
+.chat-row { border-radius: 12px; }
+.chat-row.active { background: #FFF7DD; }
+.chat-row.active::before { background: var(--signal); box-shadow: 0 0 10px rgba(255, 194, 26, 0.7); }
+.bubble { background: var(--surface); border-color: var(--line); }
+.message.out .bubble { background: #FFF4D1; border-color: #F2DD9C; color: #2B2200; }
+.message.out.manager .bubble {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #F3F1EA;
+  box-shadow: 0 8px 18px -12px rgba(14, 23, 29, 0.8);
+}
+.bubble-label { font-size: 9.5px; }
+.composer-box { background: var(--surface); border-color: var(--line-strong); }
+.composer-box:focus-within { border-color: #E5A800; box-shadow: 0 0 0 3px rgba(255, 194, 26, 0.28); }
+
+/* --- Переключатели: включено — сигнальный жёлтый --- */
+.switch input:checked + .switch-track,
+.switch input:checked + span { background: var(--signal); }
+.switch input:checked + .switch-track::after,
+.switch input:checked + span::after { background: var(--ink); }
+.switch input:focus-visible + .switch-track,
+.switch input:focus-visible + span { outline-color: var(--ink); }
+
+/* --- Поля ввода --- */
+.input, input.input, textarea.input, select.input { background: var(--surface); border-color: var(--line-strong); }
+.input:focus, .input:focus-within, input.input:focus, textarea.input:focus {
+  border-color: #E5A800;
+  box-shadow: 0 0 0 3px rgba(255, 194, 26, 0.28);
+}
+
+/* --- Ярлыки --- */
+.badge { letter-spacing: 0.02em; }
+.badge-blue { background: #FFF4D1; color: #6E4A00; border-color: #F2DD9C; }
+.badge-dark { background: var(--ink); color: #FFFEFB; }
+
+/* --- Сценарии: конвейер как цепочка индикаторов --- */
+.pipeline-icon { background: var(--surface); border: 1px solid var(--line-strong); }
+.automation-banner { border-color: var(--line); }
+
+/* --- Переписка: нейтральный фон, компактные сообщения --- */
+.messages-wrap { background: #F8F6F0; }
+.messages-wrap::before { opacity: 0.6; }
+.bubble { white-space: normal; }          /* переносы из шаблона разметки больше не превращаются в пустые строки */
+.bubble-text { white-space: pre-line; }   /* переносы внутри самого сообщения сохраняются */

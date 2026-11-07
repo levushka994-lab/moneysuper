@@ -24,6 +24,9 @@ if (-not (Get-Command ssh -ErrorAction SilentlyContinue)) {
 foreach ($f in "index.html", "server-setup.sh") {
   if (-not (Test-Path (Join-Path $here $f))) { Fail "Рядом со скриптом нет файла $f." }
 }
+if (-not (Test-Path (Join-Path $here "assets"))) {
+  Fail "Рядом со скриптом нет папки assets (стили и скрипты сайта)."
+}
 
 # Папка autor (сайт + установщик) уезжает на сервер в /tmp/autor
 $tmp = Join-Path $here "upload"
@@ -31,6 +34,7 @@ $pack = Join-Path $tmp "autor"
 if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
 New-Item -ItemType Directory -Path $pack | Out-Null
 Copy-Item (Join-Path $here "index.html") $pack
+Copy-Item (Join-Path $here "assets") (Join-Path $pack "assets") -Recurse
 # установщику нужны переводы строк Linux
 $sh = [IO.File]::ReadAllText((Join-Path $here "server-setup.sh")) -replace "`r`n", "`n"
 [IO.File]::WriteAllText((Join-Path $pack "server-setup.sh"), $sh, (New-Object System.Text.UTF8Encoding($false)))

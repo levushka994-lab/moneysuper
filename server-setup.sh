@@ -29,11 +29,20 @@ conf_path() {
   if [ -d /etc/nginx/sites-available ]; then echo /etc/nginx/sites-available/autor.conf; else echo /etc/nginx/conf.d/autor.conf; fi
 }
 
+# Сайт — это index.html плюс папка assets/. Копируем всё, кроме служебных файлов,
+# прошлый index.html оставляем рядом как index.prev.html.
+publish_site() {
+  install -d -m 755 "$ROOT"
+  if [ -f "$ROOT/index.html" ]; then cp -p "$ROOT/index.html" "$ROOT/index.prev.html"; fi
+  tar -C "$SRC" --exclude='server-setup.sh' --exclude='*.sh' -cf - . | tar -C "$ROOT" -xf -
+  find "$ROOT" -type d -exec chmod 755 {} +
+  find "$ROOT" -type f -exec chmod 644 {} +
+}
+
 # ---------- Обновление уже установленного сайта ----------
 if [ -f "$ROOT/index.html" ] && [ -f "$(conf_path)" ]; then
   say "AutoR уже установлен — обновляю сайт"
-  cp -p "$ROOT/index.html" "$ROOT/index.prev.html"
-  install -m 644 "$SRC/index.html" "$ROOT/index.html"
+  publish_site
   rm -rf "$SRC"
   ok "Новая версия на месте. Прошлая сохранена как $ROOT/index.prev.html"
   S=http; [ -d "/etc/letsencrypt/live/$DOMAIN" ] && S=https
@@ -124,8 +133,7 @@ if ! nginx -t >/dev/null 2>&1; then
   die "Конфигурация nginx на сервере уже с ошибкой (это не от AutoR). Ничего не менял — пришлите мне вывод выше."
 fi
 
-install -d -m 755 "$ROOT"
-install -m 644 "$SRC/index.html" "$ROOT/index.html"
+publish_site
 ok "Сайт скопирован в $ROOT"
 
 CONF=$(conf_path)

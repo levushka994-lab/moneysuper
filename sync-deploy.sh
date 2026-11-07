@@ -5,9 +5,14 @@
 # Запускается systemd-таймером autor-sync.timer (раз в минуту),
 # можно запустить руками: autor-sync
 #
-# Логика: git fetch -> если коммит или файл изменились -> проверить,
-# сохранить прошлую версию как index.prev.html и атомарно подменить index.html.
-# Ничего не делает, если в репозитории нет изменений.
+# Что делает:
+#   1. обновляет клон репозитория в /opt/autor/repo;
+#   2. собирает из него «чистую» папку сайта (index.html + assets/, без служебных файлов);
+#   3. если содержимое отличается от выложенного — проверяет сборку и подменяет
+#      /var/www/autor целиком (атомарно, через переименование);
+#   4. прошлый index.html остаётся рядом как index.prev.html для быстрого откката.
+#
+# Ничего не делает, если в репозитории нет изменений сайта.
 #
 set -euo pipefail
 
@@ -19,8 +24,13 @@ STATE="${AUTOR_STATE:-/opt/autor/deployed.sha}"
 STATE_DIR="$(dirname "$STATE")"
 SETUP_SHA_FILE="$STATE_DIR/server-setup.sha"
 ERRSTAMP="$STATE_DIR/last-error"
+STAGE="$WEBROOT.new"
 # ошибки сети логируем не чаще, чем раз в 10 минут
 ERR_EVERY=600
+
+# служебные файлы репозитория, которым нечего делать на сайте
+EXCLUDES=(--exclude=.git --exclude='*.ps1' --exclude='*.sh' --exclude='README*'
+          --exclude='.gitattributes' --exclude='.gitignore' --exclude='.github')
 
 log() { printf '%s %s\n' "$(date '+%F %T')" "$*"; }
 
@@ -32,10 +42,15 @@ fail() {
     log "ОШИБКА: $msg"
     echo "$now" > "$ERRSTAMP"
   fi
+  rm -rf "$STAGE" 2>/dev/null || true
   exit 1
 }
 
 mkdir -p "$STATE_DIR"
+
+# один экземпляр за раз: таймер может прийти, пока предыдущий ещё работает
+exec 9>"/run/autor-sync.lock" 2>/dev/null || exec 9>"/tmp/autor-sync.lock"
+flock -n 9 || exit 0
 
 # --- 1. Забрать репозиторий -------------------------------------------------
 # Плоский клон копит объекты при каждом fetch — если разросся, переклонируем.
@@ -61,20 +76,27 @@ fi
 
 NEW_SHA=$(git -C "$WORK" rev-parse HEAD)
 OLD_SHA=$(cat "$STATE" 2>/dev/null || true)
-SRC="$WORK/index.html"
 
-# --- 2. Есть ли что выкладывать --------------------------------------------
-[ -f "$SRC" ] || fail "в репозитории нет index.html"
+# --- 2. Собрать чистую папку сайта ------------------------------------------
+[ -f "$WORK/index.html" ] || fail "в репозитории нет index.html"
+
+rm -rf "$STAGE"
+mkdir -p "$STAGE"
+tar -C "$WORK" "${EXCLUDES[@]}" -cf - . | tar -C "$STAGE" -xf - \
+  || fail "не удалось собрать файлы сайта"
+
+TREE_SUM=$(cd "$STAGE" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
 
 # Сравниваем содержимое, а не только коммит: бывают коммиты, где сайт не менялся.
-if cmp -s "$SRC" "$WEBROOT/index.html" 2>/dev/null; then
-  if [ "$NEW_SHA" != "$OLD_SHA" ]; then echo "$NEW_SHA" > "$STATE"; fi
+if [ "$TREE_SUM" = "$OLD_SHA" ] && [ -f "$WEBROOT/index.html" ]; then
+  rm -rf "$STAGE"
   exit 0
 fi
 
 # --- 3. Проверить, что это похоже на сайт ----------------------------------
+SRC="$STAGE/index.html"
 SIZE=$(stat -c %s "$SRC")
-if [ "$SIZE" -lt 100000 ]; then
+if [ "$SIZE" -lt 20000 ]; then
   fail "index.html подозрительно маленький ($SIZE байт) — не выкладываю"
 fi
 if ! head -c 512 "$SRC" | grep -qi '<!doctype html\|<html'; then
@@ -83,28 +105,45 @@ fi
 if ! grep -q 'AutoR' "$SRC"; then
   fail "в index.html нет слова AutoR — не выкладываю"
 fi
+if ! grep -q 'assets/css/' "$SRC" || ! grep -q 'assets/js/' "$SRC"; then
+  fail "index.html не ссылается на assets/ — похоже на старую однофайловую сборку"
+fi
+
+# все локальные ссылки на стили и скрипты должны существовать в сборке
+MISSING=$(grep -oE '(href|src)="[^"]+"' "$SRC" \
+  | sed -E 's/.*="([^"]+)".*/\1/' \
+  | grep -vE '^(https?:|data:|#|/)' || true)
+while IFS= read -r ref; do
+  [ -z "$ref" ] && continue
+  [ -f "$STAGE/$ref" ] || fail "в сборке нет файла $ref"
+done <<< "$MISSING"
 
 # --- 4. Выложить -----------------------------------------------------------
-mkdir -p "$WEBROOT"
+chmod -R a+rX "$STAGE"
+find "$STAGE" -type d -exec chmod 755 {} +
+find "$STAGE" -type f -exec chmod 644 {} +
+
+# прошлая версия — рядом с новой, чтобы откат был в одну команду
 OLD_SUM="нет"
 if [ -f "$WEBROOT/index.html" ]; then
   OLD_SUM=$(sha256sum "$WEBROOT/index.html" | cut -c1-12)
-  cp -p "$WEBROOT/index.html" "$WEBROOT/index.prev.html"
+  cp -p "$WEBROOT/index.html" "$STAGE/index.prev.html"
 fi
 
-TMP="$WEBROOT/.index.html.tmp.$$"
-install -m 644 "$SRC" "$TMP"
-SRC_SUM=$(sha256sum "$SRC" | cut -d' ' -f1)
-TMP_SUM=$(sha256sum "$TMP" | cut -d' ' -f1)
-if [ "$SRC_SUM" != "$TMP_SUM" ]; then
-  rm -f "$TMP"
-  fail "контрольная сумма после копирования не совпала — оставляю прошлую версию"
+PREV="$WEBROOT.prev"
+rm -rf "$PREV"
+if [ -d "$WEBROOT" ]; then
+  mv "$WEBROOT" "$PREV" || fail "не удалось отложить прошлую версию"
 fi
-mv -f "$TMP" "$WEBROOT/index.html"
+if ! mv "$STAGE" "$WEBROOT"; then
+  [ -d "$PREV" ] && mv "$PREV" "$WEBROOT"
+  fail "не удалось выложить новую версию — вернул прошлую"
+fi
+rm -rf "$PREV"
 
-echo "$NEW_SHA" > "$STATE"
+echo "$TREE_SUM" > "$STATE"
 rm -f "$ERRSTAMP"
-log "выложен $(git -C "$WORK" rev-parse --short HEAD) ($SIZE байт), прошлая версия $OLD_SUM"
+log "выложен $(git -C "$WORK" rev-parse --short HEAD) (index.html $SIZE байт, файлов $(find "$WEBROOT" -type f | wc -l)), прошлая версия $OLD_SUM"
 
 # --- 5. Предупредить, если менялся установщик -------------------------------
 if [ -f "$WORK/server-setup.sh" ]; then
