@@ -34,7 +34,7 @@ conf_path() {
 publish_site() {
   install -d -m 755 "$ROOT"
   if [ -f "$ROOT/index.html" ]; then cp -p "$ROOT/index.html" "$ROOT/index.prev.html"; fi
-  tar -C "$SRC" --exclude='server-setup.sh' --exclude='*.sh' -cf - . | tar -C "$ROOT" -xf -
+  tar -C "$SRC" --exclude='server-setup.sh' --exclude='*.sh' --exclude='tools' --exclude='docs' -cf - . | tar -C "$ROOT" -xf -
   find "$ROOT" -type d -exec chmod 755 {} +
   find "$ROOT" -type f -exec chmod 644 {} +
 }

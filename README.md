@@ -92,6 +92,28 @@ systemctl list-timers autor-sync.timer    # когда следующий зап
 в лог пишется ошибка. Если менялся `server-setup.sh` (конфиг nginx), воркер пишет
 предупреждение — установщик запускается вручную.
 
+## Доступ из дома (eta + CloudPub)
+
+Сайт кроме VPS живёт на домашнем сервере `eta` (Arch, Caddy на `:8080`, сайт в
+`/srv/site-port/sites/autor.site-port.ru`). Туда же смотрит автовыкладка из ветки `chats-v2`
+через `/usr/local/bin/autor-eta-deploy` и таймер `autor-eta-sync.timer` (раз в 5 минут).
+
+Наружу домашний сервер не открывается — только исходящие туннели:
+
+- **CloudPub** (контейнер `autor-cloudpub`, `cloudpub/cloudpub`, `--net=host`, токен в
+  `/home/eta/.cloudpub.env`): публичный адрес вида `https://<name>.cloudpub.ru`, запросы
+  приходят с принудительным `Host: autor.site-port.ru`, поэтому Caddy отдаёт блок AutoR;
+- **свой SSH-туннель** на VPS (`autor-tunnel.service`): `127.0.0.1:8090` → nginx
+  `autor.site-port.ru`. Домашние порты 80/8000/8080/8123/8443 закрыты nftables
+  (`/etc/autor/autor-guard.nft`), доступны только из LAN и tailnet.
+
+На eta Caddy сам проксирует `POST /api/chat` в DeepSeek (ключ в `/etc/caddy/autor.env`,
+600, подключается через `EnvironmentFile=` в drop-in `caddy.service`), поэтому ИИ работает
+и без VPS.
+
+Ветки `tools/` и `docs/` на сервер не выкладываются (исключены в `sync-deploy.sh`,
+`deploy-eta.sh`, `server-setup.sh`) — там планы и скрипты, им нечего делать в вебе.
+
 ## Выложить на сервер вручную
 
 ```

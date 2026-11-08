@@ -31,7 +31,8 @@ ERR_EVERY=600
 
 # служебные файлы репозитория, которым нечего делать на сайте
 EXCLUDES=(--exclude=.git --exclude='*.ps1' --exclude='*.sh' --exclude='README*'
-          --exclude='.gitattributes' --exclude='.gitignore' --exclude='.github')
+          --exclude='.gitattributes' --exclude='.gitignore' --exclude='.github'
+          --exclude='tools' --exclude='docs')
 
 log() { printf '%s %s\n' "$(date '+%F %T')" "$*"; }
 
