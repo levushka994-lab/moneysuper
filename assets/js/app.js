@@ -3562,6 +3562,13 @@
     { id: "escalate", title: "Только подсказки", desc: "Бот ничего не отправляет, но показывает, что ответить." },
   ];
 
+  const AI_TASKS = [
+    { id: "sale", title: "Продажа и заказ" },
+    { id: "phone", title: "Получить телефон или контакт" },
+    { id: "pick", title: "Подобрать позицию" },
+    { id: "consult", title: "Назначить замер или консультацию" },
+    { id: "quiz", title: "Провести короткий опрос" }
+  ];
   const AI_SOURCES = [
     { id: "server", title: "DeepSeek Flash", desc: "Через сервер AutoR. Отвечает за 1–2 секунды." },
     { id: "local", title: "Локальная модель", desc: "mnn-pocket-0.3b на этом компьютере, порт 8080. Медленнее и слабее." }
@@ -3649,6 +3656,111 @@
     return String((cfg && cfg.prompt) || "").trim() || defaultPromptText();
   }
 
+  let promptWizardStep = 0;
+  let promptWizardDraft = null;
+
+  function promptWizardSeed() {
+    const shop = state.shop || {};
+    const cats = Array.from(new Set(state.products.map((item) => item.category).filter(Boolean)));
+    return {
+      name: "Анна",
+      sells: cats.length ? cats.join(", ").toLowerCase() : "товары и услуги",
+      instructions: [
+        "Стиль: коротко и по делу, 20–30 слов в сообщении, не больше одного вопроса за раз.",
+        "Товары и услуги: предлагай только то, что есть в каталоге; чего нет — не обещай.",
+        "Доставка и оплата: уточняй адрес и способ оплаты, не выдумывай цены доставки.",
+        "Ограничения: не давай скидок без согласования, не называй конкурентов, не обещай сроков, которых нет в каталоге.",
+        "Воронка: потребность → расчёт → удобное время → подтверждение."
+      ].join("\n"),
+      task: "sale",
+      script: "Выясни задачу, посчитай стоимость по каталогу, предложи запись или доставку и попроси подтвердить.",
+      greeting: "Здравствуйте, [[name]]! Это магазин «[[shop]]». Подскажите, вы по объявлению «[[title]]»?"
+    };
+  }
+
+  function promptWizardResult(draft) {
+    const taskText = AI_TASKS.find((item) => item.id === draft.task) || AI_TASKS[0];
+    return [
+      `Ты — ${draft.name ? draft.name + ", " : ""}ассистент магазина «[[shop]]» на Авито. Продаёшь: ${draft.sells}.`,
+      "",
+      "**Макросы**",
+      "- [[name]] — имя покупателя",
+      "- [[title]] — объявление, на которое он написал",
+      "- [[price]] — цена в объявлении",
+      "- [[shop]] — название магазина",
+      "",
+      "**Инструкции поведения**",
+      draft.instructions,
+      "",
+      "**Задача бота**",
+      `${taskText.title}. ${draft.script}`,
+      "",
+      "**Приветствие**",
+      draft.greeting,
+      "",
+      "Каталог, цены и остатки подставляются автоматически — бери факты только оттуда."
+    ].join("\n");
+  }
+
+  function promptWizardMarkup(draft, step) {
+    const steps = ["Роль", "Инструкции", "Задача", "Приветствие", "Готово"];
+    const dots = steps.map((label, index) => `<span class="wz-dot ${index === step ? "active" : ""} ${index < step ? "done" : ""}">${index + 1}. ${label}</span>`).join("");
+    let body = "";
+    if (step === 0) {
+      body = `<div class="field"><label class="field-label">Как зовут ассистента</label><input class="input" id="wz-name" value="${esc(draft.name)}" placeholder="Анна" maxlength="40"/></div>
+        <div class="field"><label class="field-label">Что продаём</label><input class="input" id="wz-sells" value="${esc(draft.sells)}" maxlength="160"/><span class="field-hint">Подставилось из категорий каталога — можно уточнить словами.</span></div>`;
+    } else if (step === 1) {
+      body = `<div class="field"><label class="field-label">Как ведёт себя бот</label><textarea class="input wz-area" id="wz-instructions" rows="10">${esc(draft.instructions)}</textarea><span class="field-hint">Каждый пункт — с новой строки. Начни со стиля, дальше факты, ограничения и порядок действий.</span></div>`;
+    } else if (step === 2) {
+      body = `<div class="field"><label class="field-label">Что должен сделать бот</label><select class="input" id="wz-task">${AI_TASKS.map((item) => `<option value="${item.id}" ${draft.task === item.id ? "selected" : ""}>${esc(item.title)}</option>`).join("")}</select></div>
+        <div class="field"><label class="field-label">Скрипт по шагам</label><textarea class="input wz-area" id="wz-script" rows="5">${esc(draft.script)}</textarea></div>`;
+    } else if (step === 3) {
+      body = `<div class="field"><label class="field-label">С чего начинает диалог</label><textarea class="input wz-area" id="wz-greeting" rows="4">${esc(draft.greeting)}</textarea><span class="field-hint">Можно использовать [[name]], [[title]], [[price]], [[shop]] — они подставятся из объявления и диалога.</span></div>`;
+    } else {
+      body = `<div class="field"><label class="field-label">Что получилось</label><textarea class="input wz-area wz-result" id="wz-result" rows="14" readonly>${esc(promptWizardResult(draft))}</textarea><span class="field-hint">Можно скопировать и дописать вручную в настройках ИИ.</span></div>`;
+    }
+    return `<div class="modal-head"><div><h2>Конструктор промпта</h2><p>Пять блоков — как в инструкции Авито, но под наши товары и услуги.</p></div><button class="modal-close" type="button" data-modal-close>${iconSprite("i-close")}</button></div>
+      <div class="modal-body"><div class="wz-dots">${dots}</div>${body}</div>
+      <div class="modal-foot"><button class="btn btn-white" type="button" data-wz-back ${step === 0 ? "disabled" : ""}>Назад</button>
+        ${step < 4 ? `<button class="btn btn-primary" type="button" data-wz-next>Дальше</button>` : `<button class="btn btn-primary" type="button" data-wz-apply>Применить</button>`}
+      </div>`;
+  }
+
+  function openPromptWizard(step) {
+    promptWizardStep = step || 0;
+    if (!promptWizardDraft) promptWizardDraft = promptWizardSeed();
+    openModal(promptWizardMarkup(promptWizardDraft, promptWizardStep), {
+      className: "prompt-wizard-modal",
+      onMount: (root) => {
+        const read = () => {
+          const name = $("#wz-name", root);
+          const sells = $("#wz-sells", root);
+          const instructions = $("#wz-instructions", root);
+          const task = $("#wz-task", root);
+          const script = $("#wz-script", root);
+          const greeting = $("#wz-greeting", root);
+          if (name) promptWizardDraft.name = name.value.trim();
+          if (sells) promptWizardDraft.sells = sells.value.trim();
+          if (instructions) promptWizardDraft.instructions = instructions.value.trim();
+          if (task) promptWizardDraft.task = task.value;
+          if (script) promptWizardDraft.script = script.value.trim();
+          if (greeting) promptWizardDraft.greeting = greeting.value.trim();
+        };
+        $("[data-wz-next]", root)?.addEventListener("click", () => { read(); openPromptWizard(promptWizardStep + 1); });
+        $("[data-wz-back]", root)?.addEventListener("click", () => { read(); openPromptWizard(Math.max(0, promptWizardStep - 1)); });
+        $("[data-wz-apply]", root)?.addEventListener("click", () => {
+          const cfg = aiCfg();
+          cfg.prompt = promptWizardResult(promptWizardDraft);
+          saveState();
+          closeModal();
+          promptWizardDraft = null;
+          renderRoute();
+          toast("Промпт собран", "Инструкция записана — её можно править текстом.", "success");
+        });
+      }
+    });
+  }
+
   function aiPanelMarkup() {
     const cfg = aiCfg();
     const used = window.AutoRFeatures && window.AutoRFeatures.aiUsed ? window.AutoRFeatures.aiUsed() : 0;
@@ -3706,7 +3818,10 @@
           <span class="field-hint">Поддерживаются подстановки <code>{магазин}</code> и <code>{тон}</code>. Пустое поле — стандартная инструкция.</span>
         </div>
         <div class="ai-prompt-actions">
-          <button class="btn btn-white btn-sm" type="button" data-ai-prompt-reset>Стандартная инструкция</button>
+          <div class="ai-prompt-buttons">
+            <button class="btn btn-white btn-sm" type="button" data-ai-prompt-wizard>${iconSprite("i-wand")} Собрать по шагам</button>
+            <button class="btn btn-white btn-sm" type="button" data-ai-prompt-reset>Стандартная инструкция</button>
+          </div>
           <span class="field-hint" id="ai-prompt-count">${promptValue(cfg).length} символов</span>
         </div>
       </div>
@@ -3762,6 +3877,7 @@
         }
       });
     }
+    $("[data-ai-prompt-wizard]")?.addEventListener("click", () => openPromptWizard(0));
     const promptReset = $("[data-ai-prompt-reset]");
     if (promptReset) {
       promptReset.addEventListener("click", () => {

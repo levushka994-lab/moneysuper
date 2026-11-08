@@ -788,10 +788,31 @@
     return String(ai.prompt || '').trim() || DEFAULT_PROMPT;
   }
 
-  function promptLines(shop, tone) {
-    return promptText()
-      .replace(/\{магазин\}/g, (shop && shop.name) || 'магазин')
-      .replace(/\{тон\}/g, tone)
+  function fillMacros(text, chat, tone, shop) {
+    var p = chat ? A.chatProduct(chat) : null;
+    var buyerName = chat && chat.buyer && chat.buyer.name ? chat.buyer.name : '';
+    var first = buyerName ? buyerName.split(' ')[0] : 'покупатель';
+    var map = {
+      '[[name]]': first,
+      '[[title]]': p ? p.name : ((shop && shop.name) || ''),
+      '[[price]]': p ? A.formatPrice(p.price) : '',
+      '[[shop]]': (shop && shop.name) || '',
+      '[[city]]': (shop && shop.city) || '',
+      '{имя}': first,
+      '{товар}': p ? p.name : '',
+      '{цена}': p ? A.formatPrice(p.price) : '',
+      '{магазин}': (shop && shop.name) || '',
+      '{город}': (shop && shop.city) || '',
+      '{тон}': tone || ''
+    };
+    return String(text).replace(/\[\[(?:name|title|price|shop|city)\]\]|\{(?:имя|товар|цена|магазин|город|тон)\}/g, function (token) {
+      var value = map[token];
+      return value === undefined || value === '' ? token : value;
+    });
+  }
+
+  function promptLines(shop, tone, chat) {
+    return fillMacros(promptText(), chat, tone, shop)
       .split(/\n+/)
       .map(function (line) { return line.trim(); })
       .filter(Boolean);
@@ -807,7 +828,7 @@
       return '• ' + r.name + ': ' + String(r.reply || r.desc).replace(/\{\{[^}]+\}\}/g, '…');
     });
 
-    var lines = promptLines(shop, tone);
+    var lines = promptLines(shop, tone, chat);
     if (shop.city) lines.push('Город магазина: ' + shop.city + '.');
     if (shop.description) lines.push('О магазине: ' + shop.description);
     if (p) lines.push('Покупатель спрашивает про: ' + productLine(p));
