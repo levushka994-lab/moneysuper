@@ -17,6 +17,7 @@
     chatFilter: "all",
     chatSearch: "",
     composerMode: "buyer",
+    viewAs: "shop",
     auditMonth: false,
     composerModeChat: null,
     catalogKind: "all",
@@ -439,6 +440,10 @@
   let lastRenderedPage = null;
 
   function renderRoute() {
+    if (state.settings && state.settings.viewAs && ui.viewAs !== state.settings.viewAs && !ui.viewAsTouched) {
+      ui.viewAs = state.settings.viewAs;
+    }
+    ui.viewAsTouched = true;
     const route = parseRoute();
     ui.page = route.page;
 
@@ -481,6 +486,7 @@
 
     view.dataset.page = route.page;
     view.innerHTML = renderers[route.page]();
+    document.body.classList.toggle("is-buyer-view", route.page === "chats" && ui.viewAs === "buyer");
     view.classList.remove("view-enter");
     void view.offsetWidth;
     view.classList.add("view-enter");
@@ -1222,7 +1228,76 @@
     updateChatFilterCounts();
   }
 
+  function viewAsMarkup() {
+    const buyer = ui.viewAs === "buyer";
+    return `<div class="view-as" role="group" aria-label="С чьей стороны смотреть переписку">
+      <span class="view-as-label">Смотреть как</span>
+      <div class="view-as-seg">
+        <button type="button" class="${buyer ? "" : "active"}" data-view-as="shop" aria-pressed="${!buyer}">${iconSprite("i-box")} Магазин</button>
+        <button type="button" class="${buyer ? "active" : ""}" data-view-as="buyer" aria-pressed="${buyer}">${iconSprite("i-user")} Покупатель</button>
+      </div>
+    </div>`;
+  }
+
+  function buyerMessagesMarkup(chat) {
+    let html = `<div class="day-divider"><span>Сегодня</span></div>`;
+    chat.messages.forEach((message) => {
+      if (message.from === "system") return;
+      const own = message.from === "buyer";
+      html += `<div class="b-message ${own ? "own" : "shop"}">
+        ${own ? "" : `<span class="b-ava">${esc((state.shop.name || "М").charAt(0))}</span>`}
+        <div class="b-bubble">
+          <div class="b-text">${esc(message.text)}</div>
+          <div class="b-time">${esc(message.time)}</div>
+        </div>
+      </div>`;
+    });
+    return html;
+  }
+
+  function buyerChatMarkup(chat) {
+    const product = chatProduct(chat);
+    const price = product ? (productKind(product) === "service" ? "от " : "") + priceLabel(product) : "";
+    const quick = buyerSuggestions(chat).slice(0, 3);
+    return `<div class="buyer-shell">
+      <div class="buyer-toolbar">
+        <button class="buyer-exit" type="button" data-view-as="shop">${iconSprite("i-arrow-left")} Вернуться в кабинет</button>
+        ${viewAsMarkup()}
+      </div>
+      <div class="buyer-app">
+        <header class="buyer-head">
+          <div class="buyer-shop">
+            <span class="buyer-logo">${esc((state.shop.name || "М").charAt(0))}</span>
+            <div>
+              <strong>${esc(state.shop.name)}</strong>
+              <span><i class="online-dot"></i> на связи · отвечает за пару секунд</span>
+            </div>
+          </div>
+          <span class="buyer-brand">Авито</span>
+        </header>
+        ${product ? `<div class="buyer-product">
+          <div class="buyer-product-text"><strong>${esc(product.name)}</strong><span>${price}</span></div>
+          <button class="buyer-product-open" type="button" data-open-product-id="${esc(product.id)}">${iconSprite("i-chevron-right")}</button>
+        </div>` : ""}
+        <div class="buyer-stream" id="messages-wrap">
+          <div class="messages-stream" id="messages-stream">${buyerMessagesMarkup(chat)}</div>
+        </div>
+        <div class="buyer-quick">
+          ${quick.map((text) => `<button type="button" class="buyer-quick-chip" data-buyer-quick="${esc(text)}">${esc(text)}</button>`).join("")}
+        </div>
+        <div class="buyer-composer">
+          <input id="buyer-input" type="text" placeholder="Напишите сообщение" autocomplete="off" />
+          <button class="buyer-send" type="button" id="buyer-send" aria-label="Отправить">${iconSprite("i-send")}</button>
+        </div>
+        <p class="buyer-note">Так переписку видит покупатель в Авито. ${chat.botPaused || chat.handoff ? "Сейчас отвечает менеджер." : "Сейчас отвечает бот."}</p>
+      </div>
+    </div>`;
+  }
+
   function renderChatsPage() {
+    if (ui.viewAs === "buyer") {
+      return `<div class="page chats-page buyer-page">${buyerChatMarkup(getActiveChat())}</div>`;
+    }
     const chat = getActiveChat();
     const layoutClass = isMobileChats() && ui.mobileConversation ? "show-conversation" : "";
     const attention = attentionCount();
@@ -1234,6 +1309,7 @@
           <p class="page-sub">${state.chats.length} ${plural(state.chats.length, "диалог", "диалога", "диалогов")} · ${attention} ${plural(attention, "ждёт", "ждут", "ждут")} вашего ответа</p>
         </div>
         <div class="page-actions">
+          ${viewAsMarkup()}
           <button class="btn btn-white" type="button" data-open-help>${iconSprite("i-help")} Как это работает</button>
         </div>
       </div>
@@ -1329,7 +1405,7 @@
     if (state.settings && state.settings.coachDismissed) return "";
     return `<div class="coach-tip" id="coach-tip">
       ${iconSprite("i-sparkles")}
-      <div><strong>Проверьте бота на этом диалоге</strong><p>Напишите сообщение как покупатель — ответ придёт за пару секунд.</p></div>
+      <div><strong>Как это выглядит для покупателя</strong><p>Переписку можно открыть глазами клиента — так он видит ответы бота в Авито.</p><button class="coach-tip-link" type="button" data-view-as="buyer">${iconSprite("i-eye")} Показать со стороны покупателя</button></div>
       <button class="icon-btn-sm coach-tip-close" type="button" data-coach-close aria-label="Скрыть подсказку">${iconSprite("i-close")}</button>
     </div>`;
   }
@@ -1437,15 +1513,13 @@
   }
 
   function composerMarkup(chat) {
-    const mode = composerModeFor(chat);
+    const mode = ui.viewAs === "buyer" ? "buyer" : "manager";
+    ui.composerMode = mode;
     const active = isBotActive(chat);
     const target = chat.unread ? 0 : 0;
     return `<div class="composer-role">
-        <span class="composer-role-label">Пишем как</span>
-        <div class="role-switch" role="group" aria-label="От чьего имени писать">
-          <button type="button" class="role-btn role-buyer${mode === "buyer" ? " active" : ""}" data-composer-mode="buyer" aria-pressed="${mode === "buyer"}">${iconSprite("i-user")} Покупатель</button>
-          <button type="button" class="role-btn role-shop${mode === "manager" ? " active" : ""}" data-composer-mode="manager" aria-pressed="${mode === "manager"}">${iconSprite("i-box")} Магазин</button>
-        </div>
+        <span class="composer-role-label">${iconSprite("i-box")} Отвечаете как магазин</span>
+        <button class="composer-check-link" type="button" data-view-as="buyer">${iconSprite("i-eye")} Проверить глазами покупателя</button>
         <span class="composer-bot-state${active ? "" : " paused"}" id="composer-bot-state"><span class="demo-dot"></span> ${botStateLabel(chat)}</span>
       </div>
       <div id="composer-notice">${composerNotice(chat)}</div>
@@ -1591,7 +1665,7 @@
   function refreshConversation(chat) {
     const stream = $("#messages-stream");
     if (stream) {
-      stream.innerHTML = messagesMarkup(chat);
+      stream.innerHTML = ui.viewAs === "buyer" ? buyerMessagesMarkup(chat) : messagesMarkup(chat);
       if (ui.pending.has(chat.id)) showTypingRow();
     }
     const info = $("#chat-info-pane");
@@ -1797,9 +1871,9 @@
     }
 
     if (reply.handoff) {
-      toast("Диалог передан менеджеру", "Бот не был уверен в ответе и позвал вас на помощь.", "info");
-    } else {
-      toast("Бот ответил", `«${message.rule}» · уверенность ${message.confidence}%`, "success");
+      if (ui.viewAs !== "buyer") toast("Диалог передан менеджеру", "Бот не был уверен в ответе и позвал вас на помощь.", "info");
+    } else if (ui.viewAs !== "buyer") {
+      toast("Бот ответил", `«${reply.rule}» · уверенность ${reply.confidence}%`, "success");
     }
   }
 
@@ -1848,6 +1922,15 @@
       toast("Бот не ответит", chat.botPaused ? "Диалог на паузе — ответит менеджер." : "Диалог уже передан менеджеру.", "info");
       updateGlobalBadges();
     }
+  }
+
+  function switchViewAs(mode) {
+    if (mode !== "buyer" && mode !== "shop") return;
+    ui.viewAs = mode;
+    ui.composerMode = "buyer";
+    if (state.settings) state.settings.viewAs = mode;
+    saveState();
+    renderRoute();
   }
 
   function switchComposerMode(mode) {
@@ -2073,6 +2156,35 @@
 
     $$("[data-composer-mode]").forEach((button) => {
       button.addEventListener("click", () => switchComposerMode(button.getAttribute("data-composer-mode")));
+    });
+
+    $$("[data-view-as]").forEach((button) => {
+      button.addEventListener("click", () => switchViewAs(button.getAttribute("data-view-as")));
+    });
+
+    const buyerInput = $("#buyer-input");
+    const buyerSend = () => {
+      const input = $("#buyer-input");
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      sendCurrentMessage(text);
+    };
+    buyerInput?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        buyerSend();
+      }
+    });
+    $("#buyer-send")?.addEventListener("click", buyerSend);
+    $$("[data-buyer-quick]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const text = chip.getAttribute("data-buyer-quick");
+        const input = $("#buyer-input");
+        if (input) input.value = text;
+        buyerSend();
+      });
     });
 
     $(".composer")?.addEventListener("click", (event) => {
