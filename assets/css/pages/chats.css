@@ -1573,3 +1573,16 @@
     height: calc(100dvh - 132px);
   }
 }
+
+/* Глазами покупателя: остаётся один диалог, без списка чужих переписок */
+body.is-buyer-view .chats-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+body.is-buyer-view .chat-list-pane {
+  display: none;
+}
+
+body.is-buyer-view .conversation-pane.is-buyer {
+  border-radius: var(--radius-lg);
+}

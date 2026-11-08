@@ -491,6 +491,7 @@
     view.classList.add("view-enter");
 
     bindPage(route.page);
+    document.body.classList.toggle("is-buyer-view", route.page === "chats" && ui.viewAs === "buyer");
     updateGlobalBadges();
     document.dispatchEvent(new CustomEvent("autor:render", { detail: { page: route.page } }));
 
@@ -1291,12 +1292,20 @@
     const chat = getActiveChat();
     const layoutClass = isMobileChats() && ui.mobileConversation ? "show-conversation" : "";
     const attention = attentionCount();
+    const buyerView = ui.viewAs === "buyer";
+    const headEyebrow = buyerView
+      ? '<span class="demo-dot"></span> Глазами покупателя'
+      : '<span class="demo-dot"></span> ' + (isBotActive(chat) ? "Бот на связи" : "Есть диалоги без бота");
+    const headTitle = buyerView ? "Переписка с магазином" : "Диалоги";
+    const headSub = buyerView
+      ? "Так этот диалог видит покупатель в Авито — без служебных подписей."
+      : state.chats.length + " " + plural(state.chats.length, "диалог", "диалога", "диалогов") + " · " + attention + " " + plural(attention, "ждёт", "ждут", "ждут") + " вашего ответа";
     return `<div class="page chats-page">
       <div class="page-head chats-head">
         <div class="page-head-copy">
-          <div class="eyebrow"><span class="demo-dot"></span> ${isBotActive(chat) ? "Бот на связи" : "Есть диалоги без бота"}</div>
-          <h1 class="page-title">Диалоги</h1>
-          <p class="page-sub">${state.chats.length} ${plural(state.chats.length, "диалог", "диалога", "диалогов")} · ${attention} ${plural(attention, "ждёт", "ждут", "ждут")} вашего ответа</p>
+          <div class="eyebrow">${headEyebrow}</div>
+          <h1 class="page-title">${headTitle}</h1>
+          <p class="page-sub">${headSub}</p>
         </div>
         <div class="page-actions">
           ${viewAsMarkup()}
