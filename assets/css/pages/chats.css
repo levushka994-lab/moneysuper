@@ -1586,3 +1586,12 @@ body.is-buyer-view .chat-list-pane {
 body.is-buyer-view .conversation-pane.is-buyer {
   border-radius: var(--radius-lg);
 }
+
+@media (max-width: 820px) {
+  body.is-buyer-view .conversation-pane {
+    display: flex;
+  }
+  body.is-buyer-view .chats-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
