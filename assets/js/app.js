@@ -486,7 +486,6 @@
 
     view.dataset.page = route.page;
     view.innerHTML = renderers[route.page]();
-    document.body.classList.toggle("is-buyer-view", route.page === "chats" && ui.viewAs === "buyer");
     view.classList.remove("view-enter");
     void view.offsetWidth;
     view.classList.add("view-enter");
@@ -1255,49 +1254,40 @@
     return html;
   }
 
-  function buyerChatMarkup(chat) {
+  function buyerConversationMarkup(chat) {
     const product = chatProduct(chat);
     const price = product ? (productKind(product) === "service" ? "от " : "") + priceLabel(product) : "";
     const quick = buyerSuggestions(chat).slice(0, 3);
-    return `<div class="buyer-shell">
-      <div class="buyer-toolbar">
-        <button class="buyer-exit" type="button" data-view-as="shop">${iconSprite("i-arrow-left")} Вернуться в кабинет</button>
-        ${viewAsMarkup()}
-      </div>
-      <div class="buyer-app">
-        <header class="buyer-head">
-          <div class="buyer-shop">
-            <span class="buyer-logo">${esc((state.shop.name || "М").charAt(0))}</span>
-            <div>
-              <strong>${esc(state.shop.name)}</strong>
-              <span><i class="online-dot"></i> на связи · отвечает за пару секунд</span>
-            </div>
+    return `<div class="buyer-pane">
+      <header class="buyer-head">
+        <div class="buyer-shop">
+          <span class="buyer-logo">${esc((state.shop.name || "М").charAt(0))}</span>
+          <div>
+            <strong>${esc(state.shop.name)}</strong>
+            <span><i class="online-dot"></i> на связи · отвечает за пару секунд</span>
           </div>
-          <span class="buyer-brand">Авито</span>
-        </header>
-        ${product ? `<div class="buyer-product">
-          <div class="buyer-product-text"><strong>${esc(product.name)}</strong><span>${price}</span></div>
-          <button class="buyer-product-open" type="button" data-open-product-id="${esc(product.id)}">${iconSprite("i-chevron-right")}</button>
-        </div>` : ""}
-        <div class="buyer-stream" id="messages-wrap">
-          <div class="messages-stream" id="messages-stream">${buyerMessagesMarkup(chat)}</div>
         </div>
-        <div class="buyer-quick">
-          ${quick.map((text) => `<button type="button" class="buyer-quick-chip" data-buyer-quick="${esc(text)}">${esc(text)}</button>`).join("")}
-        </div>
-        <div class="buyer-composer">
-          <input id="buyer-input" type="text" placeholder="Напишите сообщение" autocomplete="off" />
-          <button class="buyer-send" type="button" id="buyer-send" aria-label="Отправить">${iconSprite("i-send")}</button>
-        </div>
-        <p class="buyer-note">Так переписку видит покупатель в Авито. ${chat.botPaused || chat.handoff ? "Сейчас отвечает менеджер." : "Сейчас отвечает бот."}</p>
+        <span class="buyer-brand">Авито</span>
+      </header>
+      ${product ? `<div class="buyer-product">
+        <div class="buyer-product-text"><strong>${esc(product.name)}</strong><span>${price}</span></div>
+        <button class="buyer-product-open" type="button" data-open-product-id="${esc(product.id)}">${iconSprite("i-chevron-right")}</button>
+      </div>` : ""}
+      <div class="buyer-stream" id="messages-wrap">
+        <div class="messages-stream" id="messages-stream">${buyerMessagesMarkup(chat)}</div>
       </div>
+      <div class="buyer-quick">
+        ${quick.map((text) => `<button type="button" class="buyer-quick-chip" data-buyer-quick="${esc(text)}">${esc(text)}</button>`).join("")}
+      </div>
+      <div class="buyer-composer">
+        <input id="buyer-input" type="text" placeholder="Напишите сообщение" autocomplete="off" />
+        <button class="buyer-send" type="button" id="buyer-send" aria-label="Отправить">${iconSprite("i-send")}</button>
+      </div>
+      <p class="buyer-note">Так переписку видит покупатель в Авито. ${chat.botPaused || chat.handoff ? "Сейчас отвечает менеджер." : "Сейчас отвечает бот."}</p>
     </div>`;
   }
 
   function renderChatsPage() {
-    if (ui.viewAs === "buyer") {
-      return `<div class="page chats-page buyer-page">${buyerChatMarkup(getActiveChat())}</div>`;
-    }
     const chat = getActiveChat();
     const layoutClass = isMobileChats() && ui.mobileConversation ? "show-conversation" : "";
     const attention = attentionCount();
@@ -1330,13 +1320,15 @@
           <div class="chat-list-scroll" id="chat-list-scroll">${chatListMarkup()}</div>
         </aside>
 
-        <section class="conversation-pane">
-          ${conversationHeadMarkup(chat)}
+        <section class="conversation-pane${ui.viewAs === "buyer" ? " is-buyer" : ""}">
+          ${ui.viewAs === "buyer"
+            ? buyerConversationMarkup(chat)
+            : `${conversationHeadMarkup(chat)}
           ${convoAlertMarkup(chat) || coachTipMarkup(chat)}
           <div class="messages-wrap" id="messages-wrap">
             <div class="messages-stream" id="messages-stream">${messagesMarkup(chat)}</div>
           </div>
-          <div class="composer">${composerMarkup(chat)}</div>
+          <div class="composer">${composerMarkup(chat)}</div>`}
         </section>
 
         <div class="chat-info-backdrop" data-info-drawer-close aria-hidden="true"></div>
@@ -3561,6 +3553,11 @@
     { id: "escalate", title: "Только подсказки", desc: "Бот ничего не отправляет, но показывает, что ответить." },
   ];
 
+  const AI_SOURCES = [
+    { id: "server", title: "DeepSeek Flash", desc: "Через сервер AutoR. Отвечает за 1–2 секунды." },
+    { id: "local", title: "Локальная модель", desc: "mnn-pocket-0.3b на этом компьютере, порт 8080. Медленнее и слабее." }
+  ];
+  const AI_PROMPT_PLACEHOLDER = "Ты — ассистент магазина «{магазин}» на Авито…";
   const AI_KNOWLEDGE = [
     { id: "catalog", title: "Каталог", desc: "Название, цена, остаток" },
     { id: "delivery", title: "Доставка", desc: "Сроки, цена, пункты выдачи" },
@@ -3598,6 +3595,8 @@
     const cfg = settings.ai;
     if (!cfg.mode) cfg.mode = "auto";
     if (!cfg.model) cfg.model = "deepseek-flash";
+    if (!cfg.source) cfg.source = "server";
+    if (typeof cfg.prompt !== "string") cfg.prompt = "";
     if (typeof cfg.qualify !== "boolean") cfg.qualify = true;
     if (typeof cfg.noPrice !== "boolean") cfg.noPrice = true;
     if (typeof cfg.disclose !== "boolean") cfg.disclose = false;
@@ -3622,6 +3621,23 @@
     const settings = state.settings;
     if (!Array.isArray(settings.notificationLog)) settings.notificationLog = [];
     return settings.notificationLog;
+  }
+
+  function defaultPromptText() {
+    return [
+      "Ты — ассистент магазина «{магазин}» на Авито и отвечаешь покупателям вместо продавца.",
+      "Пиши по-русски, {тон}. Одно-два коротких предложения, без списков и markdown, без эмодзи.",
+      "Если диалог уже начат — не здоровайся заново.",
+      "Факты бери только из данных ниже: цены, наличие, сроки и условия не выдумывай.",
+      "Если факта нет — скажи, что уточнишь у менеджера, и предложи помощь.",
+      "Не упоминай, что ты нейросеть или бот, и не говори про тесты и примеры.",
+      "Если позиция измеряется в м² или единицах, посчитай стоимость сам: цена × количество, и назови итог.",
+      "Когда уместно, задай один короткий вопрос, который двигает к заказу."
+    ].join("\n");
+  }
+
+  function promptValue(cfg) {
+    return String((cfg && cfg.prompt) || "").trim() || defaultPromptText();
   }
 
   function aiPanelMarkup() {
@@ -3655,14 +3671,34 @@
         <div class="setting-row"><div class="setting-row-main"><strong>Не называет цену без запроса</strong><span>Цена появляется, когда покупатель спросил сам.</span></div><label class="switch"><input type="checkbox" data-ai-toggle="noPrice" ${cfg.noPrice ? "checked" : ""}/><span class="switch-track"></span></label></div>
         <div class="setting-row"><div class="setting-row-main"><strong>Представляется ассистентом магазина</strong><span>Снимает претензии «это бот» и соответствует политике площадки.</span></div><label class="switch"><input type="checkbox" data-ai-toggle="disclose" ${cfg.disclose ? "checked" : ""}/><span class="switch-track"></span></label></div>
         <div class="settings-grid-2" style="margin-top:14px">
-          <div class="field"><label class="field-label">Модель</label>
-            <div class="ai-model-static"><strong>DeepSeek Flash</strong><span>через сервер AutoR</span></div>
-            <span class="field-hint">Ответ за 1–2 секунды. Локальную модель на телефоне пока не подключаем: на слабых весах качество торга и расчёта смет падает.</span>
-          </div>
           <div class="field"><label class="field-label">Лимит ответов ИИ</label>
             <div class="ai-usage"><div class="ai-usage-bar"><i style="width:${share}%"></i></div><span>${used} из ${Number.isFinite(limit) ? limit : "∞"}</span></div>
             <span class="field-hint">Лимит зависит от тарифа и обнуляется в начале месяца.</span>
           </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-head"><h2>Где считаются ответы</h2><p>Можно переключить на локальную модель, если сервер недоступен.</p></div>
+        <div class="ai-sources">
+          ${AI_SOURCES.map(
+            (src) => `<button class="ai-mode ${cfg.source === src.id ? "active" : ""}" type="button" data-ai-source="${src.id}">
+              <span class="ai-mode-top"><strong>${src.title}</strong><span class="ai-mode-check">${iconSprite("i-check")}</span></span>
+              <span class="ai-mode-desc">${src.desc}</span>
+            </button>`
+          ).join("")}
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-head"><h2>Инструкция для модели</h2><p>Как ИИ разговаривает с покупателями. Каталог, цены и сроки подставляются автоматически снизу.</p></div>
+        <div class="field">
+          <textarea class="input ai-prompt" id="ai-prompt" rows="9" spellcheck="false" placeholder="${esc(AI_PROMPT_PLACEHOLDER)}">${esc(promptValue(cfg))}</textarea>
+          <span class="field-hint">Поддерживаются подстановки <code>{магазин}</code> и <code>{тон}</code>. Пустое поле — стандартная инструкция.</span>
+        </div>
+        <div class="ai-prompt-actions">
+          <button class="btn btn-white btn-sm" type="button" data-ai-prompt-reset>Стандартная инструкция</button>
+          <span class="field-hint" id="ai-prompt-count">${promptValue(cfg).length} символов</span>
         </div>
       </div>
 
@@ -3691,6 +3727,41 @@
         renderRoute();
       });
     });
+    $$("[data-ai-source]").forEach((button) => {
+      button.addEventListener("click", () => {
+        cfg.source = button.getAttribute("data-ai-source");
+        saveState();
+        renderRoute();
+        toast("Источник ответов", cfg.source === "local" ? "Локальная модель на 8080" : "DeepSeek Flash через сервер", "success");
+      });
+    });
+    const promptBox = $("#ai-prompt");
+    const promptCount = $("#ai-prompt-count");
+    if (promptBox) {
+      promptBox.addEventListener("input", () => {
+        const value = promptBox.value.slice(0, 2000);
+        cfg.prompt = value.trim() === defaultPromptText().trim() ? "" : value;
+        saveState();
+        if (promptCount) promptCount.textContent = `${value.length} символов`;
+      });
+      promptBox.addEventListener("blur", () => {
+        if (!promptBox.value.trim()) {
+          promptBox.value = defaultPromptText();
+          cfg.prompt = "";
+          saveState();
+          if (promptCount) promptCount.textContent = `${promptBox.value.length} символов`;
+        }
+      });
+    }
+    const promptReset = $("[data-ai-prompt-reset]");
+    if (promptReset) {
+      promptReset.addEventListener("click", () => {
+        cfg.prompt = "";
+        saveState();
+        renderRoute();
+        toast("Инструкция сброшена", "Вернули стандартный текст промпта.", "success");
+      });
+    }
     $$("[data-ai-knowledge]").forEach((input) => {
       input.addEventListener("change", () => {
         cfg.knowledge[input.getAttribute("data-ai-knowledge")] = input.checked;

@@ -772,6 +772,31 @@
     }).join('\n');
   }
 
+  var DEFAULT_PROMPT = [
+    'Ты — ассистент магазина «{магазин}» на Авито и отвечаешь покупателям вместо продавца.',
+    'Пиши по-русски, {тон}. Одно-два коротких предложения, без списков и markdown, без эмодзи.',
+    'Если диалог уже начат — не здоровайся заново.',
+    'Факты бери только из данных ниже: цены, наличие, сроки и условия не выдумывай.',
+    'Если факта нет — скажи, что уточнишь у менеджера, и предложи помощь.',
+    'Не упоминай, что ты нейросеть или бот, и не говори про тесты и примеры.',
+    'Если позиция измеряется в м² или единицах, посчитай стоимость сам: цена × количество, и назови итог.',
+    'Когда уместно, задай один короткий вопрос, который двигает к заказу.'
+  ].join('\n');
+
+  function promptText() {
+    var ai = (A.state.settings || {}).ai || {};
+    return String(ai.prompt || '').trim() || DEFAULT_PROMPT;
+  }
+
+  function promptLines(shop, tone) {
+    return promptText()
+      .replace(/\{магазин\}/g, (shop && shop.name) || 'магазин')
+      .replace(/\{тон\}/g, tone)
+      .split(/\n+/)
+      .map(function (line) { return line.trim(); })
+      .filter(Boolean);
+  }
+
   function systemPrompt(chat) {
     var s = A.state, shop = s.shop || {}, set = s.settings || {}, p = A.chatProduct(chat);
     var tone = set.tone === 'friendly' ? 'дружелюбно, но по делу'
@@ -782,16 +807,7 @@
       return '• ' + r.name + ': ' + String(r.reply || r.desc).replace(/\{\{[^}]+\}\}/g, '…');
     });
 
-    var lines = [
-      'Ты — ассистент магазина «' + (shop.name || 'магазин') + '» на Авито и отвечаешь покупателям в чате вместо продавца.',
-      'Пиши по-русски, ' + tone + '. Одно-два коротких предложения, без списков, без markdown, без эмодзи.',
-      'Если диалог уже начат — не здоровайся заново.',
-      'Факты бери только из данных ниже: цены, наличие, сроки и условия не выдумывай.',
-      'Если факта нет — скажи, что уточнишь у менеджера, и предложи помощь.',
-      'Не упоминай, что ты нейросеть или бот, и не говори про тесты и примеры.',
-      'Если позиция измеряется в м² или единицах, посчитай стоимость сам: цена × количество, и назови итог.',
-      'Когда уместно, задай один короткий вопрос, который двигает к заказу.'
-    ];
+    var lines = promptLines(shop, tone);
     if (shop.city) lines.push('Город магазина: ' + shop.city + '.');
     if (shop.description) lines.push('О магазине: ' + shop.description);
     if (p) lines.push('Покупатель спрашивает про: ' + productLine(p));
@@ -814,19 +830,26 @@
     return list;
   }
 
+  var LOCAL_ENDPOINT = 'http://127.0.0.1:8080/v1/chat/completions';
+  var LOCAL_TIMEOUT = 45000;
+
+  function aiSource() {
+    var ai = (A.state.settings || {}).ai || {};
+    return ai.source === 'local' ? 'local' : 'server';
+  }
+
   function callApi(messages) {
+    var local = aiSource() === 'local';
+    var wait = local ? LOCAL_TIMEOUT : TIMEOUT;
     var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
-    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, TIMEOUT);
-    return fetch(ENDPOINT, {
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, wait);
+    var payload = local
+      ? { model: 'mnn-pocket-0.3b', messages: messages, max_tokens: 260, temperature: 0.6 }
+      : { model: 'deepseek-flash', thinking: { type: 'disabled' }, messages: messages, max_tokens: 260, temperature: 0.6 };
+    return fetch(local ? LOCAL_ENDPOINT : ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'deepseek-flash',
-        thinking: { type: 'disabled' },
-        messages: messages,
-        max_tokens: 260,
-        temperature: 0.6
-      }),
+      body: JSON.stringify(payload),
       signal: ctrl ? ctrl.signal : undefined
     }).then(function (res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);

@@ -1303,33 +1303,19 @@
   box-shadow: 0 1px 2px rgba(20, 24, 28, .12), inset 0 0 0 1px var(--line);
 }
 
-.buyer-page {
+.buyer-pane {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  max-width: 560px;
-  margin: 0 auto;
+  min-height: 0;
+  height: 100%;
+  padding: 0 0 8px;
 }
 
-.buyer-shell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.buyer-app {
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  height: min(78vh, 760px);
-  border-radius: 18px;
-  background: #fff;
-  border: 1px solid var(--line);
-  box-shadow: 0 12px 32px rgba(24, 28, 32, .08);
+.conversation-pane.is-buyer {
+  padding: 0;
   overflow: hidden;
 }
+
 
 .buyer-head {
   display: flex;
@@ -1505,58 +1491,8 @@
 .buyer-exit .icon { width: 14px; height: 14px; }
 
 @media (max-width: 640px) {
-  .buyer-app { height: calc(100vh - 190px); min-height: 460px; border-radius: 14px; }
   .view-as { width: 100%; justify-content: space-between; }
   .view-as-seg button { padding: 0 10px; }
-}
-
-/* Покупательский режим: прячем кабинетные панели, оставляем переписку */
-body.is-buyer-view .sidebar,
-body.is-buyer-view .topbar,
-body.is-buyer-view .toast-stack {
-  display: none !important;
-}
-
-body.is-buyer-view .app-main { margin-left: 0; }
-body.is-buyer-view .app-shell { background: #f3f1ec; }
-
-body.is-buyer-view #view {
-  padding-top: 24px;
-}
-
-body.is-buyer-view .buyer-page .page-head {
-  width: 100%;
-  margin: 0;
-}
-
-body.is-buyer-view .buyer-shell {
-  padding-bottom: 32px;
-}
-
-.buyer-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  width: 100%;
-  max-width: 480px;
-}
-
-body.is-buyer-view #view { padding: 18px 16px 32px; }
-
-@media (max-width: 640px) {
-  .buyer-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-    max-width: none;
-  }
-  .buyer-toolbar .view-as { justify-content: space-between; }
-  .buyer-toolbar .view-as-label { display: none; }
-  .buyer-toolbar .view-as-seg { flex: 1; }
-  .buyer-toolbar .view-as-seg button { flex: 1; justify-content: center; }
-  .buyer-exit { justify-content: center; }
-  body.is-buyer-view #view { padding: 12px 12px 24px; }
 }
 
 .composer-check-link {
@@ -1593,6 +1529,8 @@ body.is-buyer-view #view { padding: 18px 16px 32px; }
 }
 .coach-tip-link .icon { width: 13px; height: 13px; }
 
-.buyer-toolbar .view-as-label { display: none; }
-.buyer-exit { white-space: nowrap; }
-.buyer-toolbar .view-as-seg button { height: 28px; padding: 0 10px; }
+
+/* Вид покупателя внутри кабинета: тот же каркас, другая переписка */
+.conversation-pane.is-buyer .buyer-pane { background: #fff; }
+.conversation-pane.is-buyer .buyer-head { border-radius: 0; }
+.conversation-pane.is-buyer .buyer-stream { flex: 1; min-height: 0; }
