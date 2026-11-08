@@ -3145,7 +3145,7 @@
     const settings = state.settings;
     return `<div class="settings-panel">
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Тон общения</h2><p>Бот будет отвечать в выбранной манере. Тон применяется к первым сообщениям в диалоге.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-smile")} Тон общения</h2><p>Бот будет отвечать в выбранной манере. Тон применяется к первым сообщениям в диалоге.</p></div>
         <div class="tone-options">
           ${TONE_OPTIONS.map(
             (tone) => `<label class="tone-option"><input type="radio" name="tone" value="${tone.id}" ${settings.tone === tone.id ? "checked" : ""}/><div class="tone-option-top"><span class="tone-option-emoji">${tone.emoji}</span><span class="choice-check">${iconSprite("i-check")}</span></div><strong>${tone.title}</strong><p>${tone.desc}</p></label>`
@@ -3155,14 +3155,14 @@
         ${tonePreviewMarkup()}
       </div>
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Скорость и передача менеджеру</h2><p>Задержка делает ответы похожими на живые. Если бот сомневается, диалог уйдёт вам.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-clock")} Скорость и передача менеджеру</h2><p>Задержка делает ответы похожими на живые. Если бот сомневается, диалог уйдёт вам.</p></div>
         <div class="settings-grid-2">
           <div class="field"><label class="field-label" for="set-delay">Задержка ответа <small data-delay-output>${settings.delay} сек</small></label><input class="range" id="set-delay" type="range" min="2" max="30" step="1" value="${settings.delay}" /><span class="field-hint">Ответ появится через ${settings.delay} секунд.</span></div>
           <div class="field"><label class="field-label" for="set-handoff">Передавать менеджеру после</label><select class="select" id="set-handoff"><option value="2" ${settings.handoffThreshold === 2 ? "selected" : ""}>2 неуверенных ответов</option><option value="3" ${settings.handoffThreshold === 3 ? "selected" : ""}>3 неуверенных ответов</option><option value="4" ${settings.handoffThreshold === 4 ? "selected" : ""}>4 неуверенных ответов</option><option value="5" ${settings.handoffThreshold === 5 ? "selected" : ""}>5 неуверенных ответов</option></select><span class="field-hint">Если подходящего сценария нет, диалог сразу переходит к вам.</span></div>
         </div>
       </div>
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Рабочие часы</h2><p>В рабочие часы бот отвечает сам, в остальное время копит вопросы.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-calendar")} Рабочие часы</h2><p>В рабочие часы бот отвечает сам, в остальное время копит вопросы.</p></div>
         <div class="schedule-days">
           ${["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((day, index) => `<label class="schedule-day"><input type="checkbox" data-schedule-day="${index + 1}" ${settings.schedule.days.includes(index + 1) ? "checked" : ""}/><span>${day}</span></label>`).join("")}
         </div>
@@ -3182,7 +3182,7 @@
     ];
     return `<div class="settings-panel">
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Когда присылать уведомления</h2><p>Push-уведомления приходят в выбранные каналы в рабочие часы.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-bell")} Когда присылать уведомления</h2><p>Push-уведомления приходят в выбранные каналы в рабочие часы.</p></div>
         ${rows
           .map(
             (row) => `<div class="setting-row"><div class="setting-row-main"><strong>${row.title}</strong><span>${row.desc}</span></div><label class="switch"><input type="checkbox" data-setting-notification="${row.key}" ${notifications[row.key] ? "checked" : ""}/><span class="switch-track"></span></label></div>`
@@ -3190,13 +3190,13 @@
           .join("")}
       </div>
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Куда присылать</h2><p>Отметьте, куда присылать сводки.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-send")} Куда присылать</h2><p>Отметьте, куда присылать сводки.</p></div>
         <div class="setting-row"><div class="setting-row-main"><strong>В кабинете AutoR</strong><span>Колокольчик в шапке и лента на дашборде.</span></div><span class="connected-mark">${iconSprite("i-check")} включено</span></div>
         ${channelsMarkup()}
         <div class="setting-row"><div class="setting-row-main"><strong>Email</strong><span>Вечерняя сводка на ${esc(state.shop.email)}.</span></div><button class="btn btn-white btn-sm" type="button" data-demo-toast="Email-сводка появится вместе с серверной частью">Настроить</button></div>
       </div>
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Последние уведомления</h2><p>Так приходят оповещения в Telegram и MAX.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-inbox")} Последние уведомления</h2><p>Так приходят оповещения в Telegram и MAX.</p></div>
         <div class="notify-feed">
           ${
             notificationLog().length
@@ -3214,7 +3214,7 @@
     const integrations = state.settings.integrations;
     return `<div class="settings-panel">
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Подключения</h2><p>Ключи и вебхуки хранятся в защищённом виде.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-link")} Подключения</h2><p>Ключи и вебхуки хранятся в защищённом виде.</p></div>
         <div class="integration-card">
           <span class="integration-logo">A</span>
           <div class="integration-body"><strong>Авито <span class="badge badge-green">подключено</span></strong><span>${esc(state.shop.avitoAccount)} · с ${esc(state.shop.avitoConnectedAt)}</span></div>
@@ -3228,7 +3228,7 @@
         </div>
       </div>
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Вебхук для событий</h2><p>Куда отправлять события, когда бот ответил или передал диалог.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-sync")} Вебхук для событий</h2><p>Куда отправлять события, когда бот ответил или передал диалог.</p></div>
         <div class="field"><label class="field-label" for="set-webhook">URL вебхука</label><input class="input" id="set-webhook" placeholder="https://ваш-сервер.ru/autor" value="" disabled /><span class="field-hint">Вебхуки включены в тарифы VIP и MAXIMUM.</span></div>
         <div class="form-hint" style="margin-top:12px">${iconSprite("i-shield")} Ключи хранятся в защищённом виде, данные идут по HTTPS.</div>
       </div>
@@ -3241,7 +3241,7 @@
     return `<div class="settings-panel">
       <div class="settings-section">
         <div class="demo-data-banner">${iconSprite("i-sparkles")}<div><strong>Кабинет работает в этом браузере</strong><p>Состояние сохраняется автоматически, ответы бота генерирует нейросеть по вашему каталогу.</p></div><button class="btn btn-white btn-sm" type="button" data-open-help>Как это работает</button></div>
-        <div class="settings-section-head"><h2>Состояние кабинета</h2><p>Данные хранятся в вашем браузере. Сброс вернёт исходный сценарий.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-info")} Состояние кабинета</h2><p>Данные хранятся в вашем браузере. Сброс вернёт исходный сценарий.</p></div>
         <div class="settings-grid-2">
           <div class="setting-row"><div class="setting-row-main"><strong>${state.chats.length} диалогов</strong><span>${totalMessages} сообщений в истории</span></div>${iconSprite("i-chat", "muted")}</div>
           <div class="setting-row"><div class="setting-row-main"><strong>${state.products.length} товаров</strong><span>${state.rules.filter((rule) => rule.enabled).length} активных сценариев</span></div>${iconSprite("i-box", "muted")}</div>
@@ -3249,7 +3249,7 @@
         <div class="setting-row" style="margin-top:12px"><div class="setting-row-main"><strong>Версия</strong><span>AutoR · веб-кабинет</span></div><span class="badge badge-gray">v${SEED.version}</span></div>
       </div>
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Экспорт и сброс</h2><p>Выгрузите данные в JSON или очистите кабинет.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-download")} Экспорт и сброс</h2><p>Выгрузите данные в JSON или очистите кабинет.</p></div>
         <div class="danger-zone">
           <div><strong>Очистить кабинет</strong><p>Удалятся диалоги, товары, статистика и настройки — кабинет вернётся к чистому листу.</p></div>
           <div class="settings-foot-actions"><button class="btn btn-white btn-sm" type="button" data-export-state>${iconSprite("i-download")} Экспорт JSON</button><button class="btn btn-danger btn-sm" type="button" data-reset-demo>${iconSprite("i-trash")} Очистить кабинет</button></div>
@@ -3703,8 +3703,14 @@
   }
 
   function promptWizardMarkup(draft, step) {
-    const steps = ["Роль", "Инструкции", "Задача", "Приветствие", "Готово"];
-    const dots = steps.map((label, index) => `<span class="wz-dot ${index === step ? "active" : ""} ${index < step ? "done" : ""}">${index + 1}. ${label}</span>`).join("");
+    const steps = [
+      { label: "Роль", icon: "i-user" },
+      { label: "Инструкции", icon: "i-sliders" },
+      { label: "Задача", icon: "i-bolt" },
+      { label: "Приветствие", icon: "i-chat" },
+      { label: "Готово", icon: "i-check" }
+    ];
+    const dots = steps.map((item, index) => `<span class="wz-dot ${index === step ? "active" : ""} ${index < step ? "done" : ""}">${index < step ? iconSprite("i-check") : iconSprite(item.icon)} ${index + 1}. ${item.label}</span>`).join("");
     let body = "";
     if (step === 0) {
       body = `<div class="field"><label class="field-label">Как зовут ассистента</label><input class="input" id="wz-name" value="${esc(draft.name)}" placeholder="Анна" maxlength="40"/></div>
@@ -3768,7 +3774,7 @@
     const share = Number.isFinite(limit) && limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
     return `<div class="settings-panel">
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Режим работы бота</h2><p>Насколько самостоятельно бот отвечает покупателям.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-sliders")} Режим работы бота</h2><p>Насколько самостоятельно бот отвечает покупателям.</p></div>
         <div class="ai-modes">
           ${AI_MODES.map(
             (mode) => `<button class="ai-mode ${cfg.mode === mode.id ? "active" : ""}" type="button" data-ai-mode="${mode.id}">
@@ -3780,14 +3786,14 @@
       </div>
 
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Что бот знает</h2><p>Выключенный раздел бот не трогает и честно зовёт менеджера.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-info")} Что бот знает</h2><p>Выключенный раздел бот не трогает и честно зовёт менеджера.</p></div>
         ${AI_KNOWLEDGE.map(
           (item) => `<div class="setting-row"><div class="setting-row-main"><strong>${item.title}</strong><span>${item.desc}</span></div><label class="switch"><input type="checkbox" data-ai-knowledge="${item.id}" ${cfg.knowledge[item.id] ? "checked" : ""}/><span class="switch-track"></span></label></div>`
         ).join("")}
       </div>
 
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Как отвечает</h2><p>Поведение бота в короткой переписке.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-chat")} Как отвечает</h2><p>Поведение бота в короткой переписке.</p></div>
         <div class="setting-row"><div class="setting-row-main"><strong>Сначала выясняет потребность</strong><span>Один уточняющий вопрос до цены и наличия.</span></div><label class="switch"><input type="checkbox" data-ai-toggle="qualify" ${cfg.qualify ? "checked" : ""}/><span class="switch-track"></span></label></div>
         <div class="setting-row"><div class="setting-row-main"><strong>Не называет цену без запроса</strong><span>Цена появляется, когда покупатель спросил сам.</span></div><label class="switch"><input type="checkbox" data-ai-toggle="noPrice" ${cfg.noPrice ? "checked" : ""}/><span class="switch-track"></span></label></div>
         <div class="setting-row"><div class="setting-row-main"><strong>Представляется ассистентом магазина</strong><span>Снимает претензии «это бот» и соответствует политике площадки.</span></div><label class="switch"><input type="checkbox" data-ai-toggle="disclose" ${cfg.disclose ? "checked" : ""}/><span class="switch-track"></span></label></div>
@@ -3800,7 +3806,7 @@
       </div>
 
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Где считаются ответы</h2><p>Можно переключить на локальную модель, если сервер недоступен.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-zap-circle")} Где считаются ответы</h2><p>Можно переключить на локальную модель, если сервер недоступен.</p></div>
         <div class="ai-sources">
           ${AI_SOURCES.map(
             (src) => `<button class="ai-mode ${cfg.source === src.id ? "active" : ""}" type="button" data-ai-source="${src.id}">
@@ -3812,7 +3818,7 @@
       </div>
 
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Инструкция для модели</h2><p>Как ИИ разговаривает с покупателями. Каталог, цены и сроки подставляются автоматически снизу.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-wand")} Инструкция для модели</h2><p>Как ИИ разговаривает с покупателями. Каталог, цены и сроки подставляются автоматически снизу.</p></div>
         <div class="field">
           <textarea class="input ai-prompt" id="ai-prompt" rows="9" spellcheck="false" placeholder="${esc(AI_PROMPT_PLACEHOLDER)}">${esc(promptValue(cfg))}</textarea>
           <span class="field-hint">Поддерживаются подстановки <code>{магазин}</code> и <code>{тон}</code>. Пустое поле — стандартная инструкция.</span>
@@ -3827,14 +3833,14 @@
       </div>
 
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Передача человеку</h2><p>Фразы, после которых диалог сразу уходит вам.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-users")} Передача человеку</h2><p>Фразы, после которых диалог сразу уходит вам.</p></div>
         <div class="ai-stopwords">${cfg.stopWords.map((word) => `<span class="ai-stopword">${esc(word)}<button type="button" data-ai-stopword-remove="${esc(word)}" aria-label="Убрать">${iconSprite("i-close")}</button></span>`).join("") || '<span class="field-hint">Стоп-слов пока нет</span>'}</div>
         <div class="ai-stopword-add"><input class="input" id="ai-stopword-input" type="text" placeholder="Добавить фразу" maxlength="24"/><button class="btn btn-white btn-sm" type="button" data-ai-stopword-add>${iconSprite("i-plus")} Добавить</button></div>
         <span class="field-hint">Порог сомнений — ${esc(String(state.settings.handoffThreshold))} ответа подряд. Меняется в «Автопилоте».</span>
       </div>
 
       <div class="settings-section">
-        <div class="settings-section-head"><h2>Макросы</h2><p>Подставляются в ответ автоматически — шаблоны остаются короткими.</p></div>
+        <div class="settings-section-head"><h2>${iconSprite("i-tag")} Макросы</h2><p>Подставляются в ответ автоматически — шаблоны остаются короткими.</p></div>
         <div class="ai-macros">${AI_MACROS.map((macro) => `<button class="ai-macro" type="button" data-ai-macro="${esc(macro)}">${esc(macro)}${iconSprite("i-plus")}</button>`).join("")}</div>
       </div>
 

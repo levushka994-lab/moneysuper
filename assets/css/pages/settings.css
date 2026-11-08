@@ -81,8 +81,22 @@
   margin-bottom: 16px;
 }
 .settings-section-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 15px;
   letter-spacing: -0.02em;
+}
+
+.settings-section-head h2 .icon {
+  width: 17px;
+  height: 17px;
+  padding: 3px;
+  box-sizing: content-box;
+  border-radius: 8px;
+  background: var(--amber-soft);
+  color: #B07800;
+  flex: none;
 }
 .settings-section-head p {
   margin-top: 3px;
