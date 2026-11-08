@@ -1534,3 +1534,42 @@
 .conversation-pane.is-buyer .buyer-pane { background: #fff; }
 .conversation-pane.is-buyer .buyer-head { border-radius: 0; }
 .conversation-pane.is-buyer .buyer-stream { flex: 1; min-height: 0; }
+
+/* Телефон: показываем только переключатель «Смотреть как», заголовок скрыт */
+@media (max-width: 820px) {
+  .content[data-page="chats"] .page-head.chats-head {
+    display: flex;
+    padding: 6px 2px 8px;
+    margin-bottom: 0;
+    min-height: 0;
+  }
+  .content[data-page="chats"] .page-head.chats-head .page-head-copy {
+    display: none;
+  }
+  .content[data-page="chats"] .page-head.chats-head .page-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .content[data-page="chats"] .page-head.chats-head .page-actions .btn-white {
+    display: none;
+  }
+  .content[data-page="chats"] .view-as {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .content[data-page="chats"] .view-as-seg {
+    flex: 1;
+  }
+  .content[data-page="chats"] .view-as-seg button {
+    flex: 1;
+    justify-content: center;
+  }
+  .content[data-page="chats"] .view-as-label {
+    display: none;
+  }
+  .content[data-page="chats"] .chats-layout {
+    height: calc(100dvh - 132px);
+  }
+}
