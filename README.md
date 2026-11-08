@@ -62,6 +62,16 @@ assets/
 - Подстановки в промпте (`fillMacros` в `assets/js/features.js`): `[[name]]` — имя покупателя, `[[title]]` — позиция из объявления/диалога, `[[price]]` — её цена, `[[shop]]`, `[[city]]`, а также `{магазин}`, `{тон}`, `{товар}`, `{цена}`, `{имя}`, `{город}`.
 - «Где считаются ответы» — `server` (DeepSeek Flash через `/api/chat` на сервере) или `local` (`http://127.0.0.1:8080/v1/chat/completions`, модель `mnn-pocket-0.3b` через llama.cpp). Локальная модель 0.3B годится только чтобы проверить связку: качество ответов низкое.
 
+### Стенды на домашнем сервере eta
+
+| адрес | что | откуда выкладывается |
+|---|---|---|
+| `site-port.ru`, `www.site-port.ru` | прод | `/usr/local/bin/autor-eta-deploy`, ветка `chats-v2`, каталог `/srv/site-port/sites/autor.site-port.ru` |
+| `test.site-port.ru` | тестовый стенд | тот же воркер с `/etc/autor-test.env`, каталог `/srv/site-port/sites/test.site-port.ru`, таймер `autor-eta-sync-test.timer` |
+| `lead.site-port.ru` | Lefinder (лиды) | отдельный сервис `lefinder.service` на `127.0.0.1:8099`, Caddy проксирует |
+
+Все три имени ходят наружу через один CloudPub-агент (`autor-cloudpub`), Caddy различает их по заголовку `Host`.
+
 ## Автовыкладка (как сайт обновляется сам)
 
 На сервере включён systemd-таймер `autor-sync.timer`: раз в минуту он делает `git fetch`
