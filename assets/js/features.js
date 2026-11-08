@@ -862,23 +862,30 @@
   function callApi(messages) {
     var local = aiSource() === 'local';
     var wait = local ? LOCAL_TIMEOUT : TIMEOUT;
-    var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
-    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, wait);
     var payload = local
       ? { model: 'mnn-pocket-0.3b', messages: messages, max_tokens: 260, temperature: 0.6 }
       : { model: 'deepseek-flash', thinking: { type: 'disabled' }, messages: messages, max_tokens: 260, temperature: 0.6 };
-    return fetch(local ? LOCAL_ENDPOINT : ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: ctrl ? ctrl.signal : undefined
-    }).then(function (res) {
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return res.json();
-    }).then(function (data) {
-      var msg = data && data.choices && data.choices[0] && data.choices[0].message;
-      return clean(msg && msg.content);
-    }).finally(function () { clearTimeout(timer); });
+    function once() {
+      var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+      var t = setTimeout(function () { if (ctl) ctl.abort(); }, wait);
+      return fetch(local ? LOCAL_ENDPOINT : ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: ctl ? ctl.signal : undefined
+      }).then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      }).then(function (data) {
+        var msg = data && data.choices && data.choices[0] && data.choices[0].message;
+        return clean(msg && msg.content);
+      }).finally(function () { clearTimeout(t); });
+    }
+    // Одна повторная попытка: туннель иногда отдаёт 502/504 на медленном ответе модели.
+    return once().catch(function (err) {
+      if (local) throw err;
+      return new Promise(function (r) { setTimeout(r, 400); }).then(once);
+    });
   }
 
   function bumpAi() {
