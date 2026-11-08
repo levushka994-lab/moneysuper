@@ -357,3 +357,24 @@ a.ar-ai__k:hover { border-color: #E5A800; }
 .composer-box textarea { min-height: 44px; max-height: 180px; font-size: 14px; line-height: 1.5; }
 .composer-send { width: 44px; height: 44px; border-radius: 12px; }
 @media (max-width: 760px) { .messages-stream { padding: 16px 12px; } .message { max-width: 88%; } .bubble { font-size: 13.5px; } }
+
+/* Режим ответа: шаблонов нет, бот всегда на ИИ */
+.ar-mode-switch--ai {
+  align-items: center;
+  gap: 10px;
+}
+
+.ar-mode-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--signal);
+  color: var(--signal-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ar-mode-pill .icon { width: 14px; height: 14px; }

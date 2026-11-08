@@ -40,7 +40,7 @@
     if (!s.crm || typeof s.crm !== 'object') s.crm = {};
     if (typeof s.crm.threshold !== 'number') s.crm.threshold = 3;
     if (!Array.isArray(s.crm.history)) s.crm.history = [];
-    if (s.settings && !s.settings.botMode) s.settings.botMode = 'ai';
+    if (s.settings) s.settings.botMode = 'ai'; // шаблонного режима больше нет
     if (!s.ai || typeof s.ai !== 'object') s.ai = { month: '', used: 0 };
   };
 
@@ -404,14 +404,9 @@
   var A = F.A;
   var BUILTIN = /^r[1-7]$/;
 
-  function mode() { return A.state.settings.botMode === 'ai' ? 'ai' : 'templates'; }
-  function setMode(m) {
-    A.state.settings.botMode = m;
-    F.save();
-    A.renderRoute();
-    A.toast(m === 'ai' ? 'Отвечает ИИ' : 'Отвечают шаблоны',
-      m === 'ai' ? 'Бот понимает вопрос и отвечает своими словами по вашим товарам и профилю.' : 'Бот отвечает по сценариям с триггерами и вашими текстами.', 'success');
-  }
+  // Шаблонного режима больше нет: бот всегда отвечает через ИИ.
+  function mode() { return 'ai'; }
+  function setMode() { /* переключателя нет */ }
 
   /* ---------- удаление и возврат ---------- */
   function seedRules() { return (window.AUTOR_SEED && window.AUTOR_SEED.rules) || []; }
@@ -478,14 +473,10 @@
 
   /* ---------- страница ---------- */
   function switcher() {
-    var m = mode();
-    return '<div class="ar-mode-switch" data-ar-block="mode-switch">' +
+    return '<div class="ar-mode-switch ar-mode-switch--ai" data-ar-block="mode-switch">' +
       '<span class="ar-mode-switch__label">Режим ответа</span>' +
-      '<div class="ar-mode-seg" role="group" aria-label="Режим ответа бота">' +
-        '<button type="button" class="' + (m === 'templates' ? 'active' : '') + '" data-ar-mode-set="templates" aria-pressed="' + (m === 'templates') + '">' + F.icon('i-bolt') + ' Шаблоны</button>' +
-        '<button type="button" class="' + (m === 'ai' ? 'active' : '') + '" data-ar-mode-set="ai" aria-pressed="' + (m === 'ai') + '">' + F.icon('i-sparkles') + ' ИИ</button>' +
-      '</div>' +
-      '<span class="ar-mode-switch__hint">' + (m === 'ai' ? 'Бот отвечает сам, без триггеров' : 'Бот отвечает по сценариям ниже') + '</span>' +
+      '<span class="ar-mode-pill">' + F.icon('i-sparkles') + ' Отвечает ИИ</span>' +
+      '<span class="ar-mode-switch__hint">Без шаблонов: бот понимает вопрос и берёт факты из каталога</span>' +
     '</div>';
   }
 
@@ -496,7 +487,7 @@
     var TONES = { friendly: 'Дружелюбный', neutral: 'Нейтральный', expert: 'Экспертный' };
     var know = [
       ['i-user', 'Профиль магазина', profileOk ? F.esc(shop.name) + ' · ' + F.esc(shop.city) : 'Заполните город и описание — ИИ использует их в ответах', '#/settings', profileOk],
-      ['i-box', 'Товары', products.length ? products.length + ' ' + A.plural(products.length, 'товар', 'товара', 'товаров') + ' с ценами и остатками' : 'Добавьте товары — ИИ отвечает по ним', '#/catalog', products.length > 0],
+      ['i-box', 'Товары', products.length ? products.length + ' ' + A.plural(products.length, 'позиция', 'позиции', 'позиций') + ' с ценами, сроками и остатками' : 'Добавьте товар или услугу — ИИ ответит по ним', '#/catalog', products.length > 0],
       ['i-smile', 'Тон общения', (TONES[s.settings.tone] || 'Нейтральный') + (s.settings.emoji ? ', с эмодзи' : ''), '#/settings', true],
       ['i-users', 'Сложные вопросы', 'Счёт, опт, жалобы — ИИ передаёт менеджеру', null, true],
     ];
@@ -545,8 +536,7 @@
     F.mount('rules-restore', miss ? '<button class="btn btn-white btn-sm" type="button" data-ar-rules-restore data-ar-block="rules-restore">' +
       F.icon('i-refresh') + ' Вернуть стандартные (' + miss + ')</button>' : '', 'beforeend', miss ? tools : null);
 
-    // при каждом входе в «Сценарии» — выбор режима (не при перерисовке той же страницы)
-    if (F.lastPage !== 'rules') setTimeout(chooser, 30);
+    // окно выбора «Шаблоны / ИИ» убрано: бот работает только через ИИ
   }
   F.on('rules', render);
 
@@ -726,23 +716,8 @@
   }
 
   var warned = false;
-  F.reply = function (chat, text) {
-    F.ensure();
-    if (F.journeyMark) F.journeyMark('test');
-    if (A.state.settings.botMode === 'ai') {
-      if (F.aiUsed() < F.aiLimit()) {
-        var r = aiReply(chat, text);
-        countAi();
-        F.save();
-        return r;
-      }
-      if (!warned) {
-        warned = true;
-        setTimeout(function () { A.toast('ИИ-ответы на этот месяц закончились', 'Пока бот отвечает по шаблонам. Без лимита — на тарифе MAXIMUM.', 'info'); }, 50);
-      }
-    }
-    return customReply(chat, text);   // null → стандартные сценарии приложения
-  };
+  // Шаблонные ответы отключены: единственный источник ответа — ИИ (F.aiOnline).
+  F.reply = function () { return null; };
 })();
 
 /* ==========================================================================
@@ -768,20 +743,31 @@
       .slice(0, 600);
   }
 
+  function isService(p) { return !!p && p.kind !== 'good'; }
+  function perUnit(p) { return p.unit && p.unit !== 'шт' ? ' за ' + p.unit : ''; }
+
   function productLine(p) {
     if (!p) return '';
     var parts = ['«' + p.name + '»'];
     if (p.subtitle) parts.push(p.subtitle);
-    parts.push('цена ' + A.formatPrice(p.price) + (p.oldPrice ? ' (было ' + A.formatPrice(p.oldPrice) + ')' : ''));
-    parts.push(p.stock > 0 ? 'в наличии ' + p.stock + ' шт.' : 'сейчас нет в наличии');
+    parts.push('цена ' + A.formatPrice(p.price) + perUnit(p) + (p.oldPrice ? ' (было ' + A.formatPrice(p.oldPrice) + ')' : ''));
+    if (isService(p)) {
+      parts.push('услуга');
+      if (p.minOrder) parts.push('минимум ' + p.minOrder + ' ' + (p.unit || 'м²'));
+      if (p.duration) parts.push('срок ' + p.duration);
+    } else {
+      parts.push(p.stock > 0 ? 'на складе ' + p.stock + ' ' + (p.unit || 'шт.') : 'сейчас нет на складе');
+    }
     if (p.note) parts.push(p.note);
     return parts.join(', ') + '.';
   }
 
   function catalogText() {
     return (A.state.products || []).slice(0, 12).map(function (p) {
-      return '• ' + p.name + ' — ' + A.formatPrice(p.price) + ', ' +
-        (p.stock > 0 ? 'в наличии (' + p.stock + ' шт.)' : 'нет в наличии') +
+      var tail = isService(p)
+        ? 'услуга' + (p.minOrder ? ', от ' + p.minOrder + ' ' + (p.unit || 'м²') : '') + (p.duration ? ', срок ' + p.duration : '')
+        : (p.stock > 0 ? 'на складе ' + p.stock + ' ' + (p.unit || 'шт.') : 'нет на складе');
+      return '• ' + p.name + ' — ' + A.formatPrice(p.price) + perUnit(p) + ' (' + tail + ')' +
         (p.note ? '; ' + p.note : '');
     }).join('\n');
   }
@@ -791,9 +777,9 @@
     var tone = set.tone === 'friendly' ? 'дружелюбно, но по делу'
       : set.tone === 'expert' ? 'сухо и профессионально' : 'спокойно и вежливо';
     var rules = (s.rules || []).filter(function (r) {
-      return !/^r[1-7]$/.test(r.id) && r.enabled !== false && r.reply;
-    }).slice(0, 10).map(function (r) {
-      return '• ' + r.name + ': ' + String(r.reply).replace(/\{\{[^}]+\}\}/g, '…');
+      return r.enabled !== false && (r.reply || r.desc);
+    }).slice(0, 12).map(function (r) {
+      return '• ' + r.name + ': ' + String(r.reply || r.desc).replace(/\{\{[^}]+\}\}/g, '…');
     });
 
     var lines = [
@@ -803,6 +789,7 @@
       'Факты бери только из данных ниже: цены, наличие, сроки и условия не выдумывай.',
       'Если факта нет — скажи, что уточнишь у менеджера, и предложи помощь.',
       'Не упоминай, что ты нейросеть или бот, и не говори про тесты и примеры.',
+      'Если позиция измеряется в м² или единицах, посчитай стоимость сам: цена × количество, и назови итог.',
       'Когда уместно, задай один короткий вопрос, который двигает к заказу.'
     ];
     if (shop.city) lines.push('Город магазина: ' + shop.city + '.');

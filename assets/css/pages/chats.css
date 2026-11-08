@@ -556,6 +556,83 @@
   gap: 12px;
   margin-bottom: 8px;
 }
+/* --- от чьего имени пишем: покупатель / магазин --- */
+.composer-role {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 16px 0;
+}
+
+.composer-role-label {
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.role-switch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.role-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.role-btn .icon { width: 14px; height: 14px; }
+
+.role-btn:hover { color: var(--ink); }
+
+.role-buyer.active {
+  background: #EAF1FE;
+  color: #2C5BD0;
+  box-shadow: inset 0 0 0 1px #C7D8F8;
+}
+
+.role-shop.active {
+  background: var(--signal);
+  color: var(--signal-ink);
+  box-shadow: inset 0 0 0 1px #E0A800;
+}
+
+.composer-box.is-buyer {
+  border-color: #B9CDF4;
+  background: #F4F8FF;
+}
+
+.composer-box.is-buyer:focus-within {
+  border-color: #8FB0EE;
+  box-shadow: 0 0 0 3px rgba(44, 91, 208, .09);
+}
+
+.composer-box.is-shop {
+  border-color: #E3CD84;
+  background: #FFFDF4;
+}
+
+.composer-box.is-shop:focus-within {
+  border-color: var(--signal);
+  box-shadow: 0 0 0 3px rgba(255, 194, 26, .16);
+}
+
 .mode-link {
   border: 0;
   background: none;

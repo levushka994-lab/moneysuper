@@ -19,6 +19,7 @@
     composerMode: "buyer",
     auditMonth: false,
     composerModeChat: null,
+    catalogKind: "all",
     catalogCategory: "Все",
     catalogSearch: "",
     dashboardPeriod: "week",
@@ -41,7 +42,7 @@
     dashboard: { title: "Дашборд", nav: "dashboard" },
     chats: { title: "Чаты", nav: "chats" },
     catalog: { title: "Товары", nav: "catalog" },
-    rules: { title: "Сценарии", nav: "rules" },
+    rules: { title: "Инструкции ИИ", nav: "rules" },
     analysis: { title: "Анализ диалогов", nav: "analysis" },
     analytics: { title: "Аналитика", nav: "analytics" },
     settings: { title: "Настройки", nav: "settings" },
@@ -181,7 +182,8 @@
     if (product && product.image) {
       return `<img src="${esc(product.image)}" alt="${esc(product.name)}" loading="lazy"/>`;
     }
-    return `<div class="product-thumb-placeholder">${iconSprite("i-box")}</div>`;
+    const glyph = product && product.kind === "good" ? "i-box" : "i-bolt";
+    return `<div class="product-thumb-placeholder is-${product && product.kind === "good" ? "good" : "service"}">${iconSprite(glyph)}</div>`;
   }
 
   function statusBadge(chat) {
@@ -661,7 +663,7 @@
       { group: "Разделы", icon: "i-grid", title: "Дашборд", sub: "Сводка за сегодня", route: "dashboard" },
       { group: "Разделы", icon: "i-chat", title: "Чаты", sub: "Диалоги и автоответы", route: "chats/c1" },
       { group: "Разделы", icon: "i-box", title: "Товары", sub: "Карточки и шаблоны ответов", route: "catalog" },
-      { group: "Разделы", icon: "i-bolt", title: "Сценарии", sub: "Правила ответов бота", route: "rules" },
+      { group: "Разделы", icon: "i-bolt", title: "Инструкции ИИ", sub: "Что бот учитывает в ответах", route: "rules" },
       { group: "Разделы", icon: "i-chart", title: "Аналитика", sub: "Эффективность ответов", route: "analytics" },
       { group: "Разделы", icon: "i-settings", title: "Настройки", sub: "Магазин и автопилот", route: "settings" },
     ];
@@ -822,7 +824,7 @@
     const steps = [
       ["i-user", "Заполните профиль", "Название магазина, город и описание — бот использует их в ответах.", "#/settings", "Настройки"],
       ["i-box", "Добавьте товары", "Бот отвечает по каждому объявлению: цена, наличие, условия.", "#/catalog", "Товары"],
-      ["i-bolt", "Создайте сценарии", "Свои ответы на частые вопросы: наличие, цена, доставка. Или включите ИИ.", "#/rules", "Сценарии"],
+      ["i-bolt", "Добавьте инструкции", "Что бот учитывает: цена за м², замер, сроки, гарантия.", "#/rules", "Инструкции ИИ"],
       ["i-sparkles", "Настройте автопилот", "Тон общения, задержка ответа и рабочие часы.", "#/settings", "Настройки"],
     ];
     return `<div class="page dashboard ar-start">
@@ -1379,7 +1381,14 @@
 
   function buyerSuggestions(chat) {
     const product = chat ? chatProduct(chat) : null;
+    const service = product && product.kind !== "good";
     const list = [];
+    if (service) {
+      list.push("Сколько стоит за м²?");
+      list.push(product && product.oldPrice ? "Скидку можно?" : "Когда сможете приехать?");
+      list.push("Замер платный?");
+      return list;
+    }
     if (product && product.stock <= 0) list.push("Когда будет в наличии?");
     else list.push("Есть в наличии?");
     if (product && product.oldPrice) list.push("Скидку можно?");
@@ -1390,7 +1399,7 @@
   }
 
   function managerSuggestions() {
-    return ["Сейчас уточню и вернусь.", "Товар в наличии, отправим сегодня."];
+    return ["Сейчас уточню и вернусь.", "Посмотрю сроки и напишу."];
   }
 
   function suggestionsMarkup(mode, chat) {
@@ -1431,13 +1440,17 @@
     const mode = composerModeFor(chat);
     const active = isBotActive(chat);
     const target = chat.unread ? 0 : 0;
-    return `<div class="composer-top">
-        <span class="composer-bot-state ${active ? "" : "paused"}" id="composer-bot-state"><span class="demo-dot"></span> ${botStateLabel(chat)}</span>
-        <button class="mode-link" type="button" data-composer-mode="${mode === "buyer" ? "manager" : "buyer"}">${mode === "buyer" ? "Ответить самому" : "Вернуть бота"}</button>
+    return `<div class="composer-role">
+        <span class="composer-role-label">Пишем как</span>
+        <div class="role-switch" role="group" aria-label="От чьего имени писать">
+          <button type="button" class="role-btn role-buyer${mode === "buyer" ? " active" : ""}" data-composer-mode="buyer" aria-pressed="${mode === "buyer"}">${iconSprite("i-user")} Покупатель</button>
+          <button type="button" class="role-btn role-shop${mode === "manager" ? " active" : ""}" data-composer-mode="manager" aria-pressed="${mode === "manager"}">${iconSprite("i-box")} Магазин</button>
+        </div>
+        <span class="composer-bot-state${active ? "" : " paused"}" id="composer-bot-state"><span class="demo-dot"></span> ${botStateLabel(chat)}</span>
       </div>
       <div id="composer-notice">${composerNotice(chat)}</div>
       <div class="suggestion-row" id="suggestion-row">${suggestionsMarkup(mode, chat)}</div>
-      <div class="composer-box">
+      <div class="composer-box is-${mode === "buyer" ? "buyer" : "shop"}">
         <textarea id="composer-input" rows="1" placeholder="${
           mode === "buyer" ? "Напишите как покупатель" : "Ответьте от имени магазина"
         }">${esc(ui.composerDraft || "")}</textarea>
@@ -1503,7 +1516,7 @@
       <div class="info-section">
         <div class="info-label">Последнее решение</div>
         <div class="decision-card">
-          <div class="decision-row"><span class="decision-key">Сценарий</span><span class="decision-value">${esc(lastBot ? lastBot.rule : "Автоответов пока нет")}</span></div>
+          <div class="decision-row"><span class="decision-key">Инструкция</span><span class="decision-value">${esc(lastBot ? lastBot.rule : "Автоответов пока нет")}</span></div>
           <div class="decision-row"><span class="decision-key">Уверенность</span><span class="decision-value">${lastBot && lastBot.confidence ? lastBot.confidence + "%" : "—"} ${lastBot && lastBot.confidence >= 90 ? iconSprite("i-check") : ""}</span></div>
           <div class="decision-row"><span class="decision-key">Скорость</span><span class="decision-value">${esc(lastBot && lastBot.latency ? lastBot.latency : "—")}</span></div>
         </div>
@@ -1716,7 +1729,17 @@
         if (window.console) console.warn("AutoR: ИИ недоступен", error);
       }
     }
-    return generateReply(chat, text);
+    // Шаблонов нет: если ИИ не ответил, диалог честно уходит менеджеру.
+    return {
+      from: "bot",
+      text: "Уточню детали у менеджера и вернусь с ответом в течение дня. Напишите, пожалуйста, что ещё важно учесть — всё передам.",
+      rule: "Передача менеджеру",
+      confidence: 70,
+      latency: "1 сек",
+      attachment: null,
+      handoff: true,
+      topic: "Передача менеджеру",
+    };
   }
 
   async function startAutoReply(chat, userText) {
@@ -1776,7 +1799,7 @@
     if (reply.handoff) {
       toast("Диалог передан менеджеру", "Бот не был уверен в ответе и позвал вас на помощь.", "info");
     } else {
-      toast("Бот ответил", `Сценарий «${message.rule}» · уверенность ${message.confidence}%`, "success");
+      toast("Бот ответил", `«${message.rule}» · уверенность ${message.confidence}%`, "success");
     }
   }
 
@@ -1829,13 +1852,20 @@
 
   function switchComposerMode(mode) {
     ui.composerMode = mode;
+    ui.composerModeChat = (getActiveChat() || {}).id;
     const chat = getActiveChat();
     $$("[data-composer-mode]").forEach((button) => {
-      button.textContent = mode === "buyer" ? "Ответить самому" : "Вернуть бота";
-      button.setAttribute("data-composer-mode", mode === "buyer" ? "manager" : "buyer");
+      const active = button.getAttribute("data-composer-mode") === mode;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
     });
+    const box = $(".composer-box");
+    if (box) {
+      box.classList.toggle("is-buyer", mode === "buyer");
+      box.classList.toggle("is-shop", mode !== "buyer");
+    }
     const row = $("#suggestion-row");
-    if (row) row.innerHTML = suggestionsMarkup(mode);
+    if (row) row.innerHTML = suggestionsMarkup(mode, chat);
     const input = $("#composer-input");
     if (input) {
       input.placeholder = mode === "buyer" ? "Напишите как покупатель" : "Ответьте от имени магазина";
@@ -2089,11 +2119,38 @@
      Catalog
      ======================================================================== */
 
-  const CATALOG_CATEGORIES = ["Все", "Аудио", "Гаджеты", "Аксессуары", "Фото"];
+  const KIND_TABS = [
+    { id: "all", label: "Всё" },
+    { id: "service", label: "Услуги" },
+    { id: "good", label: "Товары" },
+  ];
+
+  function catalogCategories() {
+    const seen = [];
+    state.products.forEach((product) => {
+      const category = (product.category || "").trim();
+      if (category && seen.indexOf(category) === -1) seen.push(category);
+    });
+    return ["Все"].concat(seen);
+  }
+
+  function productKind(product) {
+    return product && product.kind === "good" ? "good" : "service";
+  }
+
+  function unitLabel(product) {
+    const unit = (product && product.unit) || "шт";
+    return unit === "шт" ? "" : "/" + unit;
+  }
+
+  function priceLabel(product) {
+    return `${formatPrice(product.price)}${unitLabel(product)}`;
+  }
 
   function catalogProducts() {
     const query = ui.catalogSearch.trim().toLowerCase();
     return state.products.filter((product) => {
+      if (ui.catalogKind !== "all" && productKind(product) !== ui.catalogKind) return false;
       if (ui.catalogCategory !== "Все" && product.category !== ui.catalogCategory) return false;
       if (!query) return true;
       return `${product.name} ${product.subtitle} ${product.sku} ${product.category}`.toLowerCase().includes(query);
@@ -2101,12 +2158,18 @@
   }
 
   function productCardMarkup(product) {
-    const stockBadge =
-      product.stock === 0
+    const isService = productKind(product) === "service";
+    const stockBadge = isService
+      ? `<span class="badge badge-stock">${esc(product.duration || "по записи")}</span>`
+      : product.stock === 0
         ? `<span class="badge badge-stock out">Под заказ</span>`
         : product.stock <= (window.AutoRFeatures ? window.AutoRFeatures.lowStock(product) : 3)
-        ? `<span class="badge badge-stock low">Осталось ${product.stock}</span>`
-        : `<span class="badge badge-stock">В наличии</span>`;
+          ? `<span class="badge badge-stock low">Осталось ${product.stock}</span>`
+          : `<span class="badge badge-stock">В наличии</span>`;
+    const metaLine = [
+      esc(product.category),
+      isService && product.minOrder ? `от ${product.minOrder} ${esc(product.unit || "м²")}` : "",
+    ].filter(Boolean).join(" · ");
     return `<article class="product-card" data-product-card="${esc(product.id)}">
       <div class="product-thumb">
         ${productThumb(product)}
@@ -2117,10 +2180,10 @@
         <button class="product-quick-toggle ${product.auto ? "on" : ""}" type="button" data-product-toggle="${esc(product.id)}" aria-label="${product.auto ? "Выключить бота для товара" : "Включить бота для товара"}" title="${product.auto ? "Бот включён" : "Бот выключен"}">${iconSprite("i-sparkles")}</button>
       </div>
       <div class="product-body">
-        <span class="product-cat">${esc(product.category)}</span>
+        <span class="product-cat">${isService ? iconSprite("i-bolt") + " " : ""}${metaLine}</span>
         <h3 class="product-name">${esc(product.name)}</h3>
         <div class="product-price-row">
-          <strong class="product-price">${formatPrice(product.price)}</strong>
+          <strong class="product-price">${isService ? "от " : ""}${priceLabel(product)}</strong>
           ${product.oldPrice ? `<span class="product-old-price">${formatPrice(product.oldPrice)}</span>` : ""}
         </div>
         <div class="product-stats">
@@ -2143,7 +2206,7 @@
     if (!products.length) {
       return `<div class="catalog-empty">${(state.products.length ? emptyState("i-search", "Товары не нашлись", "Попробуйте изменить категорию или запрос. Каталог синхронизирован с Авито.") : emptyState("i-box", "Товаров пока нет", "Добавьте товар — бот сразу начнёт отвечать по нему. Или откройте пример магазина с каталогом.") + `<div class="ar-start__actions"><button class="btn btn-white" type="button" data-sample-load>${iconSprite("i-eye")} Пример магазина</button></div>`)}</div>`;
     }
-    return products.map(productCardMarkup).join("") + `<button class="product-add-card" type="button" data-add-product>${`<span class="product-add-icon">${iconSprite("i-plus")}</span>`}<span>Добавить товар</span><span style="font-size:10px;color:var(--muted-light)">и подключить автоответы</span></button>`;
+    return products.map(productCardMarkup).join("") + `<button class="product-add-card" type="button" data-add-product>${`<span class="product-add-icon">${iconSprite("i-plus")}</span>`}<span>Добавить позицию</span><span style="font-size:10px;color:var(--muted-light)">товар или услугу</span></button>`;
   }
 
   function emptyState(icon, title, text) {
@@ -2155,20 +2218,28 @@
       <div class="page-head">
         <div class="page-head-copy">
           <div class="eyebrow"><span class="demo-dot"></span> ${state.products.length ? "Каталог синхронизирован" : "Каталог пуст"}</div>
-          <h1 class="page-title">Товары и автоответы</h1>
-          <p class="page-sub">Бот отвечает по каждому объявлению с учётом цены, наличия и условий магазина.</p>
+          <h1 class="page-title">Товары и услуги</h1>
+          <p class="page-sub">Бот отвечает по каждому объявлению: цена за м² или за штуку, сроки, наличие и условия выезда.</p>
         </div>
         <div class="page-actions">
           <button class="btn btn-white" type="button" data-sync-catalog>${iconSprite("i-sync")} Синхронизировать</button>
-          <button class="btn btn-primary" type="button" data-add-product>${iconSprite("i-plus")} Добавить товар</button>
+          <button class="btn btn-primary" type="button" data-add-product>${iconSprite("i-plus")} Добавить позицию</button>
         </div>
       </div>
       <div class="catalog-tools">
-        <div class="category-tabs">
-          ${CATALOG_CATEGORIES.map(
-            (category) =>
-              `<button type="button" class="${ui.catalogCategory === category ? "active" : ""}" data-catalog-category="${esc(category)}">${esc(category)}</button>`
-          ).join("")}
+        <div class="catalog-filters">
+          <div class="category-tabs kind-tabs">
+            ${KIND_TABS.map(
+              (tab) =>
+                `<button type="button" class="${ui.catalogKind === tab.id ? "active" : ""}" data-catalog-kind="${tab.id}">${esc(tab.label)}</button>`
+            ).join("")}
+          </div>
+          <div class="category-tabs">
+            ${catalogCategories().map(
+              (category) =>
+                `<button type="button" class="${ui.catalogCategory === category ? "active" : ""}" data-catalog-category="${esc(category)}">${esc(category)}</button>`
+            ).join("")}
+          </div>
         </div>
         <div class="catalog-tools-right">
           <div class="catalog-search">
@@ -2251,28 +2322,62 @@
   }
 
   function openAddProductModal() {
+    const units = ["м²", "шт", "выезд", "час", "упак", "объект", "комплект"];
     openModal(
-      `${modalHeader("Новый товар", "Добавьте объявление в каталог магазина.")}
+      `${modalHeader("Новая позиция", "Товар со склада или услуга с ценой за м² — бот ответит по любым условиям.")}
       <div class="modal-body">
-        <div class="field"><label class="field-label" for="new-product-name">Название</label><input class="input" id="new-product-name" placeholder="Например, JBL Flip 6" /></div>
-        <div class="field-row" style="margin-top:15px">
-          <div class="field"><label class="field-label" for="new-product-price">Цена, ₽</label><input class="input" id="new-product-price" type="number" min="0" placeholder="9990" /></div>
-          <div class="field"><label class="field-label" for="new-product-category">Категория</label><select class="select" id="new-product-category"><option>Аудио</option><option>Гаджеты</option><option>Аксессуары</option><option>Фото</option></select></div>
+        <div class="field">
+          <label class="field-label">Что добавляем</label>
+          <div class="segmented" id="new-product-kind" role="group" aria-label="Тип позиции">
+            <button type="button" class="active" data-kind-set="service">${iconSprite("i-bolt")} Услуга</button>
+            <button type="button" data-kind-set="good">${iconSprite("i-box")} Товар</button>
+          </div>
         </div>
-        <div class="field" style="margin-top:15px"><label class="field-label" for="new-product-stock">Остаток на складе, шт.</label><input class="input" id="new-product-stock" type="number" min="0" max="99999" value="1" inputmode="numeric" /></div>
-        <div class="field" style="margin-top:15px"><label class="field-label" for="new-product-note">Заметка для бота <small>необязательно</small></label><textarea class="textarea" id="new-product-note" placeholder="Например: в комплекте чехол и кабель"></textarea></div>
-        <div class="form-hint" style="margin-top:14px">${iconSprite("i-info")} Товар сразу появится в каталоге и в автоответах. Фото можно добавить позже.</div>
+        <div class="field" style="margin-top:15px"><label class="field-label" for="new-product-name">Название</label><input class="input" id="new-product-name" placeholder="Например, утепление фасада" /></div>
+        <div class="field-row" style="margin-top:15px">
+          <div class="field"><label class="field-label" for="new-product-price">Цена, ₽</label><input class="input" id="new-product-price" type="number" min="0" placeholder="1450" /></div>
+          <div class="field"><label class="field-label" for="new-product-unit">За единицу</label><select class="select" id="new-product-unit">${units
+            .map((unit) => `<option${unit === "м²" ? " selected" : ""}>${unit}</option>`)
+            .join("")}</select></div>
+        </div>
+        <div class="field-row" style="margin-top:15px">
+          <div class="field"><label class="field-label" for="new-product-category">Категория</label><input class="input" id="new-product-category" placeholder="Утепление" list="new-product-categories" /><datalist id="new-product-categories"><option>Утепление</option><option>Сантехника</option><option>Стройматериалы</option><option>Монтаж</option></datalist></div>
+          <div class="field" data-kind-field="service"><label class="field-label" for="new-product-min">Минимум, ед. <small>необязательно</small></label><input class="input" id="new-product-min" type="number" min="0" placeholder="30" /></div>
+          <div class="field" data-kind-field="good" hidden><label class="field-label" for="new-product-stock">Остаток на складе</label><input class="input" id="new-product-stock" type="number" min="0" max="99999" value="1" inputmode="numeric" /></div>
+        </div>
+        <div class="field" style="margin-top:15px" data-kind-field="service"><label class="field-label" for="new-product-duration">Сколько занимает <small>необязательно</small></label><input class="input" id="new-product-duration" placeholder="2–4 дня" /></div>
+        <div class="field" style="margin-top:15px"><label class="field-label" for="new-product-note">Заметка для бота <small>необязательно</small></label><textarea class="textarea" id="new-product-note" placeholder="Например: цена под ключ, выезд на замер бесплатный"></textarea></div>
+        <div class="form-hint" style="margin-top:14px">${iconSprite("i-info")} Позиция сразу появится в каталоге: бот будет называть цену за единицу, минимальный объём и сроки.</div>
       </div>
-      <div class="modal-foot"><button class="btn btn-white btn-sm" type="button" data-modal-close>Отмена</button><button class="btn btn-primary btn-sm" type="button" data-create-product>Добавить товар</button></div>`,
+      <div class="modal-foot"><button class="btn btn-white btn-sm" type="button" data-modal-close>Отмена</button><button class="btn btn-primary btn-sm" type="button" data-create-product>Добавить</button></div>`,
       {
         onMount: (modal) => {
+          let kind = "service";
+          const sync = () => {
+            $$("[data-kind-set]", modal).forEach((button) => {
+              button.classList.toggle("active", button.getAttribute("data-kind-set") === kind);
+            });
+            $$("[data-kind-field]", modal).forEach((field) => {
+              field.hidden = field.getAttribute("data-kind-field") !== kind;
+            });
+            const unit = $("#new-product-unit", modal);
+            if (unit) unit.value = kind === "good" ? "шт" : "м²";
+          };
+          $$("[data-kind-set]", modal).forEach((button) => {
+            button.addEventListener("click", () => {
+              kind = button.getAttribute("data-kind-set");
+              sync();
+            });
+          });
+          sync();
+
           $("[data-create-product]", modal)?.addEventListener("click", () => {
             const name = $("#new-product-name", modal).value.trim();
             const price = Number($("#new-product-price", modal).value);
-            const category = $("#new-product-category", modal).value;
+            const category = $("#new-product-category", modal).value.trim() || (kind === "good" ? "Стройматериалы" : "Услуги");
             const note = $("#new-product-note", modal).value.trim();
             if (!name) {
-              toast("Введите название", "Названию товара нужно хотя бы одно слово.", "info");
+              toast("Введите название", "Названию нужно хотя бы одно слово.", "info");
               $("#new-product-name", modal).focus();
               return;
             }
@@ -2283,12 +2388,16 @@
             }
             const product = {
               id: uid("p"),
+              kind,
               name,
               subtitle: "",
               sku: "DEMO-" + Math.floor(1000 + Math.random() * 9000),
               category,
+              unit: $("#new-product-unit", modal).value,
+              minOrder: Math.max(0, parseInt($("#new-product-min", modal)?.value, 10) || 0),
+              duration: $("#new-product-duration", modal)?.value.trim() || "",
               price,
-              stock: Math.max(0, Math.min(99999, parseInt($("#new-product-stock", modal)?.value, 10) || 0)),
+              stock: kind === "good" ? Math.max(0, Math.min(99999, parseInt($("#new-product-stock", modal)?.value, 10) || 0)) : 0,
               image: "",
               inquiries: 0,
               autoReplies: 0,
@@ -2298,8 +2407,8 @@
             state.products.push(product);
             saveState();
             closeModal();
-            if (ui.page === "catalog") refreshCatalogGrid();
-            toast("Товар добавлен", `«${name}» готов принимать вопросы.`, "success");
+            if (ui.page === "catalog") renderRoute();
+            toast(kind === "good" ? "Товар добавлен" : "Услуга добавлена", `«${name}» готова принимать вопросы.`, "success");
           });
         },
       }
@@ -2313,6 +2422,16 @@
     search?.addEventListener("input", () => {
       ui.catalogSearch = search.value;
       refreshCatalogGrid();
+    });
+
+    $$("[data-catalog-kind]").forEach((button) => {
+      button.addEventListener("click", () => {
+        ui.catalogKind = button.getAttribute("data-catalog-kind");
+        $$("[data-catalog-kind]").forEach((tab) => {
+          tab.classList.toggle("active", tab.getAttribute("data-catalog-kind") === ui.catalogKind);
+        });
+        refreshCatalogGrid();
+      });
     });
 
     $$("[data-catalog-category]").forEach((button) => {
@@ -2415,14 +2534,14 @@
           <div class="rule-name">${esc(rule.name)}</div>
           <div class="rule-desc">${esc(rule.desc)}</div>
         </div>
-        <label class="switch"><input type="checkbox" data-rule-toggle="${esc(rule.id)}" ${rule.enabled ? "checked" : ""} aria-label="Включить сценарий ${esc(rule.name)}"/><span class="switch-track"></span></label>
+        <label class="switch"><input type="checkbox" data-rule-toggle="${esc(rule.id)}" ${rule.enabled ? "checked" : ""} aria-label="Учитывать инструкцию ${esc(rule.name)}"/><span class="switch-track"></span></label>
       </div>
       <div class="rule-body">
-        <div class="rule-triggers"><span class="rule-trigger-label">Триггеры</span>${rule.triggers
+        <div class="rule-triggers"><span class="rule-trigger-label">Когда спрашивают</span>${rule.triggers
           .map((trigger) => `<span class="rule-trigger">${esc(trigger)}</span>`)
           .join("")}</div>
         <div class="rule-reply">
-          <div class="rule-reply-label">${iconSprite("i-sparkles")} Пример ответа</div>
+          <div class="rule-reply-label">${iconSprite("i-sparkles")} Что учитывать в ответе</div>
           ${esc(rulePreview(rule))}
         </div>
       </div>
@@ -2430,7 +2549,7 @@
         <div class="rule-stat"><strong>${formatNumber(rule.used)}</strong><span>ответов</span></div>
         <div class="rule-stat"><strong>${rule.used ? rule.accuracy + "%" : "—"}</strong><span>точность</span></div>
         <span class="rule-accuracy">${iconSprite("i-check-circle")} ${rule.enabled ? "включён" : "выключен"}</span>
-        <button class="rule-edit-btn" type="button" data-rule-edit="${esc(rule.id)}">${iconSprite("i-edit")} Править</button><button class="rule-delete-btn" type="button" data-rule-delete="${esc(rule.id)}" aria-label="Удалить сценарий «${esc(rule.name)}»" title="Удалить">${iconSprite("i-trash")}</button>
+        <button class="rule-edit-btn" type="button" data-rule-edit="${esc(rule.id)}">${iconSprite("i-edit")} Править</button><button class="rule-delete-btn" type="button" data-rule-delete="${esc(rule.id)}" aria-label="Удалить инструкцию «${esc(rule.name)}»" title="Удалить">${iconSprite("i-trash")}</button>
       </div>
     </article>`;
   }
@@ -2441,13 +2560,13 @@
     return `<div class="page">
       <div class="page-head">
         <div class="page-head-copy">
-          <div class="eyebrow"><span class="demo-dot"></span> Сценарии магазина</div>
-          <h1 class="page-title">Сценарии</h1>
-          <p class="page-sub">Бот выбирает сценарий по смыслу сообщения и отвечает с данными из каталога.</p>
+          <div class="eyebrow"><span class="demo-dot"></span> Инструкции для ИИ</div>
+          <h1 class="page-title">Инструкции ИИ</h1>
+          <p class="page-sub">Бот отвечает сам и учитывает инструкции ниже.</p>
         </div>
         <div class="page-actions">
           <button class="btn btn-white" type="button" data-test-bot>${iconSprite("i-bolt")} Проверить на сообщении</button>
-          <button class="btn btn-primary" type="button" data-new-rule>${iconSprite("i-plus")} Новый сценарий</button>
+          <button class="btn btn-primary" type="button" data-new-rule>${iconSprite("i-plus")} Новая инструкция</button>
         </div>
       </div>
 
@@ -2525,7 +2644,7 @@
             closeModal();
             renderRoute();
             updateGlobalBadges();
-            toast(isNew ? "Сценарий создан" : "Сценарий сохранён", isNew ? "Бот начнёт использовать его в новых диалогах." : "Изменения сразу применились к автоответам.", "success");
+            toast(isNew ? "Инструкция добавлена" : "Инструкция сохранена", isNew ? "Бот начнёт учитывать её в новых диалогах." : "Изменения сразу применились к ответам.", "success");
           });
         },
       }
@@ -2553,12 +2672,25 @@
               $("[data-run-test]", modal).click();
             });
           });
-          $("[data-run-test]", modal)?.addEventListener("click", () => {
+          $("[data-run-test]", modal)?.addEventListener("click", async () => {
             const text = $("#test-message", modal).value.trim();
             if (!text) return;
-            const reply = generateReply(getChat("c1") || state.chats[0] || TEST_CHAT, text);
             const box = $("#test-result", modal);
             box.hidden = false;
+            box.innerHTML = `<div class="test-result-head"><span class="demo-dot"></span> Бот думает…</div>`;
+            const hook = window.AutoRFeatures && window.AutoRFeatures.aiOnline;
+            let reply = null;
+            if (hook) {
+              try {
+                reply = await hook(getChat("c1") || state.chats[0] || TEST_CHAT, text);
+              } catch (error) {
+                reply = null;
+              }
+            }
+            if (!reply) {
+              box.innerHTML = `<div class="test-result-head"><span class="demo-dot"></span> Бот не ответил</div><p class="test-result-meta">ИИ недоступен или закончился лимит — вопрос уйдёт менеджеру.</p>`;
+              return;
+            }
             box.innerHTML = `<div class="test-result-head"><span class="demo-dot"></span> Ответ бота</div>
               <div class="message out" style="padding:0;background:none"><div class="message-body"><div class="bubble"><div class="bubble-label">${iconSprite("i-sparkles")} AutoR · ${esc(reply.rule)} <span class="confidence">${reply.confidence}%</span></div><div class="bubble-text">${esc(reply.text)}</div><div class="bubble-foot"><span>готово за ${esc(reply.latency)}</span><span class="dot-sep">·</span>${iconSprite("i-check")}</div></div></div></div>
               ${reply.attachment ? `<img src="${esc(reply.attachment)}" alt="Фото" style="width:100%;border-radius:10px;margin-top:10px"/>` : ""}
@@ -2588,7 +2720,7 @@
       const accuracy = $(".rule-accuracy", card);
       if (accuracy) accuracy.innerHTML = `${iconSprite("i-check-circle")} ${rule.enabled ? "включён" : "выключен"}`;
       updateGlobalBadges();
-      toast(rule.enabled ? "Сценарий включён" : "Сценарий выключен", `«${rule.name}» ${rule.enabled ? "снова отвечает покупателям." : "не будет использоваться ботом."}`, rule.enabled ? "success" : "info");
+      toast(rule.enabled ? "Инструкция включена" : "Инструкция выключена", `«${rule.name}» ${rule.enabled ? "снова учитывается в ответах." : "не будет учитываться ботом."}`, rule.enabled ? "success" : "info");
     });
 
     $(".rule-grid")?.addEventListener("click", (event) => {
@@ -2678,7 +2810,7 @@
 
   function scenarioRowsMarkup() {
     const totalUsed = sum(state.rules.map((rule) => rule.used));
-    return `<div class="scenario-tr head"><span>Сценарий</span><span>Ответы</span><span>Точность</span><span>Доля</span></div>
+    return `<div class="scenario-tr head"><span>Инструкция</span><span>Ответы</span><span>Точность</span><span>Доля</span></div>
       ${state.rules
         .slice(0, 6)
         .map((rule) => {
@@ -3411,12 +3543,9 @@
         <div class="setting-row"><div class="setting-row-main"><strong>Не называет цену без запроса</strong><span>Цена появляется, когда покупатель спросил сам.</span></div><label class="switch"><input type="checkbox" data-ai-toggle="noPrice" ${cfg.noPrice ? "checked" : ""}/><span class="switch-track"></span></label></div>
         <div class="setting-row"><div class="setting-row-main"><strong>Представляется ассистентом магазина</strong><span>Снимает претензии «это бот» и соответствует политике площадки.</span></div><label class="switch"><input type="checkbox" data-ai-toggle="disclose" ${cfg.disclose ? "checked" : ""}/><span class="switch-track"></span></label></div>
         <div class="settings-grid-2" style="margin-top:14px">
-          <div class="field"><label class="field-label" for="ai-model">Модель</label>
-            <select class="select" id="ai-model" data-ai-model>
-              <option value="deepseek-flash" ${cfg.model === "deepseek-flash" ? "selected" : ""}>DeepSeek Flash — быстрая, дешёвая</option>
-              <option value="deepseek-v4-pro" ${cfg.model === "deepseek-v4-pro" ? "selected" : ""}>DeepSeek V4 Pro — точнее на сложных вопросах</option>
-            </select>
-            <span class="field-hint">V4 Pro отвечает медленнее и стоит дороже — для сложных вопросов.</span>
+          <div class="field"><label class="field-label">Модель</label>
+            <div class="ai-model-static"><strong>DeepSeek Flash</strong><span>через сервер AutoR</span></div>
+            <span class="field-hint">Ответ за 1–2 секунды. Локальную модель на телефоне пока не подключаем: на слабых весах качество торга и расчёта смет падает.</span>
           </div>
           <div class="field"><label class="field-label">Лимит ответов ИИ</label>
             <div class="ai-usage"><div class="ai-usage-bar"><i style="width:${share}%"></i></div><span>${used} из ${Number.isFinite(limit) ? limit : "∞"}</span></div>
@@ -3461,11 +3590,6 @@
         cfg[input.getAttribute("data-ai-toggle")] = input.checked;
         saveState();
       });
-    });
-    $("[data-ai-model]")?.addEventListener("change", (event) => {
-      cfg.model = event.target.value;
-      saveState();
-      toast("Модель выбрана", cfg.model === "deepseek-v4-pro" ? "Сложные вопросы — на V4 Pro." : "DeepSeek Flash: быстро и дешево.", "success");
     });
     $("[data-ai-stopword-add]")?.addEventListener("click", () => {
       const input = $("#ai-stopword-input");
