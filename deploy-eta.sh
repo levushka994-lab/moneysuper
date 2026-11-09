@@ -53,8 +53,8 @@ rsync -a --delete \
 
 # Отпечаток сборки в ссылках на css/js — чтобы браузер не показывал старую версию
 if [ -n "$SHORT" ]; then
-  sed -i -E "s#(href=\"assets/[^\"]+\.css\")#\1?v=${SHORT}#g; s#(src=\"assets/[^\"]+\.js\")#\1?v=${SHORT}#g" "$SITE/index.html"
-  sed -i -E "s#(href=\"admin\.css\")#\1?v=${SHORT}#g; s#(src=\"admin\.js\")#\1?v=${SHORT}#g" "$SITE/admin-app/index.html"
+  sed -i -E "s#(href=\"assets/[^\"]+\.css)(\")#\1?v=${SHORT}\2#g; s#(src=\"assets/[^\"]+\.js)(\")#\1?v=${SHORT}\2#g" "$SITE/index.html"
+  sed -i -E "s#(href=\"admin\.css)(\")#\1?v=${SHORT}\2#g; s#(src=\"admin\.js)(\")#\1?v=${SHORT}\2#g" "$SITE/admin-app/index.html"
 fi
 
 find "$SITE" -type d -exec chmod 755 {} +
