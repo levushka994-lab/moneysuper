@@ -17,18 +17,18 @@ flock -n 9 || exit 0
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
 
 if [ -d "$WORK/.git" ]; then
-  git -C "$WORK" remote set-url origin "$REPO_URL"
-  if ! git -C "$WORK" fetch --depth 1 origin "$BRANCH" 2>/dev/null; then
+  git -c safe.directory="$WORK" -C "$WORK" remote set-url origin "$REPO_URL"
+  if ! git -c safe.directory="$WORK" -C "$WORK" fetch --depth 1 origin "$BRANCH" 2>/dev/null; then
     log "сеть недоступна, повтор на следующем запуске"
     exit 0
   fi
-  git -C "$WORK" reset --hard --quiet FETCH_HEAD
+  git -c safe.directory="$WORK" -C "$WORK" reset --hard --quiet FETCH_HEAD
 else
   rm -rf "$WORK"
   git clone --depth 1 --branch "$BRANCH" --quiet "$REPO_URL" "$WORK"
 fi
 
-SHORT=$(git -C "$WORK" rev-parse --short HEAD)
+SHORT=$(git -c safe.directory="$WORK" -C "$WORK" rev-parse --short HEAD 2>/dev/null || true)
 SUM=$( { sha256sum "$WORK/index.html"; find "$WORK/assets" "$WORK/admin-app" -type f -exec sha256sum {} +; } | sort -k2 | sha256sum | cut -d' ' -f1)
 
 if [ -f "$STATE" ] && [ "$(cat "$STATE")" = "$SUM" ]; then
