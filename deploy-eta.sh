@@ -4,7 +4,7 @@
 set -euo pipefail
 
 REPO_URL="${AUTOR_REPO_URL:-https://github.com/levushka994-lab/moneysuper.git}"
-BRANCH="${AUTOR_BRANCH:-chats-v2}"
+BRANCH="${AUTOR_BRANCH:-main}"
 WORK="${AUTOR_WORK:-/opt/autor/repo}"
 SITE="${AUTOR_SITE:-/srv/site-port/sites/autor.site-port.ru}"
 STATE="${AUTOR_STATE:-/opt/autor/deployed.sha}"
