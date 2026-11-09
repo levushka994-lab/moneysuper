@@ -29,7 +29,7 @@ def default_prompt():
 
 def call(endpoint, model, key, messages, max_tokens=120, timeout=30):
     body = json.dumps({"model": model, "messages": messages,
-                       "max_tokens": max_tokens, "temperature": 0.2,
+                       "max_tokens": max_tokens, "temperature": 0.0,
                        "thinking": {"type": "disabled"}}).encode()
     hdr = {"content-type": "application/json"}
     if key:
@@ -41,7 +41,11 @@ def call(endpoint, model, key, messages, max_tokens=120, timeout=30):
     return data["choices"][0]["message"]["content"].strip(), time.time() - t0
 
 def nums(text):
-    return {n.replace(" ", "").strip() for n in re.findall(r"\d[\d\s]{0,}", text or "") if n.strip()}
+    """Числа из текста. Разряды через пробел/запятую/узкий пробел считаем одним числом:
+    «145 000», «145,000», «145\u202f000» -> 145000."""
+    t = (text or "").replace("\u202f", " ").replace("\u00a0", " ")
+    t = re.sub(r"(?<=\d)[ ,](?=\d{3}\b)", "", t)
+    return {n.strip() for n in re.findall(r"\d[\d ]{0,}", t) if n.strip()}
 
 def catalog_numbers():
     """Всё, что вообще есть в каталоге: цены, остатки, сроки, минимумы, доставка."""
