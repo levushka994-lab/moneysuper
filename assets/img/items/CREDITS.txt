@@ -1,0 +1,10 @@
+Фотографии для демо-кабинета «УЮТ-СТРОЙ»
+Все изображения — свободные лицензии, обрезаны до 800×600 и пережаты в WebP.
+
+facade.webp  — CC0 1.0 — rawpixel (public domain), «Insulation boards on facade»
+roof.webp    — CC0 1.0 — Bigul Malayi, wordpress.org/photos
+balcony.webp — CC0 1.0 — rawpixel (public domain), «Apartment building with balconies»
+plumber.webp — CC BY 2.0 — Shixart1985, Wikimedia Commons
+faucet.webp  — CC0 1.0 — Dan Watson, stocksnap.io
+osb.webp     — CC0 1.0 — Nilo Velez, wordpress.org/photos
+wool.webp    — CC BY 3.0 — Achim Hering, Wikimedia Commons
