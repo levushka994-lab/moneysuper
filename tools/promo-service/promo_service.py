@@ -7,6 +7,7 @@
 Эндпоинты (JSON):
   POST /api/promo/issue   {"type":"access|vip|max","count":1}  -> {"codes":[...]}
   POST /api/promo/verify  {"code":"AUTOR-..."}                 -> {"valid":bool,"type":...,"msg":...}
+  POST /api/promo/consume {"code":"AUTOR-..."}                 -> {"ok":bool}  (гасит код после выдачи)
   POST /api/promo/revoke  {"code":"AUTOR-..."}                 -> {"ok":bool}
   GET  /api/promo/list                                         -> {"codes":[{...}]}
   GET  /healthz                                                -> {"ok":true}
@@ -139,10 +140,26 @@ class Handler(BaseHTTPRequestHandler):
                             return self.reply({"valid": False, "msg": "Этот промокод уже активирован"})
                         if item.get("revoked"):
                             return self.reply({"valid": False, "msg": "Промокод отозван"})
-                        item["used"] = int(time.time())
-                        save(data)
                         return self.reply({"valid": True, "type": item["type"]})
             return self.reply({"valid": False, "msg": "Такого промокода нет. Проверьте, нет ли опечатки."})
+
+        if path == "/api/promo/consume":
+            if too_many(self.ip()):
+                return self.reply({"ok": False, "msg": "Слишком много попыток, подождите минуту"}, 429)
+            code = normalize(self.body().get("code"))
+            if not code:
+                return self.reply({"ok": False, "msg": "Код выглядит так: AUTOR-XXXX-XXXX-XXXX"})
+            h = hashed(code)
+            with LOCK:
+                data = load()
+                for item in data["codes"]:
+                    if hmac.compare_digest(item["hash"], h):
+                        if item.get("used") or item.get("revoked"):
+                            return self.reply({"ok": False, "msg": "Промокод уже использован"})
+                        item["used"] = int(time.time())
+                        save(data)
+                        return self.reply({"ok": True})
+            return self.reply({"ok": False, "msg": "Такого промокода нет"})
 
         if path == "/api/promo/issue":
             body = self.body()

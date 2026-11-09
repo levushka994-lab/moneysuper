@@ -161,7 +161,11 @@
       var type = CFG.codes[h];
       if (!type) {
         return remoteRedeem(code, h).then(function (remote) {
-          if (remote && remote.valid) return applyType(remote.type, h);
+          if (remote && remote.valid) {
+            var applied = applyType(remote.type, h);
+            if (applied && applied.ok) remoteConsume(code);
+            return applied;
+          }
           fails++;
           if (fails >= 5) { blockedUntil = now() + 30000; fails = 0; }
           return { ok: false, msg: (remote && remote.msg) || 'Такого промокода нет. Проверьте, нет ли опечатки.' };
@@ -172,6 +176,15 @@
   }
 
   // Код, выданный в админке, проверяется на сервере AutoR (одноразовый, общий для всех устройств).
+  function remoteConsume(code) {
+    if (typeof fetch !== 'function') return;
+    fetch('/api/promo/consume', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: rawCode(code) })
+    }).catch(function () {});
+  }
+
   function remoteRedeem(code, h) {
     if (typeof fetch !== 'function') return Promise.resolve(null);
     return fetch('/api/promo/verify', {
