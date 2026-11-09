@@ -214,7 +214,7 @@
         '</div>' +
         '<div class="rows">' +
           '<div class="row row--users row--head">' +
-            '<span></span><span>Кто</span><span>Роль</span><span>Тариф</span><span>Вход</span><span></span>' +
+            '<span></span><span>Кто</span><span>Роль</span><span>Тариф</span><span>Статус</span><span></span>' +
           '</div>' +
           state.users.map(userRow).join("") +
         '</div>' +
