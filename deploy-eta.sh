@@ -29,7 +29,7 @@ else
 fi
 
 SHORT=$(git -C "$WORK" rev-parse --short HEAD)
-SUM=$( { sha256sum "$WORK/index.html"; find "$WORK/assets" -type f -exec sha256sum {} +; } | sort -k2 | sha256sum | cut -d' ' -f1)
+SUM=$( { sha256sum "$WORK/index.html"; find "$WORK/assets" "$WORK/admin-app" -type f -exec sha256sum {} +; } | sort -k2 | sha256sum | cut -d' ' -f1)
 
 if [ -f "$STATE" ] && [ "$(cat "$STATE")" = "$SUM" ]; then
   exit 0
