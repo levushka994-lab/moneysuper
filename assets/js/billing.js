@@ -202,7 +202,7 @@
   function applyType(type, h) {
     fails = 0;
       if (st.used.indexOf(h) >= 0) return { ok: false, msg: 'Этот промокод уже активирован на этом устройстве.' };
-      if (type !== 'access' && !st.access) return { ok: false, msg: 'Это код подписки. Сначала откройте доступ промокодом доступа.' };
+      if (type !== 'access' && !st.access) st.access = true;   // код подписки тоже открывает кабинет
       var t = now();
       if (type === 'access') { st.access = true; st.maxUntil = Math.max(t, st.maxUntil) + MONTH_MS; }
       if (type === 'vip') st.vipUntil = Math.max(t, st.vipUntil) + MONTH_MS;
