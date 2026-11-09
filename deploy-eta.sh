@@ -55,6 +55,9 @@ rsync -a --delete \
 if [ -n "$SHORT" ]; then
   sed -i -E "s#(href=\"assets/[^\"]+\.css)(\")#\1?v=${SHORT}\2#g; s#(src=\"assets/[^\"]+\.js)(\")#\1?v=${SHORT}\2#g" "$SITE/index.html"
   sed -i -E "s#(href=\"admin\.css)(\")#\1?v=${SHORT}\2#g; s#(src=\"admin\.js)(\")#\1?v=${SHORT}\2#g" "$SITE/admin-app/index.html"
+  printf '{"build":"%s"}\n' "$SHORT" > "$SITE/build.json"
+  chmod 644 "$SITE/build.json"
+  sed -i -E "s#<html lang=\"ru\"#<html lang=\"ru\" data-build=\"${SHORT}\"#" "$SITE/index.html"
 fi
 
 find "$SITE" -type d -exec chmod 755 {} +

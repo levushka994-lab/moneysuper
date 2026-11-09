@@ -3,7 +3,26 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AutoR — автоответы для Авито</title>
+    <script>
+    /* Если сервер обновился, а вкладка держит старый HTML — перезагружаемся один раз */
+    (function () {
+      try {
+        fetch("build.json?t=" + Date.now(), { cache: "no-store" })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (!d || !d.build) return;
+            var have = document.documentElement.getAttribute("data-build");
+            var key = "autor.build.seen";
+            if (have === d.build) { sessionStorage.setItem(key, d.build); return; }
+            if (sessionStorage.getItem(key) === d.build) return;
+            sessionStorage.setItem(key, d.build);
+            location.replace(location.pathname + "?b=" + encodeURIComponent(d.build));
+          })
+          .catch(function () {});
+      } catch (e) {}
+    })();
+  </script>
+<title>AutoR — автоответы для Авито</title>
   <!--
     AutoR — каркас страницы. Здесь только разметка, иконки и подключение файлов.
 
