@@ -270,10 +270,10 @@
 
   function promoRow(code) {
     return '' +
-      '<div class="row row--promos" data-code="' + esc(code.code) + '">' +
+      '<div class="row row--promos' + (code.used ? ' is-used' : '') + '" data-code="' + esc(code.code) + '">' +
         '<span class="code">' + esc(code.code) + '</span>' +
         '<span class="cell">' + esc(PROMO_TYPES[code.type] || code.type) + '</span>' +
-        '<span class="cell">' + esc(code.at) + (code.used ? ' · использован' : '') + '</span>' +
+        '<span class="cell">' + esc(code.at) + (code.used ? ' · <span class="used-mark">использован</span>' : '') + '</span>' +
         '<span class="actions">' +
           '<button class="icon-btn" type="button" data-copy="' + esc(code.code) + '" title="Скопировать">' +
             '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5H6a1 1 0 0 0-1 1v9"/></svg>' +

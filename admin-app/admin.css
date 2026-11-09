@@ -264,3 +264,19 @@ input:focus, select:focus { outline: none; border-color: #E0B233; box-shadow: 0 
   .tabs { order: 3; width: 100%; }
   .tab { flex: 1; justify-content: center; }
 }
+
+.row--promos.is-used .code {
+  color: var(--red);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(192, 57, 43, 0.45);
+}
+
+.row--promos.is-used .cell {
+  color: var(--muted);
+}
+
+.used-mark {
+  color: var(--red);
+  font-weight: 600;
+}
