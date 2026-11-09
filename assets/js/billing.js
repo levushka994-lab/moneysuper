@@ -635,45 +635,6 @@
   function notify() { document.dispatchEvent(new CustomEvent('autor:billing')); }
 
   /* ---------- коды из админки ---------- */
-  var OVERLAY_KEY = 'autor.codes.v1';
-  function overlayLoad() {
-    try { return JSON.parse(localStorage.getItem(OVERLAY_KEY) || '{}') || {}; } catch (e) { return {}; }
-  }
-  function overlaySave(map) {
-    try { localStorage.setItem(OVERLAY_KEY, JSON.stringify(map)); } catch (e) {}
-  }
-  (function mergeOverlay() {
-    var map = overlayLoad();
-    Object.keys(map).forEach(function (hash) { if (!CFG.codes[hash]) CFG.codes[hash] = map[hash]; });
-  })();
-
-  function promoHashOf(code) {
-    var norm = normalize(code);
-    if (!norm) return Promise.reject(new Error('Промокод не похож на AUTOR-XXXX-XXXX-XXXX'));
-    return kdf(norm);
-  }
-
-  function addPromo(code, type) {
-    return promoHashOf(code).then(function (hash) {
-      CFG.codes[hash] = type;
-      var map = overlayLoad(); map[hash] = type; overlaySave(map);
-      return hash;
-    });
-  }
-
-  function removePromo(code) {
-    return promoHashOf(code).then(function (hash) {
-      delete CFG.codes[hash];
-      var map = overlayLoad(); delete map[hash]; overlaySave(map);
-      return hash;
-    }).catch(function () { return null; });
-  }
-
-  function promoTotals() {
-    var totals = { access: 0, vip: 0, max: 0 };
-    Object.keys(CFG.codes).forEach(function (hash) { totals[CFG.codes[hash]] = (totals[CFG.codes[hash]] || 0) + 1; });
-    return totals;
-  }
 
   window.AutoRBilling = {
     plan: plan, inDemo: inDemo, hasAccess: hasAccess,
@@ -682,7 +643,6 @@
     subscribed: function () { return st.used.some(function (h) { var t = CFG.codes[h]; return t === 'vip' || t === 'max'; }); },
     tariffs: function () { tariffs(); },
     upgrade: function (level, name) { upgrade(level, name); },
-    addPromo: addPromo, removePromo: removePromo, promoTotals: promoTotals,
     tg: TG
   };
 
