@@ -160,11 +160,34 @@
     return kdf(code).then(function (h) {
       var type = CFG.codes[h];
       if (!type) {
-        fails++;
-        if (fails >= 5) { blockedUntil = now() + 30000; fails = 0; }
-        return { ok: false, msg: 'Такого промокода нет. Проверьте, нет ли опечатки.' };
+        return remoteRedeem(code, h).then(function (remote) {
+          if (remote && remote.valid) return applyType(remote.type, h);
+          fails++;
+          if (fails >= 5) { blockedUntil = now() + 30000; fails = 0; }
+          return { ok: false, msg: (remote && remote.msg) || 'Такого промокода нет. Проверьте, нет ли опечатки.' };
+        });
       }
-      fails = 0;
+      return applyType(type, h);
+    });
+  }
+
+  // Код, выданный в админке, проверяется на сервере AutoR (одноразовый, общий для всех устройств).
+  function remoteRedeem(code, h) {
+    if (typeof fetch !== 'function') return Promise.resolve(null);
+    return fetch('/api/promo/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: rawCode(code) })
+    }).then(function (res) { return res.json(); }).catch(function () { return null; });
+  }
+
+  function rawCode(code) {
+    var digits = String(code || '').replace(/[^0-9A-Z]/g, '');
+    return 'AUTOR-' + digits.slice(0, 4) + '-' + digits.slice(4, 8) + '-' + digits.slice(8, 12);
+  }
+
+  function applyType(type, h) {
+    fails = 0;
       if (st.used.indexOf(h) >= 0) return { ok: false, msg: 'Этот промокод уже активирован на этом устройстве.' };
       if (type !== 'access' && !st.access) return { ok: false, msg: 'Это код подписки. Сначала откройте доступ промокодом доступа.' };
       var t = now();
@@ -176,8 +199,7 @@
       setTimeout(notify, 0);
       var msg = type === 'access' ? 'Доступ открыт навсегда. MAXIMUM в подарок — до ' + fmtDate(st.maxUntil) + '.'
         : type === 'vip' ? 'VIP продлён до ' + fmtDate(st.vipUntil) + '.' : 'MAXIMUM включён до ' + fmtDate(st.maxUntil) + '.';
-      return { ok: true, msg: msg, type: type, until: fmtDate(type === 'vip' ? st.vipUntil : st.maxUntil) };
-    });
+    return { ok: true, msg: msg, type: type, until: fmtDate(type === 'vip' ? st.vipUntil : st.maxUntil) };
   }
 
   /* ---------- тарифы ---------- */

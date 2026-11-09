@@ -89,6 +89,29 @@
     setTimeout(function () { el.remove(); }, 4200);
   }
 
+  function api(path, options) {
+    var opts = options || {};
+    opts.headers = { "Content-Type": "application/json" };
+    return fetch(path, opts).then(function (res) { return res.json(); });
+  }
+
+  function dayLabel(seconds) {
+    if (!seconds) return "";
+    var d = new Date(seconds * 1000);
+    var months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+    return d.getDate() + " " + months[d.getMonth()];
+  }
+
+  function fetchCodes() {
+    return api("/api/promo/list").then(function (data) {
+      state.codes = (data.codes || []).map(function (row) {
+        return { code: row.code, type: row.type, at: dayLabel(row.created), used: !!row.used };
+      });
+    }).catch(function () {
+      state.codes = [];
+    });
+  }
+
   function randomCode() {
     var out = [];
     var bytes = new Uint8Array(12);
@@ -145,7 +168,7 @@
     var button = event.target.closest("[data-tab]");
     if (!button) return;
     tab = button.dataset.tab;
-    render();
+    fetchCodes().then(render);
   });
 
   /* ── Рендер ──────────────────────────────────────────── */
@@ -250,7 +273,7 @@
       '<div class="row row--promos" data-code="' + esc(code.code) + '">' +
         '<span class="code">' + esc(code.code) + '</span>' +
         '<span class="cell">' + esc(PROMO_TYPES[code.type] || code.type) + '</span>' +
-        '<span class="cell">' + esc(code.at) + '</span>' +
+        '<span class="cell">' + esc(code.at) + (code.used ? ' · использован' : '') + '</span>' +
         '<span class="actions">' +
           '<button class="icon-btn" type="button" data-copy="' + esc(code.code) + '" title="Скопировать">' +
             '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5H6a1 1 0 0 0-1 1v9"/></svg>' +
@@ -302,7 +325,12 @@
       var target = revoke.dataset.revoke;
       state.codes = state.codes.filter(function (c) { return c.code !== target; });
       save(); render();
-      toast("Код отозван", target);
+      api("/api/promo/revoke", { method: "POST", body: JSON.stringify({ code: code }) })
+        .then(fetchCodes)
+        .then(function () {
+          render();
+          toast("Код отозван", code);
+        });
     }
   });
 
@@ -312,14 +340,13 @@
     var form = event.target;
     var type = form.querySelector("[name='type']").value;
     var count = Math.max(1, Math.min(10, parseInt(form.querySelector("[name='count']").value, 10) || 1));
-    var made = [];
-    for (var i = 0; i < count; i += 1) {
-      var code = randomCode();
-      made.push({ code: code, type: type, at: today() });
-      state.codes.push(made[made.length - 1]);
-    }
-    save(); render();
-    toast(count > 1 ? "Промокоды созданы" : "Промокод создан", made.map(function (c) { return c.code; }).join(", "));
+    api("/api/promo/issue", { method: "POST", body: JSON.stringify({ type: type, count: count }) })
+      .then(function (data) {
+        return fetchCodes().then(function () {
+          render();
+          toast(count > 1 ? "Промокоды созданы" : "Промокод создан", (data.codes || []).join(", "));
+        });
+      });
   });
 
   /* ── Модалка приглашения ─────────────────────────────── */
