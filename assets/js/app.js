@@ -21,6 +21,7 @@
     auditMonth: false,
     composerModeChat: null,
     catalogKind: "all",
+    adminTab: "users",
     catalogCategory: "Все",
     catalogSearch: "",
     dashboardPeriod: "week",
@@ -47,6 +48,7 @@
     analysis: { title: "Анализ диалогов", nav: "analysis" },
     analytics: { title: "Аналитика", nav: "analytics" },
     settings: { title: "Настройки", nav: "settings" },
+    admin: { title: "Админка", nav: "admin" },
   };
 
   /* ========================================================================
@@ -482,6 +484,7 @@
       analysis: renderAnalysisPage,
       analytics: renderAnalytics,
       settings: renderSettings,
+      admin: renderAdminPage,
     };
 
     view.dataset.page = route.page;
@@ -519,6 +522,7 @@
     if (page === "analysis") bindAnalysis();
     if (page === "analytics") bindAnalytics();
     if (page === "settings") bindSettings();
+    if (page === "admin") bindAdmin();
   }
 
   /* ========================================================================
@@ -4022,6 +4026,327 @@
         renderRoute();
         toast(`Тест в ${channel.title}`, "Сообщение с кнопкой «Взять диалог» отправлено.", "success");
       });
+    });
+  }
+
+
+  /* ========================================================================
+     Админка: пользователи магазина и промокоды
+     ======================================================================== */
+
+  const ADMIN_ROLES = [
+    { id: "owner", label: "Владелец" },
+    { id: "manager", label: "Менеджер" },
+    { id: "support", label: "Поддержка" },
+  ];
+  const ADMIN_PLAN_LABEL = { PRO: "PRO", VIP: "VIP", MAXIMUM: "MAXIMUM" };
+  const ADMIN_STATUS = {
+    active: { label: "работает", tone: "green" },
+    invited: { label: "приглашён", tone: "amber" },
+    off: { label: "отключён", tone: "gray" },
+  };
+  const PROMO_TYPES = [
+    { id: "access", label: "Доступ навсегда", hint: "Открывает кабинет бессрочно + MAXIMUM на месяц" },
+    { id: "vip", label: "VIP на месяц", hint: "Подписка VIP, нужен открытый доступ" },
+    { id: "max", label: "MAXIMUM на месяц", hint: "Подписка MAXIMUM, нужен открытый доступ" },
+  ];
+  const PROMO_ALPHA = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+
+  function adminSeed() {
+    return {
+      users: [
+        { id: "u1", name: "Лев Барбер", email: "lev@uyut-stroy.ru", role: "manager", plan: "PRO", status: "active", lastAt: "сегодня, 10:12" },
+        { id: "u2", name: "Анна Смирнова", email: "anna@uyut-stroy.ru", role: "manager", plan: "PRO", status: "invited", lastAt: "—" },
+      ],
+      promos: [],
+    };
+  }
+
+  function adminData() {
+    if (!state.admin || !Array.isArray(state.admin.users) || !state.admin.users.length) state.admin = adminSeed();
+    if (!Array.isArray(state.admin.promos)) state.admin.promos = [];
+    return state.admin;
+  }
+
+  function adminInitials(name) {
+    return String(name || "?").split(/\s+/).slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join("");
+  }
+
+  function promoCode() {
+    let body = "";
+    for (let i = 0; i < 12; i++) body += PROMO_ALPHA[Math.floor(Math.random() * PROMO_ALPHA.length)];
+    return "AUTOR-" + body.slice(0, 4) + "-" + body.slice(4, 8) + "-" + body.slice(8, 12);
+  }
+
+  function adminTabMarkup(data) {
+    return `<div class="admin-tabs" role="tablist">
+      <button class="admin-tab ${ui.adminTab === "promos" ? "" : "is-active"}" type="button" role="tab" data-admin-tab="users">
+        Пользователи <span class="admin-tab-count">${data.users.length}</span>
+      </button>
+      <button class="admin-tab ${ui.adminTab === "promos" ? "is-active" : ""}" type="button" role="tab" data-admin-tab="promos">
+        Промокоды <span class="admin-tab-count">${data.promos.length}</span>
+      </button>
+    </div>`;
+  }
+
+  function adminUsersMarkup(data) {
+    const rows = data.users.map((user) => {
+      const status = ADMIN_STATUS[user.status] || ADMIN_STATUS.active;
+      const role = (ADMIN_ROLES.find((item) => item.id === user.role) || ADMIN_ROLES[1]).label;
+      return `<div class="admin-row" data-admin-user="${esc(user.id)}">
+        <span class="admin-ava">${esc(adminInitials(user.name))}</span>
+        <div class="admin-who">
+          <strong>${esc(user.name)}</strong>
+          <span>${esc(user.email)}</span>
+        </div>
+        <span class="admin-cell">${esc(role)}</span>
+        <span class="admin-cell"><span class="admin-plan">${esc(ADMIN_PLAN_LABEL[user.plan] || user.plan)}</span></span>
+        <span class="admin-cell admin-cell--muted">${esc(user.lastAt || "—")}</span>
+        <span class="badge-${status.tone} admin-status">${status.label}</span>
+        <span class="admin-actions">
+          <button class="admin-icon-btn" type="button" title="${user.status === "off" ? "Включить" : "Отключить"}" data-admin-toggle="${esc(user.id)}">
+            <svg class="icon"><use href="#${user.status === "off" ? "i-play" : "i-pause"}"/></svg>
+          </button>
+          <button class="admin-icon-btn admin-icon-btn--danger" type="button" title="Удалить" data-admin-remove="${esc(user.id)}">
+            <svg class="icon"><use href="#i-trash"/></svg>
+          </button>
+        </span>
+      </div>`;
+    }).join("");
+
+    return `<section class="card admin-card">
+      <div class="admin-card-head">
+        <div>
+          <h2>Кто работает в кабинете</h2>
+          <p>Менеджеры видят диалоги и отвечают от имени магазина. Владелец меняет настройки и тариф.</p>
+        </div>
+        <button class="btn btn-white" type="button" data-admin-invite>
+          <svg class="icon"><use href="#i-plus"/></svg> Пригласить
+        </button>
+      </div>
+      <div class="admin-table admin-table--users">
+        <div class="admin-row admin-row--head">
+          <span></span><span>Кто</span><span>Роль</span><span>Тариф</span><span>Последний вход</span><span>Статус</span><span></span>
+        </div>
+        ${rows}
+      </div>
+    </section>`;
+  }
+
+  function adminPromosMarkup(data) {
+    const rows = data.promos.length
+      ? data.promos.map((promo) => {
+          const type = PROMO_TYPES.find((item) => item.id === promo.type) || PROMO_TYPES[0];
+          return `<div class="admin-row admin-row--promo" data-admin-promo="${esc(promo.code)}">
+            <code class="admin-code">${esc(promo.code)}</code>
+            <span class="admin-cell">${esc(type.label)}</span>
+            <span class="admin-cell admin-cell--muted">${esc(promo.createdAt)}</span>
+            <span class="badge-green admin-status">готов</span>
+            <span class="admin-actions">
+              <button class="admin-icon-btn" type="button" title="Скопировать" data-admin-copy="${esc(promo.code)}">
+                <svg class="icon"><use href="#i-external"/></svg>
+              </button>
+              <button class="admin-icon-btn admin-icon-btn--danger" type="button" title="Отозвать" data-admin-revoke="${esc(promo.code)}">
+                <svg class="icon"><use href="#i-trash"/></svg>
+              </button>
+            </span>
+          </div>`;
+        }).join("")
+      : `<p class="admin-empty">Пока нет своих кодов. Сгенерируйте первый — он сразу начнёт работать в окне доступа.</p>`;
+
+    return `<section class="card admin-card">
+      <div class="admin-card-head">
+        <div>
+          <h2>Промокоды</h2>
+          <p>Коды генерируются здесь и хранятся хешами, поэтому по базе их не подсмотреть. Каждый работает один раз.</p>
+        </div>
+      </div>
+      <form class="admin-promo-form" data-admin-promo-form>
+        <label class="admin-field">
+          <span>Что даёт код</span>
+          <select class="input" name="type">
+            ${PROMO_TYPES.map((type) => `<option value="${type.id}">${type.label}</option>`).join("")}
+          </select>
+        </label>
+        <label class="admin-field admin-field--narrow">
+          <span>Сколько</span>
+          <input class="input" name="count" type="number" min="1" max="10" value="1" />
+        </label>
+        <button class="btn btn-primary" type="submit"><svg class="icon"><use href="#i-plus"/></svg> Создать</button>
+      </form>
+      <div class="admin-hint-row">
+        <svg class="icon"><use href="#i-info"/></svg>
+        <span>Готовые коды копируются и вставляются в поле «Ввести промокод» в окне доступа.</span>
+      </div>
+      <div class="admin-table admin-table--promos">
+        ${rows}
+      </div>
+    </section>`;
+  }
+
+  function renderAdminPage() {
+    const data = adminData();
+    return `<div class="page">
+      <div class="page-head">
+        <div class="page-head__text">
+          <div class="eyebrow">Аккаунт</div>
+          <h1>Админка</h1>
+          <p class="page-sub">Люди с доступом к кабинету и промокоды для новых магазинов.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-white" type="button" data-admin-tab-jump="promos">
+            <svg class="icon"><use href="#i-tag"/></svg> Промокоды
+          </button>
+        </div>
+      </div>
+      ${adminTabMarkup(data)}
+      <div class="admin-panels">
+        ${ui.adminTab === "promos" ? adminPromosMarkup(data) : adminUsersMarkup(data)}
+      </div>
+    </div>`;
+  }
+
+  function openInviteModal() {
+    openModal(`
+      <div class="modal-head">
+        <h3>Пригласить в кабинет</h3>
+        <button class="modal-close" type="button" data-modal-close><svg class="icon"><use href="#i-close"/></svg></button>
+      </div>
+      <form class="modal-body" data-admin-invite-form>
+        <label class="field">
+          <span class="field-label">Имя</span>
+          <input class="input" name="name" placeholder="Анна Смирнова" required />
+        </label>
+        <label class="field">
+          <span class="field-label">Почта</span>
+          <input class="input" name="email" type="email" placeholder="anna@uyut-stroy.ru" required />
+        </label>
+        <label class="field">
+          <span class="field-label">Роль</span>
+          <select class="input" name="role">
+            ${ADMIN_ROLES.map((role) => `<option value="${role.id}">${role.label}</option>`).join("")}
+          </select>
+        </label>
+        <p class="modal-note">Приглашение появится в списке со статусом «приглашён». Ссылка уйдёт, когда подключим почту.</p>
+        <div class="modal-foot">
+          <button class="btn btn-white" type="button" data-modal-close>Отмена</button>
+          <button class="btn btn-primary" type="submit">Пригласить</button>
+        </div>
+      </form>`, {
+      className: "modal--narrow",
+      onMount(modal) {
+        modal.querySelector("form")?.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const data = adminData();
+          const name = form.querySelector("[name='name']").value.trim();
+          const email = form.querySelector("[name='email']").value.trim();
+          const role = form.querySelector("[name='role']").value;
+          if (!name || !email) return;
+          const id = "u" + Date.now().toString(36);
+          data.users.push({ id, name, email, role, plan: "PRO", status: "invited", lastAt: "—" });
+          saveState();
+          closeModal();
+          renderRoute();
+          toast("Приглашение добавлено", name + " появится в списке со статусом «приглашён»", "success");
+        });
+      },
+    });
+  }
+
+  function todayLabel() {
+    const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+    const d = new Date();
+    return d.getDate() + " " + months[d.getMonth()];
+  }
+
+  function bindAdmin() {
+    const data = adminData();
+    $$("[data-admin-tab]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const next = button.dataset.adminTab;
+        if (next === ui.adminTab) return;
+        ui.adminTab = next;
+        renderRoute();
+      });
+    });
+
+    $$("[data-admin-invite]").forEach((button) => button.addEventListener("click", openInviteModal));
+
+    $$("[data-admin-tab-jump]").forEach((button) => {
+      button.addEventListener("click", () => {
+        ui.adminTab = button.dataset.adminTabJump;
+        renderRoute();
+      });
+    });
+
+    $$("[data-admin-toggle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const user = data.users.find((item) => item.id === button.dataset.adminToggle);
+        if (!user) return;
+        user.status = user.status === "off" ? "active" : "off";
+        if (user.status === "active" && user.lastAt === "—") user.lastAt = "сегодня";
+        saveState();
+        renderRoute();
+        toast("Готово", user.status === "off" ? "Доступ закрыт" : "Доступ открыт", "success");
+      });
+    });
+
+    $$("[data-admin-remove]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const id = button.dataset.adminRemove;
+        const user = data.users.find((item) => item.id === id);
+        if (!user) return;
+        data.users = data.users.filter((item) => item.id !== id);
+        saveState();
+        renderRoute();
+        toast("Удалено", user.name + " больше не в кабинете", "success");
+      });
+    });
+
+    $$("[data-admin-copy]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const code = button.dataset.adminCopy;
+        if (navigator.clipboard) navigator.clipboard.writeText(code).catch(() => {});
+        toast("Код скопирован", code, "success");
+      });
+    });
+
+    $$("[data-admin-revoke]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const code = button.dataset.adminRevoke;
+        data.promos = data.promos.filter((item) => item.code !== code);
+        if (window.AutoRBilling && window.AutoRBilling.removePromo) window.AutoRBilling.removePromo(code);
+        saveState();
+        renderRoute();
+        toast("Код отозван", code + " больше не сработает", "success");
+      });
+    });
+
+    const form = $("[data-admin-promo-form]");
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const type = form.querySelector("[name='type']").value;
+      const count = Math.max(1, Math.min(10, Number(form.querySelector("[name='count']").value) || 1));
+      const created = [];
+      for (let i = 0; i < count; i++) {
+        const code = promoCode();
+        try {
+          if (window.AutoRBilling && window.AutoRBilling.addPromo) await window.AutoRBilling.addPromo(code, type);
+          data.promos.unshift({ code, type, createdAt: todayLabel() });
+          created.push(code);
+        } catch (error) {
+          console.warn("AutoR: не удалось создать промокод", error);
+        }
+      }
+      saveState();
+      renderRoute();
+      if (created.length === 1) {
+        if (navigator.clipboard) navigator.clipboard.writeText(created[0]).catch(() => {});
+        toast("Промокод создан", created[0] + " — уже скопирован", "success");
+      } else {
+        toast("Промокоды созданы", created.length + " кодов готовы к выдаче", "success");
+      }
     });
   }
 
