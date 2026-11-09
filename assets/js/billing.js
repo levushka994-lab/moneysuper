@@ -1,6 +1,6 @@
 /* ==========================================================================
-   AutoR — доступ, промокоды и подписки (без сервера)
-   - Вход: экран «как устроен AutoR» с кнопками «Купить доступ», «Ввести промокод», «Пробный доступ».
+   АвтоЧат — доступ, промокоды и подписки (без сервера)
+   - Вход: экран «как устроен АвтоЧат» с кнопками «Купить доступ», «Ввести промокод», «Пробный доступ».
    - Пробный доступ: 30 минут с правами VIP, один раз на устройство.
    - Коды: в файле только хэши PBKDF2-SHA256 — сами коды из кода страницы не достать.
      access — доступ навсегда + MAXIMUM на 30 дней; vip / max — подписка на 30 дней (нужен доступ).
@@ -39,7 +39,7 @@
     } catch (e) { /* хранилище недоступно или испорчено — начинаем с закрытого доступа */ }
     return Object.assign({}, EMPTY, { used: [] });
   }
-  // Если AutoR открыт в нескольких вкладках, сохранение не затирает то, что сделано в другой:
+  // Если АвтоЧат открыт в нескольких вкладках, сохранение не затирает то, что сделано в другой:
   // доступ и использованные коды объединяются, сроки берутся самые поздние, пробный доступ — самое раннее.
   function merge(a, b) {
     var used = a.used.slice();
@@ -175,7 +175,7 @@
     });
   }
 
-  // Код, выданный в админке, проверяется на сервере AutoR (одноразовый, общий для всех устройств).
+  // Код, выданный в админке, проверяется на сервере АвтоЧат (одноразовый, общий для всех устройств).
   function remoteConsume(code) {
     if (typeof fetch !== 'function') return;
     fetch('/api/promo/consume', {
@@ -409,10 +409,10 @@
     gate.innerHTML =
       '<div class="ar-gate__card">' +
         '<header class="ar-gate__head">' +
-          '<span class="ar-gate__brand"><span class="ar-gate__mark">' + icon('i-bolt') + '</span>AutoR</span>' +
+          '<span class="ar-gate__brand"><span class="ar-gate__mark">' + icon('i-bolt') + '</span>АвтоЧат</span>' +
           '<p class="ar-gate__eyebrow"><span class="ar-led"></span>Кабинет автоответов для Авито</p>' +
           '<h1 class="ar-gate__title" id="ar-gate-title">Бот отвечает покупателям,<br>пока вы занимаетесь магазином</h1>' +
-          '<p class="ar-gate__lead">Вот как устроен AutoR и что будет у вас внутри.</p>' +
+          '<p class="ar-gate__lead">Вот как устроен АвтоЧат и что будет у вас внутри.</p>' +
         '</header>' +
         '<div class="ar-gate__grid">' +
           '<section class="ar-gate__how" aria-label="Как это работает"><h2 class="ar-gate__h">Как это работает</h2><ol class="ar-steps">' +
@@ -420,7 +420,7 @@
           '</ol></section>' +
           '<section class="ar-buy" aria-label="Доступ">' +
             (expired ? '<p class="ar-buy__expired">' + icon('i-clock') + 'Пробное время закончилось. Чтобы продолжить, откройте доступ.</p>' : '') +
-            '<p class="ar-buy__price"><span>Доступ к AutoR</span><strong>999 ₽</strong><small>навсегда · разовая оплата</small></p>' +
+            '<p class="ar-buy__price"><span>Доступ к АвтоЧат</span><strong>999 ₽</strong><small>навсегда · разовая оплата</small></p>' +
             '<p class="ar-buy__gift">' + icon('i-sparkles') + '<span><b>MAXIMUM на 30 дней в подарок</b></span></p>' +
             '<a class="ar-btn ar-btn--buy" href="' + TG + '" target="_blank" rel="noopener">' + icon('i-send') + 'Купить доступ</a>' +
             '<p class="ar-buy__note">Оплата через менеджера в Telegram. После оплаты он пришлёт промокод.</p>' +
@@ -502,7 +502,7 @@
       : p === 'free' ? 'Бесплатный тариф' : NAME[p] + ' до ' + fmtDate(until());
     var gift = st.access ? '' :
       '<div class="ar-tf__access"><span class="ar-tf__gift">' + icon('i-sparkles') + '</span>' +
-        '<div><strong>Сначала — доступ к AutoR за 999 ₽</strong><span>Навсегда, и сразу <b>MAXIMUM на 30 дней в подарок</b></span></div>' +
+        '<div><strong>Сначала — доступ к АвтоЧат за 999 ₽</strong><span>Навсегда, и сразу <b>MAXIMUM на 30 дней в подарок</b></span></div>' +
         link('ar-btn--glow', icon('i-send') + 'Купить доступ') + '</div>';
     var table = '<div class="ar-tf__scroll"><table class="ar-tf__table"><thead><tr><th scope="col">Возможность</th>' +
       ['free', 'vip', 'max'].map(function (c) { return '<th scope="col">' + NAME[c] + '</th>'; }).join('') + '</tr></thead><tbody>' +
@@ -623,7 +623,7 @@
     var old = document.querySelector('.ar-win');
     if (old) old.remove();
     var TEXT = {
-      access: ['Доступ открыт!', 'AutoR ваш навсегда, а MAXIMUM — в подарок до ' + r.until + '.', ['Навсегда', 'MAXIMUM 30 дней', 'Все функции открыты']],
+      access: ['Доступ открыт!', 'АвтоЧат ваш навсегда, а MAXIMUM — в подарок до ' + r.until + '.', ['Навсегда', 'MAXIMUM 30 дней', 'Все функции открыты']],
       vip: ['VIP подключён!', 'Всё из VIP работает до ' + r.until + '.', ['До 25 сценариев', 'Аналитика', 'Telegram-уведомления']],
       max: ['MAXIMUM подключён!', 'Без лимитов до ' + r.until + '.', ['Без лимитов', 'ИИ без ограничений', 'Команда и CRM']]
     };

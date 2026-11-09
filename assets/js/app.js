@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AutoR — demo application
+   АвтоЧат — demo application
    Static, dependency-free prototype. All data is fictional and lives locally.
    ========================================================================== */
 
@@ -248,7 +248,7 @@
     const meta = PAGE_META[page] || PAGE_META.dashboard;
     const title = $("#topbar-title");
     if (title) title.textContent = meta.title;
-    document.title = `${meta.title} — AutoR`;
+    document.title = `${meta.title} — АвтоЧат`;
   }
 
   function closeSidebar() {
@@ -621,7 +621,7 @@
   function exportState() {
     const payload = {
       exportedAt: new Date().toISOString(),
-      demo: "AutoR",
+      demo: "АвтоЧат",
       shop: state.shop,
       stats: state.stats,
       chats: state.chats,
@@ -973,7 +973,7 @@
             </div>
             <div class="hero-bubble in">${esc(truncate(heroIncoming.text, 84))}</div>
             <div class="hero-bubble out">
-              <div class="hero-bubble-label">${iconSprite("i-sparkles")} AutoR · автоответ</div>
+              <div class="hero-bubble-label">${iconSprite("i-sparkles")} АвтоЧат · автоответ</div>
               ${esc(truncate(heroReply.text, 135))}
               <div class="hero-reply-meta">${iconSprite("i-check")} ${esc(heroReply.latency || "6 сек")} · уверенность 97%</div>
             </div>
@@ -1439,7 +1439,7 @@
       const isManager = message.from === "manager";
       const label = isManager
         ? `<div class="bubble-label">${iconSprite("i-user")} Вы · менеджер</div>`
-        : `<div class="bubble-label">${iconSprite("i-sparkles")} AutoR · ${message.handoff ? "передача менеджеру" : "автоответ"} ${
+        : `<div class="bubble-label">${iconSprite("i-sparkles")} АвтоЧат · ${message.handoff ? "передача менеджеру" : "автоответ"} ${
             message.confidence ? `<span class="confidence">${message.confidence}%</span>` : ""
           }</div>`;
       html += `<div class="message ${out ? "out" : "in"} ${isManager ? "manager" : ""}">
@@ -1802,7 +1802,7 @@
         const live = await hook(chat, text);
         if (live) return live;
       } catch (error) {
-        if (window.console) console.warn("AutoR: ИИ недоступен", error);
+        if (window.console) console.warn("АвтоЧат: ИИ недоступен", error);
       }
     }
     // Шаблонов нет: если ИИ не ответил, диалог честно уходит менеджеру.
@@ -1962,14 +1962,14 @@
   function exportChat(chat) {
     const product = chatProduct(chat);
     const lines = [
-      `AutoR — экспорт диалога`,
+      `АвтоЧат — экспорт диалога`,
       `Покупатель: ${chat.buyer.name} (${chat.buyer.city})`,
       `Товар: ${product.name} — ${formatPrice(product.price)}`,
       `Тема: ${chat.topic}`,
       "",
     ];
     chat.messages.forEach((message) => {
-      const who = message.from === "buyer" ? chat.buyer.name : message.from === "bot" ? "AutoR (бот)" : message.from === "manager" ? "Менеджер" : "Система";
+      const who = message.from === "buyer" ? chat.buyer.name : message.from === "bot" ? "АвтоЧат (бот)" : message.from === "manager" ? "Менеджер" : "Система";
       lines.push(`[${message.time}] ${who}: ${message.text}`);
     });
     downloadFile(`autor-chat-${chat.id}.txt`, lines.join("\n"), "text/plain;charset=utf-8");
@@ -2806,7 +2806,7 @@
               return;
             }
             box.innerHTML = `<div class="test-result-head"><span class="demo-dot"></span> Ответ бота</div>
-              <div class="message out" style="padding:0;background:none"><div class="message-body"><div class="bubble"><div class="bubble-label">${iconSprite("i-sparkles")} AutoR · ${esc(reply.rule)} <span class="confidence">${reply.confidence}%</span></div><div class="bubble-text">${esc(reply.text)}</div><div class="bubble-foot"><span>готово за ${esc(reply.latency)}</span><span class="dot-sep">·</span>${iconSprite("i-check")}</div></div></div></div>
+              <div class="message out" style="padding:0;background:none"><div class="message-body"><div class="bubble"><div class="bubble-label">${iconSprite("i-sparkles")} АвтоЧат · ${esc(reply.rule)} <span class="confidence">${reply.confidence}%</span></div><div class="bubble-text">${esc(reply.text)}</div><div class="bubble-foot"><span>готово за ${esc(reply.latency)}</span><span class="dot-sep">·</span>${iconSprite("i-check")}</div></div></div></div>
               ${reply.attachment ? `<img src="${esc(reply.attachment)}" alt="Фото" style="width:100%;border-radius:10px;margin-top:10px"/>` : ""}
               <div class="test-result-meta">Сценарий: ${esc(reply.rule)} ${reply.handoff ? "· вопрос уйдёт менеджеру" : ""}</div>`;
           });
@@ -3192,7 +3192,7 @@
       </div>
       <div class="settings-section">
         <div class="settings-section-head"><h2>${iconSprite("i-send")} Куда присылать</h2><p>Отметьте, куда присылать сводки.</p></div>
-        <div class="setting-row"><div class="setting-row-main"><strong>В кабинете AutoR</strong><span>Колокольчик в шапке и лента на дашборде.</span></div><span class="connected-mark">${iconSprite("i-check")} включено</span></div>
+        <div class="setting-row"><div class="setting-row-main"><strong>В кабинете АвтоЧат</strong><span>Колокольчик в шапке и лента на дашборде.</span></div><span class="connected-mark">${iconSprite("i-check")} включено</span></div>
         ${channelsMarkup()}
         <div class="setting-row"><div class="setting-row-main"><strong>Email</strong><span>Вечерняя сводка на ${esc(state.shop.email)}.</span></div><button class="btn btn-white btn-sm" type="button" data-demo-toast="Email-сводка появится вместе с серверной частью">Настроить</button></div>
       </div>
@@ -3202,8 +3202,8 @@
           ${
             notificationLog().length
               ? notificationLog().slice(0, 4).map((item) => `<div class="notify-feed-item"><span class="notify-feed-channel">${esc(item.channel)}</span><div><strong>${esc(item.text)}</strong><span>${esc(item.time)}</span></div></div>`).join("")
-              : `<div class="notify-feed-item"><span class="notify-feed-channel">AutoR</span><div><strong>Новый диалог: Артём Ковалёв — Sony WH-1000XM5</strong><span>10:42</span></div></div>
-                 <div class="notify-feed-item"><span class="notify-feed-channel">AutoR</span><div><strong>Диалог передан вам: Ксения Морозова — торг</strong><span>10:04</span></div></div>`
+              : `<div class="notify-feed-item"><span class="notify-feed-channel">АвтоЧат</span><div><strong>Новый диалог: Артём Ковалёв — Sony WH-1000XM5</strong><span>10:42</span></div></div>
+                 <div class="notify-feed-item"><span class="notify-feed-channel">АвтоЧат</span><div><strong>Диалог передан вам: Ксения Морозова — торг</strong><span>10:04</span></div></div>`
           }
         </div>
       </div>
@@ -3247,7 +3247,7 @@
           <div class="setting-row"><div class="setting-row-main"><strong>${state.chats.length} диалогов</strong><span>${totalMessages} сообщений в истории</span></div>${iconSprite("i-chat", "muted")}</div>
           <div class="setting-row"><div class="setting-row-main"><strong>${state.products.length} товаров</strong><span>${state.rules.filter((rule) => rule.enabled).length} активных сценариев</span></div>${iconSprite("i-box", "muted")}</div>
         </div>
-        <div class="setting-row" style="margin-top:12px"><div class="setting-row-main"><strong>Версия</strong><span>AutoR · веб-кабинет</span></div><span class="badge badge-gray">v${SEED.version}</span></div>
+        <div class="setting-row" style="margin-top:12px"><div class="setting-row-main"><strong>Версия</strong><span>АвтоЧат · веб-кабинет</span></div><span class="badge badge-gray">v${SEED.version}</span></div>
       </div>
       <div class="settings-section">
         <div class="settings-section-head"><h2>${iconSprite("i-download")} Экспорт и сброс</h2><p>Выгрузите данные в JSON или очистите кабинет.</p></div>
@@ -3571,7 +3571,7 @@
     { id: "quiz", title: "Провести короткий опрос" }
   ];
   const AI_SOURCES = [
-    { id: "server", title: "DeepSeek Flash", desc: "Через сервер AutoR. Отвечает за 1–2 секунды." },
+    { id: "server", title: "DeepSeek Flash", desc: "Через сервер АвтоЧат. Отвечает за 1–2 секунды." },
     { id: "local", title: "Локальная модель", desc: "mnn-pocket-0.3b на этом компьютере, порт 8080. Медленнее и слабее." }
   ];
   const AI_PROMPT_PLACEHOLDER = "Ты — ассистент магазина «{магазин}» на Авито…";

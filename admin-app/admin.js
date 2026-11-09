@@ -1,4 +1,4 @@
-/* AutoR Admin — отдельное приложение админки (admin.site-port.ru).
+/* АвтоЧат Admin — отдельное приложение админки (admin.site-port.ru).
    Состояние — localStorage этого домена, ключ autor.admin.v1. */
 
 (function () {

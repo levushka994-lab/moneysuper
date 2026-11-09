@@ -1,4 +1,4 @@
-# AutoR — автоответы для Авито
+# АвтоЧат — автоответы для Авито
 
 Рабочая версия сайта — `index.html` плюс папка `assets/` со стилями и скриптами.
 Сайт статический: сервер не нужен, но для HTTPS и живых ответов ИИ (прокси `/api/chat`)
@@ -104,7 +104,7 @@ systemctl list-timers autor-sync.timer    # когда следующий зап
 там же можно указать адрес с токеном. Поставить всё на чистый сервер: `bash install-sync.sh`
 (от root). Отключить: `systemctl disable --now autor-sync.timer`.
 
-Перед выкладкой воркер проверяет сборку: размер `index.html`, наличие `<html>`, слова AutoR
+Перед выкладкой воркер проверяет сборку: размер `index.html`, наличие `<html>`, слова АвтоЧат
 и всех файлов, на которые тот ссылается. Если чего-то не хватает — сайт не трогается,
 в лог пишется ошибка. Если менялся `server-setup.sh` (конфиг nginx), воркер пишет
 предупреждение — установщик запускается вручную.
@@ -119,7 +119,7 @@ systemctl list-timers autor-sync.timer    # когда следующий зап
 
 - **CloudPub** (контейнер `autor-cloudpub`, `cloudpub/cloudpub`, `--net=host`, токен в
   `/home/eta/.cloudpub.env`): публичный адрес вида `https://<name>.cloudpub.ru`, запросы
-  приходят с принудительным `Host: autor.site-port.ru`, поэтому Caddy отдаёт блок AutoR;
+  приходят с принудительным `Host: autor.site-port.ru`, поэтому Caddy отдаёт блок АвтоЧат;
 - **свой SSH-туннель** на VPS (`autor-tunnel.service`): `127.0.0.1:8090` → nginx
   `autor.site-port.ru`. Домашние порты 80/8000/8080/8123/8443 закрыты nftables
   (`/etc/autor/autor-guard.nft`), доступны только из LAN и tailnet.

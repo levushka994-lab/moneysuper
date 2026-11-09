@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AutoR — demo content
+   АвтоЧат — demo content
    Every person, chat and number here is fictional. No Avito API is used.
    ========================================================================== */
 

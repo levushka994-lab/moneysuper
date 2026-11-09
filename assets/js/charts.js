@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AutoR — tiny chart toolkit (no dependencies, SVG only)
+   АвтоЧат — tiny chart toolkit (no dependencies, SVG only)
    ========================================================================== */
 
 window.Charts = (function () {
