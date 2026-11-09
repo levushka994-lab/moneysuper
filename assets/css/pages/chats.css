@@ -1595,3 +1595,21 @@ body.is-buyer-view .conversation-pane.is-buyer {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.b-photo {
+  display: block;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+.b-photo img {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+}

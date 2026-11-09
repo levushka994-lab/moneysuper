@@ -10,7 +10,8 @@
 |---|---|
 | `index.html` | каркас страницы: разметка, иконки, подключение `assets/` |
 | `assets/css/` | стили: `foundation`, `components`, `pages/*`, `responsive`, `theme`, `access`, `cabinet`, `features` |
-| `assets/js/` | скрипты: `seed` (данные), `charts` (графики), `app` (кабинет), `billing` (доступ и тарифы), `cabinet` (чистый лист и пример магазина), `features` (доработки страниц) |
+| `assets/img/items/   # фотографии позиций (WebP 800×600, лицензии в CREDITS.txt)
+assets/js/` | скрипты: `seed` (данные), `charts` (графики), `app` (кабинет), `billing` (доступ и тарифы), `cabinet` (чистый лист и пример магазина), `features` (доработки страниц) |
 | `deploy.ps1` | выложить или обновить сайт на сервере (Windows, PowerShell) |
 | `server-setup.sh` | установщик на сервере — его отправляет `deploy.ps1` |
 | `sync-deploy.sh` | серверный воркер автовыкладки: забирает `main` с GitHub и обновляет сайт |

@@ -1247,6 +1247,7 @@
       html += `<div class="b-message ${own ? "own" : "shop"}">
         ${own ? "" : `<span class="b-ava">${esc((state.shop.name || "М").charAt(0))}</span>`}
         <div class="b-bubble">
+          ${message.attachment ? `<button class="b-photo" type="button" data-image-open="${esc(message.attachment)}"><img src="${esc(message.attachment)}" alt="Фото товара" loading="lazy"/></button>` : ""}
           <div class="b-text">${esc(message.text)}</div>
           <div class="b-time">${esc(message.time)}</div>
         </div>

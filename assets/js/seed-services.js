@@ -58,7 +58,7 @@
       price: 1450,
       oldPrice: 1690,
       stock: 0,
-      image: "",
+      image: "assets/img/items/facade.webp",
       badge: "Хит",
       inquiries: 34,
       autoReplies: 31,
@@ -77,7 +77,7 @@
       duration: "1–3 дня",
       price: 1290,
       stock: 0,
-      image: "",
+      image: "assets/img/items/roof.webp",
       inquiries: 19,
       autoReplies: 17,
       auto: true,
@@ -95,7 +95,7 @@
       duration: "1 день",
       price: 44900,
       stock: 0,
-      image: "",
+      image: "assets/img/items/balcony.webp",
       badge: "Популярно",
       inquiries: 22,
       autoReplies: 20,
@@ -114,7 +114,7 @@
       duration: "в день обращения",
       price: 1500,
       stock: 0,
-      image: "",
+      image: "assets/img/items/plumber.webp",
       inquiries: 41,
       autoReplies: 38,
       auto: true,
@@ -132,7 +132,7 @@
       duration: "40–60 минут",
       price: 1800,
       stock: 0,
-      image: "",
+      image: "assets/img/items/faucet.webp",
       inquiries: 16,
       autoReplies: 15,
       auto: true,
@@ -149,7 +149,7 @@
       minOrder: 0,
       price: 1490,
       stock: 42,
-      image: "",
+      image: "assets/img/items/osb.webp",
       inquiries: 12,
       autoReplies: 11,
       auto: true,
@@ -166,7 +166,7 @@
       minOrder: 0,
       price: 890,
       stock: 18,
-      image: "",
+      image: "assets/img/items/wool.webp",
       inquiries: 9,
       autoReplies: 8,
       auto: true,
@@ -273,7 +273,9 @@
         { id: "m3", from: "buyer", text: "А когда сможете начать? Дом в Подольске.", time: "10:44" },
         { id: "m4", from: "bot", text: "Бригада свободна с понедельника, работы займут 3 дня. Подольск — за МКАД, выезд на замер бесплатный, доставка материалов 35 ₽/км. Когда удобно встретиться на объекте?", time: "10:45", rule: "Сроки работ", confidence: 95, latency: "7 сек" },
         { id: "m5", from: "buyer", text: "Давайте в субботу днём. А гарантия на работу есть?", time: "10:46" },
-        { id: "m6", from: "bot", text: "Да, гарантия на работы 12 месяцев по договору, документы выдаём. Записал замер на субботу, после 12:00 — инженер позвонит за час.", time: "10:46", rule: "Гарантия на работы", confidence: 96, latency: "8 сек" }
+        { id: "m6", from: "bot", text: "Да, гарантия на работы 12 месяцев по договору, документы выдаём. Записал замер на субботу, после 12:00 — инженер позвонит за час.", time: "10:46", rule: "Гарантия на работы", confidence: 96, latency: "8 сек" },
+        { id: "m7", from: "buyer", text: "А покажите фото, как это выглядит на доме?", time: "10:47" },
+        { id: "m8", from: "bot", text: "Конечно. Вот пирог фасада с нашего объекта: минвата в каркасе, ветрозащита и обшивка. Похоже на ваш дом?", time: "10:47", rule: "Фото с объекта", confidence: 95, latency: "3 сек", attachment: "assets/img/items/facade.webp" }
       ]
     },
     {
@@ -324,7 +326,8 @@
       messages: [
         { id: "m1", from: "buyer", text: "Здравствуйте, срочно! В ванной течёт с трубы, нужен сантехник сегодня", time: "08:52" },
         { id: "m2", from: "bot", text: "Принял, это аварийный вызов. Выезд 1500 ₽, при аварийной протечке приедем в течение 2 часов. Скажите адрес и перекройте воду — кран в санузле или на вводе в квартиру.", time: "08:53", rule: "Замер и выезд", confidence: 94, latency: "5 сек" },
-        { id: "m3", from: "buyer", text: "Улица Пушкина, 12, квартира 34. Воду перекрыл", time: "08:55" }
+        { id: "m3", from: "buyer", text: "Улица Пушкина, 12, квартира 34. Воду перекрыл", time: "08:55" },
+        { id: "m4", from: "bot", text: "Принял: Пушкина, 12, кв. 34. Мастер выехал, будет в течение 40 минут. Вот как выглядит узел, который обычно меняем — если у вас так же, замена займёт час.", time: "08:56", rule: "Сантехника", confidence: 92, latency: "4 сек", attachment: "assets/img/items/plumber.webp" }
       ]
     }
   ];
