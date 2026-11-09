@@ -11,32 +11,8 @@
 </head>
 <body>
 
-<!-- Вход -->
-<section class="entry" id="entry">
-  <form class="entry-card" id="login-form" autocomplete="on">
-    <div class="brand">
-      <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.6 2 4 15h6.2L8.6 22 20 8.6h-6.4z"/></svg></span>
-      <span class="brand-name">AutoR <em>Admin</em></span>
-    </div>
-    <h1>Вход в админку</h1>
-    <p class="entry-sub">Доступ к пользователям кабинета и промокодам магазина.</p>
-
-    <label class="field">
-      <span>Почта</span>
-      <input id="login-email" type="email" name="email" value="admin@autor.app" autocomplete="username" required />
-    </label>
-    <label class="field">
-      <span>Пароль</span>
-      <input id="login-password" type="password" name="password" value="admin" autocomplete="current-password" required />
-    </label>
-
-    <button class="btn btn-primary btn-block" type="submit">Войти</button>
-    <p class="entry-hint">Демо-доступ: <b>admin@autor.app</b> и любой пароль от 3 символов.</p>
-  </form>
-</section>
-
 <!-- Кабинет админки -->
-<div class="shell" id="shell" hidden>
+<div class="shell" id="shell">
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.6 2 4 15h6.2L8.6 22 20 8.6h-6.4z"/></svg></span>
@@ -49,8 +25,7 @@
     </nav>
 
     <div class="topbar-right">
-      <span class="who" id="who"></span>
-      <button class="btn btn-ghost" type="button" id="logout">Выйти</button>
+      <span class="who">admin</span>
     </div>
   </header>
 

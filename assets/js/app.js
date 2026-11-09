@@ -1183,7 +1183,7 @@
         <div class="chat-row-top"><span class="chat-row-name">${esc(chat.buyer.name)}</span><span class="chat-row-time">${esc(chat.updated)}</span></div>
         <div class="chat-row-preview">${chatPreview(chat)}</div>
         <div class="chat-row-foot">
-          <span class="chat-row-product">${esc(product.name)}</span>
+          <span class="chat-row-product">${product && product.image ? `<img class="chat-row-thumb" src="${esc(product.image)}" alt="" loading="lazy"/>` : ""}${esc(product.name)}</span>
           ${chat.unread ? `<span class="chat-row-badge">${chat.unread}</span>` : chat.handoff ? `<span class="chat-row-dot attention"></span>` : isBotActive(chat) ? `<span class="chat-row-dot"></span>` : ""}
         </div>
       </div>

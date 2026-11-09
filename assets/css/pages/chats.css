@@ -1613,3 +1613,17 @@ body.is-buyer-view .conversation-pane.is-buyer {
   max-height: 220px;
   object-fit: cover;
 }
+
+.chat-row-product {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-row-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex: none;
+}

@@ -5,7 +5,6 @@
   "use strict";
 
   var KEY = "autor.admin.v1";
-  var SESSION = "autor.admin.session";
 
   var ROLES = {
     owner: "Владелец",
@@ -137,42 +136,6 @@
     }
     return Promise.reject(new Error("no subtle"));
   }
-
-  /* ── Вход ────────────────────────────────────────────── */
-
-  function isLogged() {
-    try { return sessionStorage.getItem(SESSION) === "1"; } catch (err) { return false; }
-  }
-
-  function showApp() {
-    $("#entry").hidden = true;
-    $("#shell").hidden = false;
-    var email = "";
-    try { email = sessionStorage.getItem(SESSION + ".email") || ""; } catch (err) {}
-    $("#who").textContent = email;
-    render();
-  }
-
-  $("#login-form").addEventListener("submit", function (event) {
-    event.preventDefault();
-    var email = $("#login-email").value.trim();
-    var password = $("#login-password").value;
-    if (!email || password.length < 3) {
-      toast("Проверьте данные", "Нужна почта и пароль от трёх символов.");
-      return;
-    }
-    try {
-      sessionStorage.setItem(SESSION, "1");
-      sessionStorage.setItem(SESSION + ".email", email);
-    } catch (err) {}
-    showApp();
-  });
-
-  $("#logout").addEventListener("click", function () {
-    try { sessionStorage.removeItem(SESSION); } catch (err) {}
-    $("#shell").hidden = true;
-    $("#entry").hidden = false;
-  });
 
   /* ── Вкладки ─────────────────────────────────────────── */
 
@@ -421,5 +384,5 @@
 
   /* ── Старт ───────────────────────────────────────────── */
 
-  if (isLogged()) showApp();
+  render();
 })();

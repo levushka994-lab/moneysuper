@@ -249,11 +249,13 @@
     }
   ];
 
+  // Фотографии покупателей лежат в демо-наборе (AUTOR_SAMPLE_SEED), а не в пустом сиде.
+  var D = window.AUTOR_SAMPLE_SEED || S;
   var avatar = {
-    artem: S.chats && S.chats[0] && S.chats[0].buyer && S.chats[0].buyer.avatar,
-    ksenia: S.chats && S.chats[1] && S.chats[1].buyer && S.chats[1].buyer.avatar,
-    igor: S.chats && S.chats[2] && S.chats[2].buyer && S.chats[2].buyer.avatar,
-    denis: S.chats && S.chats[3] && S.chats[3].buyer && S.chats[3].buyer.avatar
+    artem: D.chats && D.chats[0] && D.chats[0].buyer && D.chats[0].buyer.avatar,
+    ksenia: D.chats && D.chats[1] && D.chats[1].buyer && D.chats[1].buyer.avatar,
+    igor: D.chats && D.chats[2] && D.chats[2].buyer && D.chats[2].buyer.avatar,
+    denis: D.chats && D.chats[3] && D.chats[3].buyer && D.chats[3].buyer.avatar
   };
 
   S.chats = [
