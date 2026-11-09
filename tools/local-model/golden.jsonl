@@ -1,0 +1,30 @@
+{"id": "q1", "q": "Сколько стоит утепление фасада за м²?", "facts": [1450], "escalate": false, "max_words": 45}
+{"id": "q2", "q": "Нужно 100 м² фасада — во сколько выйдет?", "facts": [1450, 145000], "escalate": false, "max_words": 45}
+{"id": "q3", "q": "Утепление кровли есть в наличии?", "facts": [1290], "escalate": false, "max_words": 45}
+{"id": "q4", "q": "Утепление балкона сколько стоит?", "facts": [44900], "escalate": false, "max_words": 45}
+{"id": "q5", "q": "Вызов сантехника — цена?", "facts": [1500], "escalate": false, "max_words": 45}
+{"id": "q6", "q": "Замена смесителя сколько стоит?", "facts": [1800], "escalate": false, "max_words": 45}
+{"id": "q7", "q": "Плита ОСП-3 почём?", "facts": [1490], "escalate": false, "max_words": 45}
+{"id": "q8", "q": "Минвата Rockwool сколько на складе?", "facts": [890, 18], "escalate": false, "max_words": 45}
+{"id": "q9", "q": "Если 60 м² кровли — итог?", "facts": [1290, 77400], "escalate": false, "max_words": 45}
+{"id": "q10", "q": "Доставка в Подольск сколько стоит?", "facts": [390], "escalate": false, "max_words": 45}
+{"id": "q11", "q": "Самовывоз возможен?", "facts": [], "escalate": false, "max_words": 45}
+{"id": "q12", "q": "Скидку сделаете на фасад?", "facts": [], "escalate": false, "max_words": 45}
+{"id": "q13", "q": "А бассейн построите?", "facts": [], "escalate": true, "max_words": 45}
+{"id": "q14", "q": "Снегоуборка есть?", "facts": [], "escalate": true, "max_words": 45}
+{"id": "q15", "q": "Дом под ключ делаете?", "facts": [], "escalate": true, "max_words": 45}
+{"id": "q16", "q": "Когда сможете приехать на замер?", "facts": [], "escalate": false, "max_words": 45}
+{"id": "q17", "q": "Гарантия на работы сколько?", "facts": [12], "escalate": false, "max_words": 45}
+{"id": "q18", "q": "Можно оплатить картой?", "facts": [], "escalate": false, "max_words": 45}
+{"id": "q19", "q": "Минимальный объём фасада?", "facts": [30], "escalate": false, "max_words": 45}
+{"id": "q20", "q": "Минимум по кровле какой?", "facts": [40], "escalate": false, "max_words": 45}
+{"id": "q21", "q": "Осталось плиты ОСП?", "facts": [1490], "escalate": false, "max_words": 45}
+{"id": "q22", "q": "140 м² фасада — считайте", "facts": [1450, 203000], "escalate": false, "max_words": 45}
+{"id": "q23", "q": "Какой срок работ по кровле?", "facts": [], "escalate": false, "max_words": 45}
+{"id": "q24", "q": "А дешевле можно?", "facts": [], "escalate": false, "max_words": 45}
+{"id": "q25", "q": "Нужен сантехник завтра", "facts": [1500], "escalate": false, "max_words": 45}
+{"id": "q26", "q": "Минвата 100 мм подойдёт для фасада 90 м²?", "facts": [890], "escalate": false, "max_words": 45}
+{"id": "q27", "q": "Сколько стоит утепление фасада за м²?", "facts": [1450], "escalate": false, "max_words": 45}
+{"id": "q28", "q": "Выезд по МО платный?", "facts": [], "escalate": false, "max_words": 45}
+{"id": "q29", "q": "Есть рассрочка?", "facts": [], "escalate": false, "max_words": 45}
+{"id": "q30", "q": "Можно посмотреть фото работ?", "facts": [], "escalate": false, "max_words": 45}

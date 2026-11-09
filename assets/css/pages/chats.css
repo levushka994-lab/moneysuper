@@ -556,6 +556,83 @@
   gap: 12px;
   margin-bottom: 8px;
 }
+/* --- от чьего имени пишем: покупатель / магазин --- */
+.composer-role {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 16px 0;
+}
+
+.composer-role-label {
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.role-switch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.role-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.role-btn .icon { width: 14px; height: 14px; }
+
+.role-btn:hover { color: var(--ink); }
+
+.role-buyer.active {
+  background: #EAF1FE;
+  color: #2C5BD0;
+  box-shadow: inset 0 0 0 1px #C7D8F8;
+}
+
+.role-shop.active {
+  background: var(--signal);
+  color: var(--signal-ink);
+  box-shadow: inset 0 0 0 1px #E0A800;
+}
+
+.composer-box.is-buyer {
+  border-color: #B9CDF4;
+  background: #F4F8FF;
+}
+
+.composer-box.is-buyer:focus-within {
+  border-color: #8FB0EE;
+  box-shadow: 0 0 0 3px rgba(44, 91, 208, .09);
+}
+
+.composer-box.is-shop {
+  border-color: #E3CD84;
+  background: #FFFDF4;
+}
+
+.composer-box.is-shop:focus-within {
+  border-color: var(--signal);
+  box-shadow: 0 0 0 3px rgba(255, 194, 26, .16);
+}
+
 .mode-link {
   border: 0;
   background: none;
@@ -1081,4 +1158,472 @@
 /* Chat page mobile toolbar toggle */
 .chat-mobile-tools {
   display: none;
+}
+
+/* ==========================================================================
+   Переработанный экран диалогов: два столбца, «О диалоге» — выезжающая панель,
+   одна полоса внимания над перепиской, бот и его состояние в шапке диалога.
+   ========================================================================== */
+
+.chats-page .chats-head { margin-bottom: 14px; }
+.chats-page .chats-head .page-title { font-size: 26px; }
+.chats-page .chat-list-head { padding: 14px 14px 10px; }
+.chats-layout { position: relative; }
+
+/* выезжающая панель «О диалоге» */
+.chats-layout .chat-info-pane {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  display: block;
+  width: 320px;
+  border-left: 1px solid var(--line);
+  transform: translateX(102%);
+  transition: transform 0.18s ease;
+  box-shadow: -18px 0 44px rgba(24, 20, 10, 0.14);
+}
+.chats-layout.info-open .chat-info-pane { transform: none; }
+.chat-info-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: rgba(24, 20, 10, 0.16);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+.chats-layout.info-open .chat-info-backdrop { opacity: 1; pointer-events: auto; }
+.convo-actions .icon-btn.active { background: var(--ink); color: #ffc21a; border-color: var(--ink); }
+
+/* состояние бота в шапке диалога */
+.convo-bot-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.convo-bot-pill .icon { width: 12px; height: 12px; }
+.convo-bot-pill.live { color: #1f6b3a; background: rgba(47, 158, 88, 0.1); border: 1px solid rgba(47, 158, 88, 0.18); }
+.convo-bot-pill.paused { color: #8a6112; background: rgba(255, 194, 26, 0.16); border: 1px solid rgba(255, 194, 26, 0.26); }
+.convo-take span { white-space: nowrap; }
+.convo-product-chip span { max-width: 132px; }
+
+/* полоса внимания над перепиской */
+.convo-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 9px 14px;
+  background: #fff7e6;
+  border-bottom: 1px solid #f2e3c4;
+}
+.convo-alert > .icon { width: 15px; height: 15px; flex: none; color: #b8862a; }
+.convo-alert-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.convo-alert-text strong { font-size: 12px; font-weight: 650; line-height: 1.35; }
+.convo-alert-text span { font-size: 11px; color: var(--muted); }
+.convo-alert .btn { flex: none; }
+
+@media (max-width: 1180px) {
+  .chats-layout .chat-info-pane { width: 300px; }
+}
+@media (max-width: 820px) {
+  .chats-layout .chat-info-pane { width: 86%; max-width: 340px; }
+  .convo-bot-pill,
+  .convo-take { display: none; }
+  .convo-alert { padding: 8px 12px; }
+  .convo-alert-text span { display: none; }
+}
+
+/* подсказка над перепиской — тонкая полоса, а не блок */
+.coach-tip { padding: 9px 12px; gap: 8px; }
+.coach-tip > .icon { width: 15px; height: 15px; }
+.coach-tip strong { font-size: 12px; }
+.coach-tip p { font-size: 11px; margin-top: 1px; }
+
+@media (max-width: 820px) {
+  .suggestion-row {
+    padding-right: 14px;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 22px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 22px), transparent);
+  }
+}
+
+/* --- вид глазами покупателя: как переписка в Авито --- */
+.view-as {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-as-label {
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.view-as-seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.view-as-seg button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.view-as-seg button .icon { width: 14px; height: 14px; }
+.view-as-seg button:hover { color: var(--ink); }
+.view-as-seg button.active {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(20, 24, 28, .12), inset 0 0 0 1px var(--line);
+}
+
+.buyer-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  padding: 0 0 8px;
+}
+
+.conversation-pane.is-buyer {
+  padding: 0;
+  overflow: hidden;
+}
+
+
+.buyer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.buyer-shop { display: flex; align-items: center; gap: 10px; }
+
+.buyer-logo,
+.b-ava {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--signal);
+  color: var(--signal-ink);
+  font-weight: 800;
+  font-size: 15px;
+  flex: none;
+}
+
+.buyer-shop strong { display: block; font-size: 14px; }
+.buyer-shop span { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--muted); }
+.buyer-shop .online-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+.buyer-brand {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #00aa5b;
+  border: 1px solid #cdeedd;
+  background: #f2fcf7;
+  border-radius: 6px;
+  padding: 3px 7px;
+}
+
+.buyer-product {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 12px 14px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.buyer-product-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.buyer-product-text strong { font-size: 13px; }
+.buyer-product-text span { font-size: 12px; color: var(--muted); }
+.buyer-product-open {
+  width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line);
+  background: #fff; color: var(--muted); cursor: pointer; display: inline-flex;
+  align-items: center; justify-content: center; flex: none;
+}
+.buyer-product-open .icon { width: 14px; height: 14px; }
+
+.buyer-stream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #fff;
+}
+
+.b-message { display: flex; align-items: flex-end; gap: 8px; max-width: 100%; }
+.b-message .b-ava { width: 26px; height: 26px; font-size: 12px; }
+
+.b-message.shop { justify-content: flex-start; }
+.b-message.own { justify-content: flex-end; }
+
+.b-bubble {
+  max-width: 78%;
+  padding: 9px 12px 7px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.b-message.own .b-bubble {
+  background: #e7f7ee;
+  border-color: #c9ebd8;
+  border-bottom-right-radius: 6px;
+}
+
+.b-message.shop .b-bubble { border-bottom-left-radius: 6px; }
+
+.b-text { font-size: 13.5px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+.b-time { margin-top: 3px; font-size: 10.5px; color: var(--muted-light); text-align: right; }
+
+.buyer-quick {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 10px 14px 0;
+  scrollbar-width: none;
+}
+.buyer-quick::-webkit-scrollbar { display: none; }
+
+.buyer-quick-chip {
+  flex: none;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 12px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.buyer-quick-chip:hover { border-color: var(--line-strong); color: var(--ink); }
+
+.buyer-composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+}
+
+.buyer-composer input {
+  flex: 1;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.buyer-composer input:focus { outline: none; border-color: var(--line-strong); background: #fff; }
+
+.buyer-send {
+  width: 42px; height: 42px; flex: none;
+  border: 0; border-radius: 12px; cursor: pointer;
+  background: #00aa5b; color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.buyer-send .icon { width: 18px; height: 18px; }
+.buyer-send:hover { background: #009a52; }
+
+.buyer-note {
+  margin: 0;
+  padding: 0 14px 12px;
+  font-size: 11px;
+  color: var(--muted-light);
+  text-align: center;
+}
+
+.buyer-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 12px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.buyer-exit .icon { width: 14px; height: 14px; }
+
+@media (max-width: 640px) {
+  .view-as { width: 100%; justify-content: space-between; }
+  .view-as-seg button { padding: 0 10px; }
+}
+
+.composer-check-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  background: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.composer-check-link:hover { color: var(--ink); }
+.composer-check-link .icon { width: 13px; height: 13px; }
+
+.coach-tip-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.coach-tip-link .icon { width: 13px; height: 13px; }
+
+
+/* Вид покупателя внутри кабинета: тот же каркас, другая переписка */
+.conversation-pane.is-buyer .buyer-pane { background: #fff; }
+.conversation-pane.is-buyer .buyer-head { border-radius: 0; }
+.conversation-pane.is-buyer .buyer-stream { flex: 1; min-height: 0; }
+
+/* Телефон: показываем только переключатель «Смотреть как», заголовок скрыт */
+@media (max-width: 820px) {
+  .content[data-page="chats"] .page-head.chats-head {
+    display: flex;
+    padding: 6px 2px 8px;
+    margin-bottom: 0;
+    min-height: 0;
+  }
+  .content[data-page="chats"] .page-head.chats-head .page-head-copy {
+    display: none;
+  }
+  .content[data-page="chats"] .page-head.chats-head .page-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .content[data-page="chats"] .page-head.chats-head .page-actions .btn-white {
+    display: none;
+  }
+  .content[data-page="chats"] .view-as {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .content[data-page="chats"] .view-as-seg {
+    flex: 1;
+  }
+  .content[data-page="chats"] .view-as-seg button {
+    flex: 1;
+    justify-content: center;
+  }
+  .content[data-page="chats"] .view-as-label {
+    display: none;
+  }
+  .content[data-page="chats"] .chats-layout {
+    height: calc(100dvh - 132px);
+  }
+}
+
+/* Глазами покупателя: остаётся один диалог, без списка чужих переписок */
+body.is-buyer-view .chats-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+body.is-buyer-view .chat-list-pane {
+  display: none;
+}
+
+body.is-buyer-view .conversation-pane.is-buyer {
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 820px) {
+  body.is-buyer-view .conversation-pane {
+    display: flex;
+  }
+  body.is-buyer-view .chats-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.b-photo {
+  display: block;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+.b-photo img {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+}
+
+.chat-row-product {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-row-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex: none;
 }

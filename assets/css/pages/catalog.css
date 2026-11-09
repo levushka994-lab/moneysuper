@@ -377,3 +377,43 @@
   width: 13px;
   height: 13px;
 }
+
+/* --- услуги и товары: фильтр по типу и заглушка вместо фото --- */
+.catalog-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.kind-tabs button {
+  font-weight: 600;
+}
+
+.product-thumb-placeholder.is-service {
+  background: linear-gradient(160deg, #FFF6DE 0%, #FFEFC2 100%);
+  color: #9A6B00;
+}
+
+.product-thumb-placeholder.is-service .icon {
+  width: 26px;
+  height: 26px;
+}
+
+.product-thumb-placeholder.is-good {
+  background: linear-gradient(160deg, #EEF3F8 0%, #E2EAF3 100%);
+  color: #4A5A6A;
+}
+
+.product-cat .icon {
+  width: 10px;
+  height: 10px;
+  vertical-align: -1px;
+  margin-right: 2px;
+}
+
+@media (max-width: 720px) {
+  .catalog-filters { flex-direction: column; align-items: stretch; gap: 8px; }
+  .catalog-filters .category-tabs { overflow-x: auto; scrollbar-width: none; }
+  .catalog-filters .category-tabs::-webkit-scrollbar { display: none; }
+}

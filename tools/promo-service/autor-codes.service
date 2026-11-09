@@ -1,0 +1,22 @@
+[Unit]
+Description=AutoR promo codes
+After=network.target
+
+[Service]
+Type=simple
+User=site-port
+Group=site-port
+Environment=PROMO_DATA=/srv/autor-codes/codes.json
+Environment=PROMO_PORT=8098
+ExecStart=/usr/bin/python3 /srv/autor-codes/promo_service.py
+Restart=always
+RestartSec=3
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/srv/autor-codes
+MemoryMax=128M
+
+[Install]
+WantedBy=multi-user.target

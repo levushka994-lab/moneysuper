@@ -21,6 +21,7 @@ BRANCH="${AUTOR_BRANCH:-main}"
 WORK="${AUTOR_WORK:-/opt/autor/repo}"
 WEBROOT="${AUTOR_WEBROOT:-/var/www/autor}"
 STATE="${AUTOR_STATE:-/opt/autor/deployed.sha}"
+LOCK="${AUTOR_LOCK:-/run/autor-sync.lock}"
 STATE_DIR="$(dirname "$STATE")"
 SETUP_SHA_FILE="$STATE_DIR/server-setup.sha"
 ERRSTAMP="$STATE_DIR/last-error"
@@ -30,7 +31,8 @@ ERR_EVERY=600
 
 # служебные файлы репозитория, которым нечего делать на сайте
 EXCLUDES=(--exclude=.git --exclude='*.ps1' --exclude='*.sh' --exclude='README*'
-          --exclude='.gitattributes' --exclude='.gitignore' --exclude='.github')
+          --exclude='.gitattributes' --exclude='.gitignore' --exclude='.github'
+          --exclude='tools' --exclude='docs')
 
 log() { printf '%s %s\n' "$(date '+%F %T')" "$*"; }
 
@@ -49,7 +51,7 @@ fail() {
 mkdir -p "$STATE_DIR"
 
 # один экземпляр за раз: таймер может прийти, пока предыдущий ещё работает
-exec 9>"/run/autor-sync.lock" 2>/dev/null || exec 9>"/tmp/autor-sync.lock"
+exec 9>"$LOCK" 2>/dev/null || exec 9>"/tmp/autor-sync.lock"
 flock -n 9 || exit 0
 
 # --- 1. Забрать репозиторий -------------------------------------------------

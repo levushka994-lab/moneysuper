@@ -10,7 +10,8 @@
 |---|---|
 | `index.html` | каркас страницы: разметка, иконки, подключение `assets/` |
 | `assets/css/` | стили: `foundation`, `components`, `pages/*`, `responsive`, `theme`, `access`, `cabinet`, `features` |
-| `assets/js/` | скрипты: `seed` (данные), `charts` (графики), `app` (кабинет), `billing` (доступ и тарифы), `cabinet` (чистый лист и пример магазина), `features` (доработки страниц) |
+| `assets/img/items/   # фотографии позиций (WebP 800×600, лицензии в CREDITS.txt)
+assets/js/` | скрипты: `seed` (данные), `charts` (графики), `app` (кабинет), `billing` (доступ и тарифы), `cabinet` (чистый лист и пример магазина), `features` (доработки страниц) |
 | `deploy.ps1` | выложить или обновить сайт на сервере (Windows, PowerShell) |
 | `server-setup.sh` | установщик на сервере — его отправляет `deploy.ps1` |
 | `sync-deploy.sh` | серверный воркер автовыкладки: забирает `main` с GitHub и обновляет сайт |
@@ -34,6 +35,7 @@ assets/
       catalog.css          379   товары
       rules.css            340   сценарии
       analytics.css        293   аналитика
+      analysis.css         675   анализ диалогов: KPI, карта потерь, разбор, настройки ИИ, каналы
       settings.css         695   настройки
     responsive.css         787   адаптив: планшет и мобильный
     theme.css              260   тема «Пульт автопилота»
@@ -41,9 +43,10 @@ assets/
     cabinet.css             69   чистый лист и пример магазина
     features.css           363   доработки страниц (путь покупателя, склад, ИИ)
   js/
-    seed.js                510   данные: магазин, товары, чаты, сценарии (window.AUTOR_SEED)
+    seed.js                510   базовые данные (window.AUTOR_SEED): магазин, товары, чаты
+    seed-services.js       339   демо-бизнес «УЮТ-СТРОЙ»: услуги (м², выезд, объект) и материалы
     charts.js              203   графики на чистом SVG (window.AutoRCharts)
-    app.js                3053   кабинет: состояние, роутер, страницы, модалы, тосты
+    app.js                3900   кабинет: состояние, роутер, страницы, модалы, тосты
     billing.js             661   доступ, промокоды, тарифы (window.AutoRBilling)
     cabinet.js             107   чистый кабинет и «Показать пример магазина»
     features.js           1171   доработки страниц (window.AutoRFeatures)
@@ -52,6 +55,29 @@ assets/
 Правило простое: **разметка — в `index.html`, внешний вид — в `assets/css`,
 поведение — в `assets/js`**. Новый блок стилей — в `components.css`, стили конкретной
 страницы — в `pages/<страница>.css`, новая страница-логика — в `features.js`.
+
+### Настройки ИИ: промпт, конструктор и источник модели
+
+- «Настройки → Ответы ИИ → Инструкция для модели» — редактируемый текст промпта (хранится в `state.settings.ai.prompt`, лимит 2000 символов). Пустое поле = стандартная инструкция из `assets/js/features.js` (`DEFAULT_PROMPT`). Каталог, цены, сроки и формулировки продавца всегда добавляются к промпту автоматически.
+- «Собрать по шагам» — конструктор промпта (`openPromptWizard` в `assets/js/app.js`): роль → инструкции → задача → приветствие → готовый текст. Собирается локально, без запросов к модели, результат пишется в то же поле и дальше правится руками.
+- Подстановки в промпте (`fillMacros` в `assets/js/features.js`): `[[name]]` — имя покупателя, `[[title]]` — позиция из объявления/диалога, `[[price]]` — её цена, `[[shop]]`, `[[city]]`, а также `{магазин}`, `{тон}`, `{товар}`, `{цена}`, `{имя}`, `{город}`.
+- «Где считаются ответы» — `server` (DeepSeek Flash через `/api/chat` на сервере) или `local` (`http://127.0.0.1:8080/v1/chat/completions`, модель `mnn-pocket-0.3b` через llama.cpp). Локальная модель 0.3B годится только чтобы проверить связку: качество ответов низкое.
+
+### Стенды на домашнем сервере eta
+
+| адрес | что | откуда выкладывается |
+|---|---|---|
+| `site-port.ru`, `www.site-port.ru` | прод | `/usr/local/bin/autor-eta-deploy`, ветка `chats-v2`, каталог `/srv/site-port/sites/autor.site-port.ru` |
+| `test.site-port.ru` | тестовый стенд | тот же воркер с `/etc/autor-test.env`, каталог `/srv/site-port/sites/test.site-port.ru`, таймер `autor-eta-sync-test.timer` |
+| `lead.site-port.ru` | Lefinder (лиды) | отдельный сервис `lefinder.service` на `127.0.0.1:8099`, Caddy проксирует |
+
+Все три имени ходят наружу через один CloudPub-агент (`autor-cloudpub`), Caddy различает их по заголовку `Host`.
+
+### Админка (#/admin)
+
+- Две вкладки: «Пользователи» (кто работает в кабинете — роль, тариф, статус, приглашение и отключение) и «Промокоды».
+- Промокоды генерируются на месте (`promoCode()` в `assets/js/app.js`): код вида `AUTOR-XXXX-XXXX-XXXX`, хеш PBKDF2 считается тем же `kdf`, что и в окне доступа, и складывается в `localStorage` (`autor.codes.v1`). Такой код сразу проходит проверку `AutoRBilling.redeem` в этом браузере.
+- Стили — `assets/css/pages/admin.css`; состояние — `state.admin` (пользователи и выданные коды).
 
 ## Автовыкладка (как сайт обновляется сам)
 
@@ -82,6 +108,28 @@ systemctl list-timers autor-sync.timer    # когда следующий зап
 и всех файлов, на которые тот ссылается. Если чего-то не хватает — сайт не трогается,
 в лог пишется ошибка. Если менялся `server-setup.sh` (конфиг nginx), воркер пишет
 предупреждение — установщик запускается вручную.
+
+## Доступ из дома (eta + CloudPub)
+
+Сайт кроме VPS живёт на домашнем сервере `eta` (Arch, Caddy на `:8080`, сайт в
+`/srv/site-port/sites/autor.site-port.ru`). Туда же смотрит автовыкладка из ветки `chats-v2`
+через `/usr/local/bin/autor-eta-deploy` и таймер `autor-eta-sync.timer` (раз в 5 минут).
+
+Наружу домашний сервер не открывается — только исходящие туннели:
+
+- **CloudPub** (контейнер `autor-cloudpub`, `cloudpub/cloudpub`, `--net=host`, токен в
+  `/home/eta/.cloudpub.env`): публичный адрес вида `https://<name>.cloudpub.ru`, запросы
+  приходят с принудительным `Host: autor.site-port.ru`, поэтому Caddy отдаёт блок AutoR;
+- **свой SSH-туннель** на VPS (`autor-tunnel.service`): `127.0.0.1:8090` → nginx
+  `autor.site-port.ru`. Домашние порты 80/8000/8080/8123/8443 закрыты nftables
+  (`/etc/autor/autor-guard.nft`), доступны только из LAN и tailnet.
+
+На eta Caddy сам проксирует `POST /api/chat` в DeepSeek (ключ в `/etc/caddy/autor.env`,
+600, подключается через `EnvironmentFile=` в drop-in `caddy.service`), поэтому ИИ работает
+и без VPS.
+
+Ветки `tools/` и `docs/` на сервер не выкладываются (исключены в `sync-deploy.sh`,
+`deploy-eta.sh`, `server-setup.sh`) — там планы и скрипты, им нечего делать в вебе.
 
 ## Выложить на сервер вручную
 

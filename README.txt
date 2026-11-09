@@ -19,7 +19,7 @@ AutoR — сайт на сервере и бэкапы на компьютере
   assets\css\foundation.css — шрифты, цвета, сброс стилей, каркас
   assets\css\components.css — кнопки, карточки, таблицы, модальные окна
   assets\css\pages\        — стили страниц: dashboard, chats, catalog, rules,
-                              analytics, settings
+                              analytics, analysis, settings
   assets\css\responsive.css — адаптив для планшета и телефона
   assets\css\theme.css      — тема «Пульт автопилота»
   assets\css\access.css     — экран входа, тарифы, замки на функциях
