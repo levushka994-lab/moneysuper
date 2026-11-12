@@ -143,3 +143,31 @@ powershell -ExecutionPolicy Bypass -File .\deploy.ps1
 ## Тарифы
 
 Доступ 999 ₽ навсегда (+ MAXIMUM на 30 дней в подарок), VIP 299 ₽/мес, MAXIMUM 799 ₽/мес. Сценарии: Бесплатный — до 10, VIP — до 25, MAXIMUM — без лимита. Промокоды в сайте хранятся только в виде отпечатков; файл с самими кодами в репозиторий не кладётся.
+
+## Если домашний сервер пропал
+
+Симптом: все адреса (`site-port.ru`, `lead.site-port.ru`, `admin.site-port.ru`) отдают **503 Service Unavailable** со страницей «Туннель создан на CloudPub». Это значит, что клиент туннеля на eta не на связи — обычно сама машина выключена или без сети. DNS и CloudPub при этом в порядке, чинить там нечего.
+
+Что проверить, когда машина поднялась:
+
+```bash
+ssh eta
+systemctl status caddy              # сайт
+systemctl is-active lefinder autor-codes
+docker ps --filter name=cloudpub    # четыре агента туннеля
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8080/
+curl -s -o /dev/null -w '%{http_code}\n' https://guardedly-unanimous-lamb.cloudpub.ru/
+```
+
+После включения всё поднимается само: `caddy` и юниты `enabled`, контейнеры CloudPub созданы с `--restart unless-stopped`. Если публичный адрес всё равно 503 — `docker restart` соответствующего контейнера.
+
+Сторож: `tools/eta-watchdog/` (скрипт + systemd-юнит и таймер на 5 минут). Он проверяет локальный сайт, состояние четырёх агентов CloudPub и публичный адрес, перезапускает то, что упало. Установка:
+
+```bash
+doas install -m 755 tools/eta-watchdog/watchdog.sh /usr/local/bin/autor-watchdog
+doas install -m 644 tools/eta-watchdog/autor-watchdog.service /etc/systemd/system/
+doas install -m 644 tools/eta-watchdog/autor-watchdog.timer   /etc/systemd/system/
+doas systemctl daemon-reload && doas systemctl enable --now autor-watchdog.timer
+```
+
+Важно: сторож не спасёт, если машина выключена. Внешний мониторинг (любой сервис с проверкой по URL и уведомлением) стоит поставить отдельно — он единственный заметит полное отсутствие хоста.
